@@ -119,7 +119,7 @@ export default function MarketingGeneratePage() {
     <main className="mobile-shell pb-24">
       <header className="sticky top-0 z-30 border-b border-neutral-200 bg-white/95 px-4 pb-3 pt-3 backdrop-blur">
         <div className="flex items-center justify-between gap-3">
-          <Link href="/workspace/media/manage" className="flex size-10 items-center justify-center rounded-xl bg-neutral-100" aria-label="返回">
+          <Link href="/marketing/manage" className="flex size-10 items-center justify-center rounded-xl bg-neutral-100" aria-label="返回">
             <ArrowLeft className="size-5" />
           </Link>
           <div className="min-w-0 flex-1 text-center">

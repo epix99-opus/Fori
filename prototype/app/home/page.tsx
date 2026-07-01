@@ -156,7 +156,7 @@ export default function HomePage() {
             <ChevronDown className="size-4 text-neutral-500" />
           </button>
           <Link
-            href="/explore/search"
+            href="/search"
             className="flex h-11 flex-1 items-center gap-2 rounded-xl bg-neutral-100 px-3 text-body-s text-neutral-500"
           >
             <Search className="size-5" />
