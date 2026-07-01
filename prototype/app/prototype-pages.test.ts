@@ -7,6 +7,9 @@ import DictEditPage from "./explore/dict/[communityId]/edit/page";
 import PriceEvaluationPage from "./price/[communityId]/page";
 import PublishListingPage from "./publish/listing/page";
 import BuyerNeedPage from "./publish/buyer-need/page";
+import MatchPage from "./match/page";
+import AgentCertPage from "./profile/agent-cert/page";
+import CreditPage from "./profile/credit/page";
 
 const pages: Array<unknown> = [
   SplashPage,
@@ -18,8 +21,11 @@ const pages: Array<unknown> = [
   PriceEvaluationPage,
   PublishListingPage,
   BuyerNeedPage,
+  MatchPage,
+  AgentCertPage,
+  CreditPage,
 ];
 
-if (pages.length !== 9) {
-  throw new Error("Prototype pages 1-9 must be importable.");
+if (pages.length !== 12) {
+  throw new Error("Prototype pages 1-12 must be importable.");
 }
