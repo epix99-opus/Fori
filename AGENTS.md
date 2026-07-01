@@ -77,14 +77,50 @@ main ← 唯一合并点（由 Cursor/Human 负责合并）
 
 跨 Agent 续写时额外读取：`.ai/startup/STARTUP_BRIEF.md`
 
-## 6-Step Iteration Discipline
+## 多 Agent 协作模型：设计-评审-执行-验证
 
-1. **Read** — AGENTS.md + manifest.json + 当前任务计划
-2. **Plan** — 分解为可验证步骤，列出修改文件
-3. **Code** — 执行，每步一个逻辑变更
-4. **Review** — 自审正确性、安全性、风格
-5. **Doc Sync** — 更新 TODO、架构文档、计划文档
-6. **Update Plan** — 勾选完成项，记录决策，更新断点
+### 四阶段分工（每个功能单元必须完整走完）
+
+| 阶段 | 负责人 | 产出 | 不可越界 |
+|------|--------|------|----------|
+| **设计** | Claude Code | 接口定义、数据结构、交互方案 | 不得自己执行 |
+| **评审** | Claude Code（新会话）或 Hermes | 评审意见 + 设计修订 | 评审者不改设计原文 |
+| **执行** | Codex | 代码 + 单元测试 | 不得自验 |
+| **验证** | Hermes | 验证报告 | 不得替执行者修代码 |
+
+### 派发规范
+
+**Claude Code (epix) — 设计/评审任务**:
+```bash
+claude -p "[自包含 prompt，含输入文件、约束、验收标准、产出路径]" \
+  --allowedTools "Read,Write,Bash" --max-turns 30 \
+  --dangerously-skip-permissions < /dev/null
+```
+
+**Codex (woot) — 执行任务**:
+```bash
+ssh woot 'cd /Users/woot/Dev/Fori && codex exec "[自包含 prompt]" < /dev/null 2>&1'
+```
+
+**禁止**:
+- 设计者自审（`--continue` 禁止用于自审）
+- 执行者自验（Codex 自报"完成"不可信，Hermes 必须 `git diff` 验证）
+- 串联作业（设计→评审→执行→验证不得由同一 Agent 连续完成）
+
+### Claude Code 最佳实践
+- 每次 `-p` 是独立会话，prompt 必须自包含（Agent 没有上下文记忆）
+- 设计任务 `--max-turns 30`，评审任务 `--max-turns 15`
+- 评审任务只给 `Read,Write` 权限（只读代码 + 写评审文件）
+- 评审产出必须包含: VERDICT (PASS/CONDITIONAL_PASS/FAIL) + FINDINGS + REQUIRED_CHANGES
+
+### Codex 最佳实践
+- `codex exec` 必须追加 `< /dev/null`（否则挂起等 stdin）
+- 文档/简单任务用 `--model gpt-5.4-mini`，复杂编码用 `--model gpt-5.5`
+- `--yolo` 用于 trusted 项目（Fori 已注册）
+- prompt 必须包含: 要做什么、参考哪个文档的哪个章节、技术栈约束、验收标准
+- Hermes 必须通过 `git diff` 验证 Codex 的实际产出
+
+详细规范见 `docs/SPEC.md`，任务分解见 `docs/TASK_BREAKDOWN.md`。
 
 ## Handoff Protocol
 
