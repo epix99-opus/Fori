@@ -10,6 +10,9 @@ import BuyerNeedPage from "./publish/buyer-need/page";
 import MatchPage from "./match/page";
 import AgentCertPage from "./profile/agent-cert/page";
 import CreditPage from "./profile/credit/page";
+import TransactionPage from "./transaction/[id]/page";
+import EvidencePage from "./profile/transactions/[txId]/evidence/page";
+import MarketingGeneratePage from "./marketing/generate/page";
 
 const pages: Array<unknown> = [
   SplashPage,
@@ -24,8 +27,11 @@ const pages: Array<unknown> = [
   MatchPage,
   AgentCertPage,
   CreditPage,
+  TransactionPage,
+  EvidencePage,
+  MarketingGeneratePage,
 ];
 
-if (pages.length !== 12) {
-  throw new Error("Prototype pages 1-12 must be importable.");
+if (pages.length !== 15) {
+  throw new Error("Prototype pages 1-15 must be importable.");
 }
