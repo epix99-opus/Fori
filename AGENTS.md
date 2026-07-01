@@ -22,12 +22,22 @@
 | Expert · 架构/深审 | **Claude Code** | epix + woot | ADR、复杂推理、长文设计、代码审查 |
 | Expert · 实现/验证 | **Codex** | epix + woot | 沙箱编码、测试、refactor、CI 友好 |
 
-### 认证策略
+### 节点路由策略（固定主节点 + 交叉降级）
 
-- **epix + woot 一律官方订阅**：Claude Pro `claude -p` / Codex ChatGPT `codex exec`
-- 禁第三方 provider
-- Codex `~5h/日` 账号级共享（epix+woot 同账号），禁止两节点同时 heavy
-- Claude Code headless `-p` 配额有限，长任务转 Hermes 编排
+每个 Agent 固定在一个节点运行，避免同节点资源竞争：
+
+| Agent | 主节点 | 原因 | 降级节点 | 降级触发条件 |
+|-------|--------|------|----------|-------------|
+| **Claude Code** | epix | 与 Hermes 同节点，架构/审查需与编排器紧密协作 | woot | epix Claude 限额耗尽 (22:30 PDT) |
+| **Codex** | woot | 独立资源，长任务不阻塞 epix 上 Hermes+Claude | epix | woot Codex 限额耗尽 (00:29 PDT) 或 woot 不可达 |
+
+**并行模式**：epix 跑 Claude Code + woot 跑 Codex，两者同时执行不阻塞。同文件修改通过 manifest.json owner lock 防冲突。
+
+**调度命令模板**：
+- Claude Code (epix): `claude -p "{prompt}" --max-turns N --allowedTools ... < /dev/null`
+- Codex (woot): `ssh woot 'cd /Users/woot/Dev/Fori && codex exec "{prompt}" --model gpt-5.4-mini < /dev/null 2>&1'`
+
+详细路由配置见 `.ai/agent-routes.json`。
 
 ### 限额重置时间（PDT, 两节点相同时区）
 

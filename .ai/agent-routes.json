@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "updated": "2026-07-01T09:50:00-07:00",
+  "strategy": "fixed-primary-with-cross-fallback",
+  "description": "每个 Agent 固定在一个节点运行，避免同节点资源竞争。限额耗尽时交叉借用另一节点。",
+
+  "routes": {
+    "claude_code": {
+      "primary": {
+        "device": "epix",
+        "reason": "与 Hermes 同节点，调度零延迟；Claude Code 强项是架构/审查，需与编排器紧密协作",
+        "command_template": "claude -p \"{prompt}\" --max-turns {max_turns} --allowedTools {tools} < /dev/null",
+        "workdir": "/Users/epix/Dev/Fori",
+        "branch_prefix": "claude/"
+      },
+      "fallback": {
+        "device": "woot",
+        "trigger": "epix Claude Code 限额耗尽 (22:30 PDT 重置)",
+        "command_template": "ssh woot 'cd /Users/woot/Dev/Fori && claude -p \"{prompt}\" --max-turns {max_turns} --allowedTools {tools} < /dev/null 2>&1'"
+      }
+    },
+    "codex": {
+      "primary": {
+        "device": "woot",
+        "reason": "独立节点资源，不与 Claude Code 竞争；Codex 长任务在 woot 跑不阻塞 epix 上 Hermes+Claude",
+        "command_template": "ssh woot 'cd /Users/woot/Dev/Fori && codex exec \"{prompt}\" --model {model} < /dev/null 2>&1'",
+        "workdir": "/Users/woot/Dev/Fori",
+        "branch_prefix": "codex/"
+      },
+      "fallback": {
+        "device": "epix",
+        "trigger": "woot Codex 限额耗尽 (00:29 PDT 重置) 或 woot 不可达",
+        "command_template": "cd /Users/epix/Dev/Fori && codex exec \"{prompt}\" --model {model} < /dev/null 2>&1"
+      }
+    }
+  },
+
+  "concurrency": {
+    "rule": "epix 跑 Claude Code 的同时 woot 跑 Codex，两者并行不阻塞",
+    "conflict_guard": "同一文件不可同时被两个 Agent 修改，通过 manifest.json owner lock 保证",
+    "max_parallel": 2,
+    "parallel_pairs": [
+      { "epix": "claude_code", "woot": "codex", "note": "标准并行模式" }
+    ]
+  },
+
+  "quota_windows": {
+    "codex_reset": "00:29 PDT (15:29 CST)",
+    "claude_reset": "22:30 PDT (13:30 CST next day)",
+    "both_limited_window": "22:30-00:29 PDT — 两 Agent 同时限额，任务挂起等待最近重置",
+    "watchdog_cron": "fori-quota-watchdog (每30min检测, job_id=e7ae58e703ac)"
+  },
+
+  "hermes_role": {
+    "device": "epix",
+    "responsibilities": [
+      "任务分解与派发",
+      "通过 SSH 远程调度 woot 上的 Codex",
+      "本地调度 epix 上的 Claude Code",
+      "两节点并行执行时监控双方进度",
+      "限额耗尽时自动切换到 fallback 节点",
+      "产出验证与目标对齐检查"
+    ]
+  }
+}

@@ -25,14 +25,16 @@
       "resetAt": "2026-07-02T00:29:00-07:00",
       "deviceTz": "America/Los_Angeles (PDT, UTC-7)",
       "device": "epix+woot (shared account)",
-      "checkedAt": "2026-07-01T09:00:00-07:00"
+      "checkedAt": "2026-07-01T10:01:00-07:00",
+      "lastCheckResult": "OK (exit 0, tokens used 14050; non-fatal MCP transport warnings ignored)"
     },
     "claude": {
       "status": "available",
       "resetAt": "2026-07-01T22:30:00-07:00",
       "deviceTz": "America/Los_Angeles (PDT, UTC-7)",
       "device": "epix+woot (shared account)",
-      "checkedAt": "2026-07-01T09:00:00-07:00"
+      "checkedAt": "2026-07-01T10:01:00-07:00",
+      "lastCheckResult": "OK — 'Reached max turns (1)' (auth succeeded, API responded; not a quota error)"
     }
   },
   "timezones": {
