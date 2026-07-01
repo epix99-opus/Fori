@@ -1,0 +1,53 @@
+{
+  "project": {
+    "name": "Fori",
+    "description": "新一代房产交易中介生态平台",
+    "status": "active",
+    "github": "epix99-opus/Fori",
+    "localPath": "/Users/epix/Dev/Fori"
+  },
+  "currentTask": {
+    "id": "",
+    "title": "项目初始化",
+    "status": "in_progress",
+    "owner": "hermes",
+    "planFile": ".ai/plan/current.md",
+    "updatedAt": "2026-07-01T09:00:00-07:00"
+  },
+  "agents": {
+    "lastActive": "hermes",
+    "lastModel": "glm-5.2",
+    "sessionCount": 1
+  },
+  "limits": {
+    "codex": {
+      "status": "available",
+      "resetAt": "2026-07-02T00:29:00-07:00",
+      "deviceTz": "America/Los_Angeles (PDT, UTC-7)",
+      "device": "epix+woot (shared account)",
+      "checkedAt": "2026-07-01T09:00:00-07:00"
+    },
+    "claude": {
+      "status": "available",
+      "resetAt": "2026-07-01T22:30:00-07:00",
+      "deviceTz": "America/Los_Angeles (PDT, UTC-7)",
+      "device": "epix+woot (shared account)",
+      "checkedAt": "2026-07-01T09:00:00-07:00"
+    }
+  },
+  "timezones": {
+    "epix": "America/Los_Angeles (PDT, UTC-7)",
+    "woot": "America/Los_Angeles (PDT, UTC-7)"
+  },
+  "branches": {
+    "main": "唯一合并点，由 Cursor/Human 负责合并",
+    "codex": "codex/* — Codex 专属分支",
+    "claude": "claude/* — Claude Code 专属分支",
+    "hermes": "hermes/* — Hermes 专属分支",
+    "cursor": "cursor/* — Cursor 专属分支"
+  },
+  "mergePolicy": {
+    "responsible": "cursor (human)",
+    "rule": "代码合并统一由 Cursor/Human 负责执行，其他 Agent 不得直接合并到 main"
+  }
+}
