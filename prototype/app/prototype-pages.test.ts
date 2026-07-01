@@ -16,6 +16,9 @@ import MarketingGeneratePage from "./marketing/generate/page";
 import MarketingManagePage from "./marketing/manage/page";
 import AgentWorkspacePage from "./workspace/agent/page";
 import StoreWorkspacePage from "./workspace/store/page";
+import MessagesPage from "./messages/page";
+import ProfilePage from "./profile/page";
+import SettingsPage from "./profile/settings/page";
 
 const pages: Array<unknown> = [
   SplashPage,
@@ -36,8 +39,11 @@ const pages: Array<unknown> = [
   MarketingManagePage,
   AgentWorkspacePage,
   StoreWorkspacePage,
+  MessagesPage,
+  ProfilePage,
+  SettingsPage,
 ];
 
-if (pages.length !== 18) {
-  throw new Error("Prototype pages 1-18 must be importable.");
+if (pages.length !== 21) {
+  throw new Error("Prototype pages 1-21 must be importable.");
 }
