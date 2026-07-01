@@ -34,7 +34,7 @@ Fori 平台的技术架构围绕五大核心原则展开：
 
 **P1 · Agent 原生（Agent-Native）**：所有业务逻辑封装为独立智能体，Agent 是第一公民，而非后期补充。系统从第一行代码起即以 Agent 协同编排为核心范式。
 
-**P2 · 移动端优先（Mobile-First）**：产品形态为 Web App（PWA），而非原生 App。所有 UI/交互设计、网络策略、性能优化均以手机浏览器为首要目标，不考虑独立 APK/IPA 安装包。
+**P2 · 移动端优先（Mobile-First）**：产品形态统一为 Next.js 14 PWA + 响应式 Web。所有 UI/交互设计、网络策略、性能优化均以手机浏览器为首要目标；需要摄像头、活体识别、推送等设备能力时，通过 Web API、第三方 H5 SDK 或服务端回调桥接。
 
 **P3 · 三层解耦（Decoupled Layers）**：框架适配层 / 平台内核层 / 业务 Agent 层完全解耦，框架升级或切换时业务层代码零改动。技术债务集中在适配层，业务代码长期稳定。
 
@@ -70,8 +70,8 @@ Fori 平台的技术架构围绕五大核心原则展开：
 
 **理由**：
 1. **SSR/SSG 兼备**：楼盘详情页、房源列表页需要 SEO 友好的服务端渲染；用户中心、工作台等交互密集页面采用 CSR，Next.js 的混合渲染策略精准匹配此需求。
-2. **PWA 原生支持**：配合 `next-pwa` 插件可实现 Service Worker 缓存、离线模式、安装到主屏等 PWA 能力，满足经纪人在弱网（3G）下操作楼盘字典的需求。
-3. **移动端性能**：App Router 的 React Server Components 显著减少 JS Bundle 体积，首屏 LCP 目标 ≤ 2.5 秒在中端 Android 设备可达。
+2. **PWA 能力支持**：配合 `next-pwa` 插件可实现 Service Worker 缓存、离线模式、安装到主屏等 PWA 能力，满足经纪人在弱网（3G）下操作楼盘字典的需求。
+3. **移动端性能**：App Router 的 React Server Components 显著减少 JS Bundle 体积，首屏 LCP 目标 ≤ 2.5 秒在中端移动设备浏览器可达。
 4. **生态成熟度**：国内外大量高并发项目验证，文档丰富，招聘市场充裕。
 
 **UI 层**：Tailwind CSS 4.x + shadcn/ui（基于 Radix UI 无障碍原语）  
@@ -125,7 +125,7 @@ Fori 平台的技术架构围绕五大核心原则展开：
 
 ### 2.4 缓存
 
-**选型决策**：Redis 7 Cluster（三主三从，Sentinel 高可用）
+**选型决策**：Redis 7 Cluster（三主三从，自动故障转移）
 
 **理由**：
 1. **多数据结构**：Sorted Set 实现楼盘维护积分排行（Top 3 经纪人）；Hash 存储价格基准缓存；Pub/Sub 实现实时客源推送通知。
@@ -136,6 +136,8 @@ Fori 平台的技术架构围绕五大核心原则展开：
 - **L1（进程内缓存）**：Gunicorn Worker 内的 Python dict（TTL 30 秒），用于极热点数据（城市列表、枚举值）
 - **L2（分布式缓存）**：Redis Cluster（TTL 5 分钟～1 小时，按数据更新频率设置）
 - **L3（持久化存储）**：PostgreSQL
+
+**高可用模型**：生产环境优先使用阿里云云数据库 Redis 集群版，按云产品的分片主从架构部署 3 个主分片 + 3 个从副本；主分片故障时由云产品完成副本提升、VIP/代理路由切换和槽位恢复。自建 Redis 时使用 Redis Cluster 自带故障转移，不混用其他主从高可用模式。
 
 **备选方案**：Memcached（不支持 Pub/Sub 和 Sorted Set，排除）；KeyDB（Redis 兼容的多线程版，可作升级路径）
 
@@ -313,7 +315,8 @@ graph TB
     APIGateway --> FastAPICore
     APIGateway --> WebSocket
 
-    FastAPICore --> AgentLayer
+    FastAPICore --> KernelLayer
+    KernelLayer --> AgentLayer
     AgentLayer --> KernelLayer
     KernelLayer --> AdapterLayer
     AdapterLayer --> OpenClawAdapter
@@ -325,6 +328,75 @@ graph TB
     PostgreSQL --> PostgreSQLRO
     PostgreSQL --> TimescaleDB
 ```
+
+### 3.1.1 三层依赖方向图
+
+三层解耦的依赖方向以“业务 Agent 只依赖平台内核接口”为硬约束。业务 Agent 不导入 `AgentInterface`，不持有 OpenClaw/Hermes 适配器实例，也不直接调用框架 SDK；框架适配器只在平台内核内部由 `TaskScheduler` 封装调用。
+
+```mermaid
+graph TD
+    subgraph Business["业务 Agent 层"]
+        PropertyDictAgent["PropertyDictAgent"]
+        ListingMatchAgent["ListingMatchAgent"]
+        CreditNotaryAgent["CreditNotaryAgent"]
+        TradeSettlementAgent["TradeSettlementAgent"]
+        MediaGenAgent["MediaGenAgent"]
+        PriceEvalAgent["PriceEvalAgent"]
+    end
+
+    subgraph Kernel["平台内核层"]
+        AgentRuntime["AgentRuntime<br/>任务入口 / 生命周期"]
+        TaskScheduler["TaskScheduler<br/>同步执行 / 异步调度"]
+        EventBusKernel["EventBus<br/>领域事件发布订阅"]
+        CacheManagerKernel["CacheManager"]
+        LockManagerKernel["DistributedLock"]
+        NotaryEngineKernel["NotaryEngine"]
+        RepositoryGateway["RepositoryGateway<br/>数据访问门面"]
+    end
+
+    subgraph Adapter["框架适配层"]
+        AgentInterfaceKernel["AgentInterface<br/>仅内核可见"]
+        OpenClawAdapterKernel["OpenClawAdapter"]
+        HermesAdapterKernel["HermesAdapter"]
+    end
+
+    subgraph Infra["基础设施 / 外部依赖"]
+        PostgreSQLInfra["PostgreSQL / PostGIS / TimescaleDB"]
+        RedisInfra["Redis Cluster"]
+        KafkaInfra["Kafka"]
+        ExternalInfra["公证 / 银行 / 实名认证 / 内容平台 API"]
+    end
+
+    PropertyDictAgent --> AgentRuntime
+    ListingMatchAgent --> AgentRuntime
+    CreditNotaryAgent --> AgentRuntime
+    TradeSettlementAgent --> AgentRuntime
+    MediaGenAgent --> AgentRuntime
+    PriceEvalAgent --> AgentRuntime
+
+    PropertyDictAgent --> TaskScheduler
+    ListingMatchAgent --> EventBusKernel
+    CreditNotaryAgent --> NotaryEngineKernel
+    TradeSettlementAgent --> RepositoryGateway
+    MediaGenAgent --> TaskScheduler
+    PriceEvalAgent --> CacheManagerKernel
+
+    AgentRuntime --> TaskScheduler
+    TaskScheduler --> AgentInterfaceKernel
+    AgentInterfaceKernel --> OpenClawAdapterKernel
+    AgentInterfaceKernel --> HermesAdapterKernel
+    CacheManagerKernel --> RedisInfra
+    LockManagerKernel --> RedisInfra
+    EventBusKernel --> KafkaInfra
+    RepositoryGateway --> PostgreSQLInfra
+    NotaryEngineKernel --> ExternalInfra
+```
+
+**依赖规则**：
+- 业务 Agent 允许依赖：`AgentRuntime`、`TaskScheduler`、`EventBus`、`CacheManager`、`DistributedLock`、`NotaryEngine`、`RepositoryGateway` 等平台内核接口。
+- 业务 Agent 禁止依赖：`AgentInterface`、`OpenClawAgentAdapter`、`HermesAgentAdapter`、OpenClaw/Hermes SDK、Kafka/Redis/SQLAlchemy 客户端实例。
+- 平台内核允许依赖框架适配层，并负责把平台 `Task` 转换为框架任务、执行重试、写入任务状态表、发布结果事件。
+- 框架适配层不得反向依赖业务 Agent 包；适配器只处理框架协议转换，不包含业务规则。
 
 ### 3.2 请求链路详解
 
@@ -429,7 +501,7 @@ class HealthStatus:
     details: dict
 
 class AgentInterface(ABC):
-    """所有框架适配器必须实现此接口。业务 Agent 只依赖此接口，不导入任何框架 SDK。"""
+    """所有框架适配器必须实现此接口。该接口仅由平台内核层持有和调用，业务 Agent 不导入。"""
 
     @abstractmethod
     async def execute_task(self, task: Task) -> TaskResult:
@@ -504,7 +576,7 @@ class HermesAgentAdapter(AgentInterface):
 **框架切换控制**：通过环境变量 `AGENT_FRAMEWORK=openclaw|hermes` 在运行时选择适配器，无需修改业务代码：
 
 ```python
-# kernel/agent_factory.py
+# kernel/task_scheduler.py
 import os
 from .adapters import OpenClawAgentAdapter, HermesAgentAdapter
 
@@ -620,24 +692,56 @@ class NotaryEngine:
 
 ```python
 class BaseAgent:
-    def __init__(self, kernel: PlatformKernel, adapter: AgentInterface):
-        self.kernel = kernel      # 平台内核层入口
-        self.adapter = adapter    # 框架适配层
-        self.cache = kernel.cache
-        self.lock = kernel.lock
-        self.notary = kernel.notary
-        self.mask = kernel.data_mask
-        self.event_bus = kernel.event_bus
+    def __init__(self, runtime: AgentRuntime):
+        self.runtime = runtime    # 平台内核层入口，封装框架调度和生命周期
+        self.scheduler = runtime.scheduler
+        self.event_bus = runtime.event_bus
+        self.cache = runtime.cache
+        self.lock = runtime.lock
+        self.notary = runtime.notary
+        self.mask = runtime.data_mask
+        self.repository = runtime.repository_gateway
 
     async def handle(self, task: Task) -> TaskResult:
-        """任务入口，子类实现 _process()"""
-        if await self._is_duplicate(task):
-            return self._idempotent_response(task)
-        async with self.lock.acquire(f"task:{task.idempotency_key}"):
-            return await self._process(task)
+        """任务入口，子类实现 _process()；幂等、锁、状态写入由内核统一处理。"""
+        return await self.runtime.run_agent_task(
+            task=task,
+            processor=self._process,
+            lock_key=f"task:{task.idempotency_key}",
+        )
 
     @abstractmethod
     async def _process(self, task: Task) -> TaskResult: ...
+```
+
+**平台内核调度器封装**：
+
+```python
+class TaskScheduler:
+    def __init__(self, adapter: AgentInterface, task_repo: TaskStateRepository):
+        self._adapter = adapter
+        self._task_repo = task_repo
+
+    async def schedule(self, task: Task, delay_seconds: int = 0) -> TaskHandle:
+        await self._task_repo.mark_pending(task)
+        handle = await self._adapter.schedule_async(task, delay_seconds=delay_seconds)
+        await self._task_repo.bind_handle(task.task_id, handle)
+        return handle
+
+    async def execute(self, task: Task) -> TaskResult:
+        await self._task_repo.mark_running(task.task_id)
+        result = await self._adapter.execute_task(task)
+        await self._task_repo.save_result(result)
+        return result
+```
+
+**禁止模式**：
+
+```python
+# 禁止：业务 Agent 不允许导入 AgentInterface 或接收框架适配器实例
+from kernel.adapters import AgentInterface          # forbidden
+from openclaw import OpenClawClient                 # forbidden
+from hermes import HermesRunner                     # forbidden
 ```
 
 ---
@@ -819,12 +923,61 @@ erDiagram
     EVIDENCE_RECORD {
         bigint id PK
         bigint transaction_id FK
+        bigint notary_task_id FK
+        bigint notary_institution_id FK
         string content_hash
         string timestamp_token
         string notary_cert
         string notary_institution
         string evidence_no
         timestamp created_at
+    }
+
+    NOTARY_INSTITUTION {
+        bigint id PK
+        string name
+        string license_no
+        string api_endpoint
+        string status
+        int priority
+        jsonb capability_scope
+        timestamp certified_at
+    }
+
+    NOTARY_TASK {
+        bigint id PK
+        bigint transaction_id FK
+        bigint notary_institution_id FK
+        bigint requested_by FK
+        string task_type
+        string status
+        jsonb package_hashes
+        string reject_reason
+        timestamp submitted_at
+        timestamp completed_at
+    }
+
+    CREDIT_PROFILE {
+        bigint id PK
+        bigint user_id FK
+        bigint store_id FK
+        int score
+        string grade
+        string kyc_level
+        string risk_level
+        timestamp updated_at
+    }
+
+    CREDIT_EVENT {
+        bigint id PK
+        bigint credit_profile_id FK
+        bigint user_id FK
+        bigint transaction_id FK
+        string event_type
+        int score_delta
+        bigint evidence_record_id FK
+        jsonb metadata
+        timestamp occurred_at
     }
 
     PRICE_SNAPSHOT {
@@ -837,6 +990,39 @@ erDiagram
         int sample_count
         string trend_direction
         timestamp snapshot_date
+    }
+
+    PRICE_EVALUATION {
+        bigint id PK
+        bigint unit_id FK
+        bigint listing_id FK
+        bigint community_id FK
+        bigint requested_by FK
+        decimal base_price_per_sqm
+        decimal final_low
+        decimal final_high
+        string confidence_level
+        timestamp evaluated_at
+    }
+
+    PRICE_FACTOR {
+        bigint id PK
+        bigint price_evaluation_id FK
+        string factor_code
+        string factor_name
+        decimal weight
+        decimal adjustment_ratio
+        jsonb evidence
+    }
+
+    PRICE_REPORT {
+        bigint id PK
+        bigint price_evaluation_id FK
+        bigint evidence_record_id FK
+        string report_no
+        string report_url
+        string status
+        timestamp generated_at
     }
 
     MATERIAL_JOB {
@@ -865,7 +1051,24 @@ erDiagram
     LISTING ||--o{ MATCH_RESULT : "关联"
     LISTING ||--o| TRANSACTION : "成交"
     TRANSACTION ||--o{ EVIDENCE_RECORD : "存证"
+    NOTARY_INSTITUTION ||--o{ NOTARY_TASK : "承办公证"
+    TRANSACTION ||--o{ NOTARY_TASK : "发起公证"
+    USER ||--o{ NOTARY_TASK : "提交"
+    NOTARY_TASK ||--o{ EVIDENCE_RECORD : "生成存证"
+    NOTARY_INSTITUTION ||--o{ EVIDENCE_RECORD : "签发"
+    USER ||--o| CREDIT_PROFILE : "信用档案"
+    STORE ||--o| CREDIT_PROFILE : "机构信用档案"
+    CREDIT_PROFILE ||--o{ CREDIT_EVENT : "信用事件"
+    USER ||--o{ CREDIT_EVENT : "触发"
+    TRANSACTION ||--o{ CREDIT_EVENT : "关联"
+    EVIDENCE_RECORD ||--o{ CREDIT_EVENT : "证据来源"
     COMMUNITY ||--o{ PRICE_SNAPSHOT : "价格快照"
+    COMMUNITY ||--o{ PRICE_EVALUATION : "小区评估"
+    UNIT ||--o{ PRICE_EVALUATION : "单套测算"
+    LISTING ||--o{ PRICE_EVALUATION : "挂牌测算"
+    PRICE_EVALUATION ||--o{ PRICE_FACTOR : "价格因子"
+    PRICE_EVALUATION ||--o| PRICE_REPORT : "评估报告"
+    EVIDENCE_RECORD ||--o{ PRICE_REPORT : "报告存证"
     LISTING ||--o{ MATERIAL_JOB : "素材生成"
 ```
 
@@ -935,14 +1138,105 @@ CREATE TABLE transactions (
     updated_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     completed_at        TIMESTAMPTZ,
     CONSTRAINT chk_status CHECK (status IN (
-        'INTENT_CONFIRMED', 'NOTARY_PENDING', 'NOTARY_APPROVED',
+        'INTENT_CONFIRMED', 'NOTARY_PENDING', 'NOTARY_APPROVED', 'NOTARY_REJECTED',
         'CONTRACT_SIGNED', 'FUND_ESCROWED', 'TRANSFER_PROCESSING',
         'COMPLETED', 'CANCELLED', 'DISPUTED'
     ))
 );
 ```
 
-#### 5.2.3 价格时序表——price_snapshots（TimescaleDB 超表）
+#### 5.2.3 公证、信用、价格评估核心表
+
+```sql
+CREATE TABLE notary_institutions (
+    id                  BIGSERIAL PRIMARY KEY,
+    name                VARCHAR(120) NOT NULL,
+    license_no          VARCHAR(100) NOT NULL UNIQUE,
+    api_endpoint        TEXT NOT NULL,
+    status              VARCHAR(20) NOT NULL CHECK (status IN ('ACTIVE','SUSPENDED','DISABLED')),
+    priority            SMALLINT NOT NULL DEFAULT 100,
+    capability_scope    JSONB NOT NULL DEFAULT '{}',
+    certified_at        TIMESTAMPTZ,
+    created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE notary_tasks (
+    id                      BIGSERIAL PRIMARY KEY,
+    transaction_id          BIGINT NOT NULL REFERENCES transactions(id),
+    notary_institution_id   BIGINT NOT NULL REFERENCES notary_institutions(id),
+    requested_by            BIGINT NOT NULL REFERENCES users(id),
+    task_type               VARCHAR(40) NOT NULL CHECK (task_type IN ('TRANSACTION_REVIEW','CONTRACT_EVIDENCE','DISPUTE_EVIDENCE')),
+    status                  VARCHAR(30) NOT NULL CHECK (status IN ('PENDING','SUBMITTED','APPROVED','REJECTED','FAILED','CANCELLED')),
+    package_hashes          JSONB NOT NULL DEFAULT '{}',
+    reject_reason           TEXT,
+    idempotency_key         VARCHAR(128) NOT NULL UNIQUE,
+    submitted_at            TIMESTAMPTZ,
+    completed_at            TIMESTAMPTZ,
+    created_at              TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE credit_profiles (
+    id              BIGSERIAL PRIMARY KEY,
+    user_id         BIGINT REFERENCES users(id),
+    store_id        BIGINT REFERENCES stores(id),
+    score           SMALLINT NOT NULL DEFAULT 600 CHECK (score BETWEEN 0 AND 1000),
+    grade           VARCHAR(2) NOT NULL CHECK (grade IN ('S','A','B','C','D')),
+    kyc_level       VARCHAR(20) NOT NULL,
+    risk_level      VARCHAR(20) NOT NULL CHECK (risk_level IN ('LOW','MEDIUM','HIGH','BLOCKED')),
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CONSTRAINT chk_credit_owner CHECK (
+        (user_id IS NOT NULL AND store_id IS NULL) OR
+        (user_id IS NULL AND store_id IS NOT NULL)
+    )
+);
+
+CREATE TABLE credit_events (
+    id                  BIGSERIAL PRIMARY KEY,
+    credit_profile_id   BIGINT NOT NULL REFERENCES credit_profiles(id),
+    user_id             BIGINT REFERENCES users(id),
+    transaction_id      BIGINT REFERENCES transactions(id),
+    evidence_record_id  BIGINT REFERENCES evidence_records(id),
+    event_type          VARCHAR(50) NOT NULL,
+    score_delta         SMALLINT NOT NULL DEFAULT 0,
+    metadata            JSONB NOT NULL DEFAULT '{}',
+    occurred_at         TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE price_evaluations (
+    id                  BIGSERIAL PRIMARY KEY,
+    unit_id             BIGINT NOT NULL REFERENCES units(id),
+    listing_id          BIGINT REFERENCES listings(id),
+    community_id        BIGINT NOT NULL REFERENCES communities(id),
+    requested_by        BIGINT NOT NULL REFERENCES users(id),
+    base_price_per_sqm  DECIMAL(10,2) NOT NULL,
+    final_low           DECIMAL(14,2) NOT NULL,
+    final_high          DECIMAL(14,2) NOT NULL,
+    confidence_level    VARCHAR(20) NOT NULL CHECK (confidence_level IN ('HIGH','MEDIUM','LOW')),
+    evaluated_at        TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE price_factors (
+    id                      BIGSERIAL PRIMARY KEY,
+    price_evaluation_id     BIGINT NOT NULL REFERENCES price_evaluations(id),
+    factor_code             VARCHAR(50) NOT NULL,
+    factor_name             VARCHAR(100) NOT NULL,
+    weight                  DECIMAL(5,4) NOT NULL,
+    adjustment_ratio        DECIMAL(7,4) NOT NULL,
+    evidence                JSONB NOT NULL DEFAULT '{}'
+);
+
+CREATE TABLE price_reports (
+    id                      BIGSERIAL PRIMARY KEY,
+    price_evaluation_id     BIGINT NOT NULL REFERENCES price_evaluations(id),
+    evidence_record_id      BIGINT REFERENCES evidence_records(id),
+    report_no               VARCHAR(80) NOT NULL UNIQUE,
+    report_url              TEXT NOT NULL,
+    status                  VARCHAR(20) NOT NULL CHECK (status IN ('GENERATING','READY','ARCHIVED','FAILED')),
+    generated_at            TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+```
+
+#### 5.2.4 价格时序表——price_snapshots（TimescaleDB 超表）
 
 ```sql
 CREATE TABLE price_snapshots (
@@ -999,6 +1293,40 @@ GROUP BY community_id, tier_level, quarter;
 
 ## 6. 六大业务 Agent 详细设计
 
+### 6.0 统一 Agent 任务契约
+
+所有 Agent 任务均使用同一 Envelope，业务字段放入 `payload`，任务状态统一写入 `agent_task_states` 表，任务结果写入 `agent_task_results` 表。`idempotency_key` 必须由“业务主键 + 任务类型 + 语义版本”确定，禁止使用纯随机值作为异步任务幂等键。
+
+```json
+{
+  "task_id": "uuid",
+  "task_type": "PROPERTY_DICT_UPDATE",
+  "idempotency_key": "property:community:1001:update:v42",
+  "payload": {},
+  "requested_by": 123,
+  "trace_id": "otel-trace-id",
+  "schema_version": "v1",
+  "created_at": "2026-07-01T00:00:00Z"
+}
+```
+
+| Agent | 任务名 | 输入 schema | 输出 schema | 幂等键 | Topic | Partition Key | 重试策略 | DLQ Topic | 状态表 |
+|-------|--------|-------------|-------------|--------|-------|---------------|----------|-----------|--------|
+| 楼盘字典共建 | `PROPERTY_DICT_CREATE` | `{level,parent_id,data,submitter_id}` | `{record_id,version,status}` | `property:{level}:{parent_id}:create:{hash(data)}` | `fori.property.dict.events` | `city_id` / `community_id` | 3 次指数退避：2s/4s/8s | `fori.dlq.property.dict.events` | `agent_task_states` |
+| 楼盘字典共建 | `PROPERTY_DICT_UPDATE` | `{record_id,level,data,current_version,submitter_id}` | `{new_version,conflicts[]}` | `property:{level}:{record_id}:update:v{current_version}` | `fori.property.dict.events` | `record_id` | 3 次；版本冲突不重试 | `fori.dlq.property.dict.events` | `agent_task_states` |
+| 房源客源匹配 | `LISTING_VALIDATE` | `{listing_id,submitter_id}` | `{status,issues[]}` | `listing:{listing_id}:validate:v1` | `fori.listing.validate` | `listing_id` | 3 次指数退避 | `fori.dlq.listing.validate` | `agent_task_states` |
+| 房源客源匹配 | `BUYER_VALIDATE` | `{buyer_need_id,user_id}` | `{status,intent_score}` | `buyer:{buyer_need_id}:validate:v1` | `fori.buyer.validate` | `buyer_need_id` | 3 次指数退避 | `fori.dlq.buyer.validate` | `agent_task_states` |
+| 房源客源匹配 | `MATCHING_RUN` | `{trigger,target_id,city_id}` | `{matched_count,job_id}` | `matching:{trigger}:{target_id}:v1` | `fori.matching.run` | `city_id` | 5 次；Kafka Lag 超阈值后延迟重试 | `fori.dlq.matching.run` | `agent_task_states` |
+| 信用认证公证 | `CREDIT_AUTH_PERSON` | `{user_id,id_card_data,liveness_token}` | `{kyc_status,kyc_level,credit_profile_id}` | `credit:user:{user_id}:person-auth:v1` | `fori.credit.auth` | `user_id` | 3 次；第三方熔断时延迟 60s | `fori.dlq.credit.auth` | `agent_task_states` |
+| 信用认证公证 | `NOTARY_REQUEST` | `{transaction_id,package_data}` | `{notary_task_id,status,next_transaction_status}` | `notary:transaction:{transaction_id}:request:v1` | `fori.notary.request` | `transaction_id` | 3 次；公证机构 5xx 切备用机构 | `fori.dlq.notary.request` | `agent_task_states` |
+| 信用认证公证 | `NOTARY_STORE` | `{transaction_id,contract_hash,all_hashes}` | `{evidence_no,cert_url,status}` | `notary:transaction:{transaction_id}:store:{contract_hash}` | `fori.notary.store` | `transaction_id` | 3 次；写存证失败 P1 告警 | `fori.dlq.notary.store` | `agent_task_states` |
+| 交易结算 | `TRANSACTION_STATE_TRANSITION` | `{transaction_id,from_state,to_state,actor_id,reason}` | `{transaction_id,status,state_history[]}` | `transaction:{transaction_id}:{from_state}:{to_state}` | `fori.transaction.state` | `transaction_id` | 非法迁移不重试；暂态错误 3 次 | `fori.dlq.transaction.state` | `agent_task_states` |
+| 交易结算 | `SETTLEMENT_EXECUTE` | `{transaction_id,fund_escrow_ref,amount,idempotency_key}` | `{settlement_id,status,bank_receipt_no}` | `settlement:{transaction_id}:{fund_escrow_ref}` | `fori.settlement.execute` | `transaction_id` | 3 次；银行未知结果进入人工核验 | `fori.dlq.settlement.execute` | `agent_task_states` |
+| 素材生成 | `MATERIAL_GEN_VIDEO` | `{listing_id,photos[],style}` | `{material_id,output_urls[],status}` | `material:video:{listing_id}:{hash(photos,style)}` | `fori.material.gen.high|normal|low` | `listing_id` | 2 次；GPU OOM 降低并发后重试 | `fori.dlq.material.gen` | `agent_task_states` |
+| 素材生成 | `DISTRIBUTE_PUBLISH` | `{material_id,platforms[],schedule_time}` | `{published_count,failed[]}` | `material:publish:{material_id}:{hash(platforms)}` | `fori.material.publish` | `material_id` | 单平台独立 3 次 | `fori.dlq.material.publish` | `agent_task_states` |
+| 价格评估 | `ZONE_TIER_CALC` | `{community_id,trigger}` | `{community_id,tier_level,sub_scores}` | `price:tier:{community_id}:{quarter}` | `fori.price.evaluate` | `community_id` | 3 次；数据不足不重试 | `fori.dlq.price.evaluate` | `agent_task_states` |
+| 价格评估 | `PRICE_ESTIMATE` | `{unit_id,listing_id,requested_by}` | `{price_evaluation_id,base_price,adjustments,final_range,confidence_level}` | `price:estimate:{unit_id}:{listing_id}:v1` | `fori.price.estimate` | `community_id` | 3 次；缓存未命中自动回源 | `fori.dlq.price.estimate` | `agent_task_states` |
+
 ### 6.1 Agent 1：楼盘字典共建 Agent（PropertyDictAgent）
 
 **职责**：楼盘五级数据的新增、多人协同编辑、版本管理、数据核验、与官方数据源同步。
@@ -1047,7 +1375,7 @@ async def _process_update(self, task: Task) -> TaskResult:
         })
 
         # 异步触发维护积分排名更新（影响优先匹配权益）
-        await self.adapter.schedule_async(Task(
+        await self.scheduler.schedule(Task(
             task_type="CONTRIBUTION_RANK_UPDATE",
             payload={"record_id": record_id, "submitter_id": task.payload["submitter_id"]}
         ))
@@ -1212,6 +1540,23 @@ stateDiagram-v2
     DISPUTED --> [*]: 纠纷处理完成
     COMPLETED --> DISPUTED: 24个月内申请纠纷
 ```
+
+**状态迁移表（与 DDL CHECK、Agent 输出保持一致）**：
+
+| From | To | 触发任务 | Agent 输出字段 | 数据库约束 | 副作用 |
+|------|----|----------|----------------|------------|--------|
+| `INTENT_CONFIRMED` | `NOTARY_PENDING` | `TRANSACTION_STATE_TRANSITION` / `NOTARY_REQUEST` | `{status:"NOTARY_PENDING", notary_task_id}` | `transactions.status` CHECK 允许 | 创建 `notary_tasks`，发布 `fori.notary.request` |
+| `INTENT_CONFIRMED` | `CANCELLED` | `TRANSACTION_STATE_TRANSITION` | `{status:"CANCELLED", state_history[]}` | `transactions.status` CHECK 允许 | 释放房源锁定，记录取消原因 |
+| `NOTARY_PENDING` | `NOTARY_APPROVED` | `NOTARY_REQUEST` 回调 | `{status:"NOTARY_APPROVED", notary_task_id, evidence_no}` | `transactions.status` CHECK 允许 | 写入 `evidence_records`，允许进入合同签署 |
+| `NOTARY_PENDING` | `NOTARY_REJECTED` | `NOTARY_REQUEST` 回调 | `{status:"NOTARY_REJECTED", notary_task_id, reject_reason}` | `transactions.status` CHECK 允许 | 写入拒绝原因，冻结合同签署入口 |
+| `NOTARY_REJECTED` | `CANCELLED` | `TRANSACTION_STATE_TRANSITION` | `{status:"CANCELLED", state_history[]}` | `transactions.status` CHECK 允许 | 关闭交易，通知买卖双方和经纪人 |
+| `NOTARY_APPROVED` | `CONTRACT_SIGNED` | `TRANSACTION_STATE_TRANSITION` | `{status:"CONTRACT_SIGNED", contract_hash}` | `transactions.status` CHECK 允许 | 合同哈希提交存证 |
+| `CONTRACT_SIGNED` | `FUND_ESCROWED` | `TRANSACTION_STATE_TRANSITION` | `{status:"FUND_ESCROWED", fund_escrow_ref}` | `transactions.status` CHECK 允许 | 绑定银行监管账户回执 |
+| `FUND_ESCROWED` | `TRANSFER_PROCESSING` | `TRANSACTION_STATE_TRANSITION` | `{status:"TRANSFER_PROCESSING", transfer_case_no}` | `transactions.status` CHECK 允许 | 启动过户材料跟踪 |
+| `TRANSFER_PROCESSING` | `COMPLETED` | `TRANSACTION_STATE_TRANSITION` | `{status:"COMPLETED", completed_at}` | `transactions.status` CHECK 允许 | 触发 `SETTLEMENT_EXECUTE` |
+| `COMPLETED` | `DISPUTED` | `TRANSACTION_STATE_TRANSITION` | `{status:"DISPUTED", dispute_case_id}` | `transactions.status` CHECK 允许 | 冻结争议相关证据，进入纠纷流程 |
+
+`NOTARY_REJECTED` 是一等交易状态：DDL CHECK、状态迁移表、`VALID_TRANSITIONS` 和 `NOTARY_REQUEST` / `TRANSACTION_STATE_TRANSITION` 输出 schema 必须同时包含该值。任何新增状态必须按同一规则同步修改四处定义，并补充迁移测试。
 
 **佣金计算逻辑**：
 
@@ -1526,6 +1871,68 @@ async def call_notary_api(payload: dict) -> dict:
 | 税务局 API | 5 次/60 秒 | 120 秒 | 提示用户自行查询，上传截图 |
 | 自媒体平台 API | 10 次/60 秒 | 30 秒 | 记录失败，提示用户重授权 |
 
+### 8.6 高并发容量参数与压测验证
+
+**容量参数基线（生产初始容量）**：
+
+| 层/组件 | 参数 | 初始值 | 扩容触发 | 目标 |
+|---------|------|--------|----------|------|
+| Kafka `fori.property.dict.events` | Topic 分区数 / 副本数 | 48 partitions / RF=3 | 单分区 P95 消费延迟 > 2s | 楼盘更新同 Key 有序，跨小区并行 |
+| Kafka `fori.matching.run` | Topic 分区数 / 副本数 | 96 partitions / RF=3 | Consumer Lag > 50,000 持续 5 分钟 | 新客源 5 分钟内完成匹配 |
+| Kafka `fori.material.gen.high|normal|low` | Topic 分区数 / 副本数 | 12 / 24 / 24 partitions，RF=3 | GPU 队列深度 > 20 | 高优先级任务优先 |
+| Kafka `fori.transaction.state` | Topic 分区数 / 副本数 | 24 partitions / RF=3 | 单分区 Lag > 1,000 | 同交易串行，跨交易并行 |
+| Kafka DLQ | Topic 分区数 / 保留期 | 每业务 12 partitions，保留 30 天 | DLQ 增长率 > 100 条/小时 | 失败隔离可回放 |
+| Consumer 并发 | 每 Pod coroutine 数 | 字典 32、匹配 64、信用 16、交易 16、素材 4、价格 32 | CPU > 65% 或 Lag 超阈值 | 控制背压和外部 API 压力 |
+| FastAPI | Pod / worker / worker 连接 | 8 Pod × 4 Gunicorn workers × 1,000 keep-alive | CPU > 65%、P99 > 1s | 50,000 在线用户 API 接入 |
+| PostgreSQL/PolarDB | 应用连接池 | API 8 Pod × pool 20 + overflow 10；Worker 合计 pool 160 | 连接池使用率 > 80% | 总连接 ≤ 500，避免打满 DB |
+| PostgreSQL 只读副本 | 副本数 | 2 个只读节点 | 读 P99 > 300ms 或复制延迟 > 1s | 读写分离承载楼盘查询 |
+| Redis Cluster | 内存 / maxmemory-policy | 3 主 3 从，每主 16GiB，`allkeys-lfu` | used_memory > 70% | 热点查询缓存命中率 ≥ 90% |
+| Redis Cluster | 客户端连接 | 每 Pod pool 50，集群代理总连接上限 20,000 | 连接使用率 > 75% | 限流、幂等、锁稳定 |
+| Elasticsearch `fori_properties` | shard / replica | 6 primary / 1 replica | shard > 50GB 或 P99 > 100ms | 楼盘字典 10,000 TPS 查询 |
+| Elasticsearch `fori_listings` | shard / replica | 12 primary / 1 replica | shard > 50GB 或查询 P99 > 150ms | 百万级房源筛选 |
+| Elasticsearch `fori_buyers` | shard / replica | 6 primary / 1 replica | shard > 40GB | 客源反向检索 |
+| HPA API | 指标阈值 | CPU 65%、内存 75%、HTTP P99 1s | min=8 max=80 | API 峰值水平扩展 |
+| HPA Agent Worker | 指标阈值 | CPU 65%、Kafka Lag：字典 10k、匹配 50k、交易 1k | 各 Agent min=2 max=60 | 异步任务不积压 |
+| HPA WebSocket | 指标阈值 | 连接数 8,000/Pod、CPU 60% | min=3 max=30 | 实时通知稳定 |
+
+**压测数据规模**：
+- 城市：20 个热点城市；小区 200 万；楼栋 1,000 万；单套住宅 1 亿。
+- 房源：在售 300 万；客源需求 100 万；匹配候选索引预热完成。
+- 用户：注册用户 1,000 万；经纪人 30 万；并发在线 50,000。
+- 交易：有效交易 10 万；状态变更事件 100 万；存证记录 100 万。
+
+**k6 验证命令**：
+
+```bash
+# 楼盘字典查询 10,000 TPS，读接口 P99 <= 1000ms，错误率 < 0.1%
+k6 run tests/perf/property-dict-read.js \
+  -e BASE_URL=https://staging.fori.example.com \
+  --vus 5000 --duration 30m --summary-trend-stats "p(50),p(95),p(99)"
+
+# 50,000 并发移动端会话混合流量，核心 API P99 <= 1000ms，写接口 P99 <= 2000ms
+k6 run tests/perf/mobile-mixed-50k.js \
+  -e BASE_URL=https://staging.fori.example.com \
+  --vus 50000 --duration 45m --summary-trend-stats "p(50),p(95),p(99)"
+
+# 新客源匹配 SLA，95% 任务 5 分钟内完成，DLQ 率 < 0.1%
+k6 run tests/perf/matching-sla.js \
+  -e BASE_URL=https://staging.fori.example.com \
+  --vus 2000 --duration 30m
+
+# 交易状态机突发写入，非法迁移拦截率 100%，合法迁移错误率 < 0.1%
+k6 run tests/perf/transaction-state.js \
+  -e BASE_URL=https://staging.fori.example.com \
+  --vus 3000 --duration 20m
+```
+
+**通过标准**：
+- API 读接口：P50 ≤ 200ms，P95 ≤ 500ms，P99 ≤ 1000ms，HTTP 5xx < 0.1%。
+- API 写接口：P99 ≤ 2000ms，幂等重复请求返回一致，数据库唯一约束无冲突泄漏。
+- 楼盘字典查询：稳定 ≥ 10,000 TPS，Redis 命中率 ≥ 90%，ES 查询 P99 ≤ 100ms。
+- 匹配任务：95% 新客源在 5 分钟内完成首轮匹配，Kafka Lag 在压测结束后 10 分钟内归零。
+- Agent 任务：成功率 ≥ 99.5%，DLQ 率 < 0.1%，无单 Topic 分区热点超过平均 Lag 3 倍。
+- 基础设施：PostgreSQL 连接使用率 ≤ 80%，Redis 内存使用率 ≤ 70%，ES JVM heap ≤ 75%，HPA 扩缩容无抖动。
+
 ---
 
 ## 9. 高可用方案
@@ -1615,11 +2022,14 @@ async def handle_message(self, message):
 VALID_TRANSITIONS = {
     "INTENT_CONFIRMED": {"NOTARY_PENDING", "CANCELLED"},
     "NOTARY_PENDING": {"NOTARY_APPROVED", "NOTARY_REJECTED"},
+    "NOTARY_REJECTED": {"CANCELLED"},
     "NOTARY_APPROVED": {"CONTRACT_SIGNED"},
     "CONTRACT_SIGNED": {"FUND_ESCROWED"},
     "FUND_ESCROWED": {"TRANSFER_PROCESSING"},
     "TRANSFER_PROCESSING": {"COMPLETED"},
     "COMPLETED": {"DISPUTED"},
+    "DISPUTED": set(),
+    "CANCELLED": set(),
 }
 
 async def transition_state(self, transaction_id: int, to_state: str) -> Transaction:
@@ -1901,16 +2311,16 @@ class CreateListingRequest(BaseModel):
 
 ## 12. 架构决策记录 ADR 汇总
 
-### ADR-001 · 选择 Next.js 14（PWA）而非原生 App
+### ADR-001 · 选择 Next.js 14 PWA + 响应式 Web
 
 | 字段 | 内容 |
 |-----|------|
 | **状态** | 已采纳 |
-| **上下文** | 产品需支持移动端用户（经纪人、买家、卖家），同时需要 PC 端管理功能（门店、公证机构） |
-| **决策** | 使用 Next.js 14 PWA 而非开发 iOS/Android 原生 App |
-| **理由** | 1. PWA 可安装到主屏、离线缓存，用户体验接近原生；2. 单一代码库覆盖移动端+PC端，开发维护成本减半；3. Web 技术栈招聘市场更大；4. 无需通过 App Store 审核，迭代速度更快；5. 首屏加载 ≤ 2.5 秒在中端 Android 可达 |
-| **风险** | PWA 在 iOS Safari 上推送通知能力受限（iOS 16.4 后改善）；相机/传感器 API 部分受限（影响活体识别，通过调用第三方 SDK 解决） |
-| **备选** | Flutter（跨平台原生，代码共享率更高，但团队技术栈转型成本过大）|
+| **上下文** | 产品需支持移动端用户（经纪人、买家、卖家），同时需要 PC 端管理功能（门店、公证机构）；SPEC §5.1 已锁定 Next.js 14 App Router + PWA |
+| **决策** | 全平台统一使用 Next.js 14 PWA + 响应式 Web，移动端、PC 管理端共享 Web 技术栈和组件体系 |
+| **理由** | 1. PWA 可安装到主屏、离线缓存，满足弱网操作；2. 单一代码库覆盖移动端和 PC 端，减少契约漂移；3. Web 技术栈招聘市场更大；4. 无需应用商店审核，合规文案和交易流程可快速修订；5. 首屏加载 ≤ 2.5 秒在中端移动设备浏览器可达 |
+| **风险** | PWA 在部分系统浏览器上的推送通知能力受限；相机、活体识别等能力通过 Web API、第三方 H5 SDK、服务端回调和短信/站内信补偿实现 |
+| **备选** | Flutter / React Native（多端运行时复杂度更高，且会引入第二套发布、监控、热修复和合规审核流程）|
 
 ---
 
@@ -1972,8 +2382,8 @@ class CreateListingRequest(BaseModel):
 |-----|------|
 | **状态** | 已采纳 |
 | **上下文** | 平台主框架为 OpenClaw，但存在框架生命周期风险；业务 Agent 不应与框架耦合 |
-| **决策** | 定义 `AgentInterface` 抽象接口，所有框架调用封装在适配层 |
-| **理由** | 1. 框架升级或切换时，业务 Agent 代码零改动；2. 适配层可独立测试（Mock 接口）；3. 灰度切换（先切单个低风险 Agent）降低切换风险 |
+| **决策** | 平台内核定义 `AgentRuntime` / `TaskScheduler` / `EventBus` 等业务可见接口；`AgentInterface` 仅作为内核到框架适配层的内部接口，所有框架调用封装在内核和适配层内部 |
+| **理由** | 1. 框架升级或切换时，业务 Agent 代码零改动；2. 业务 Agent 不持有框架适配器，避免 OpenClaw/Hermes API 泄漏到业务层；3. 适配层可独立测试（Mock 接口）；4. 灰度切换（先切单个低风险 Agent）降低切换风险 |
 | **风险** | 适配层引入一层抽象，增加 Debug 复杂度；适配层设计必须足够通用，避免针对特定框架 API 的特化 |
 | **备选** | 直接依赖 OpenClaw SDK（耦合度高，框架升级成本 O(N) 随 Agent 数量增加）|
 
