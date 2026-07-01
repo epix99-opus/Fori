@@ -7,12 +7,12 @@
     "localPath": "/Users/epix/Dev/Fori"
   },
   "currentTask": {
-    "id": "",
-    "title": "项目初始化",
-    "status": "in_progress",
+    "id": "FORI-001",
+    "title": "项目初始化与多 Agent 协同环境搭建",
+    "status": "completed",
     "owner": "hermes",
     "planFile": ".ai/plan/current.md",
-    "updatedAt": "2026-07-01T09:00:00-07:00"
+    "updatedAt": "2026-07-01T09:15:00-07:00"
   },
   "agents": {
     "lastActive": "hermes",
