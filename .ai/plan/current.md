@@ -19,7 +19,8 @@
 - [x] FORI-021.A~U: 21个移动端页面原型实现 (commit 13f21be)
 - [x] FORI-022: Hermes 原型集成验证 + Codex 修复 (TabBar路由+5死链, commit 1b0f921, VERDICT: PASS)
 - [x] FORI-030: Claude Code 全案审查评估 (CONDITIONAL_PASS, 见 docs/reviews/REVIEW-030-FINAL.md)
-- [ ] FORI-040+: 开发阶段
+- [x] FORI-031: 原型修订 (REVIEW-030 8项必修 + UX P1, commit ed2dd30, 29/29验证通过)
+- [ ] FORI-032: Claude Code 架构级交叉审查 (需先修复 Claude auth)
 
 ## Breakpoint
 - Step completed: FORI-001 through FORI-030 全部完成

@@ -7,14 +7,14 @@
     "localPath": "/Users/epix/Dev/Fori"
   },
   "currentTask": {
-    "id": "FORI-030",
-    "title": "全案审查评估（需求→PRD→架构→UI→原型 端到端审查）",
-    "status": "completed",
-    "owner": "claude",
-    "verdict": "CONDITIONAL_PASS",
-    "planFile": ".ai/plan/current.md",
-    "reviewFile": "docs/reviews/REVIEW-030-FINAL.md",
-    "updatedAt": "2026-07-01T22:38:00-07:00"
+      "id": "FORI-031",
+      "title": "原型修订（REVIEW-030 8项必修 + UX P1改进）",
+      "status": "completed",
+      "owner": "codex",
+      "verdict": "PASS (29/29 verification checks, build passed)",
+      "planFile": ".ai/plan/current.md",
+      "commit": "ed2dd30",
+      "updatedAt": "2026-07-01T20:30:00-07:00"
   },
   "completedTasks": [
     {"id": "FORI-002", "title": "PRD 深度生成", "owner": "claude", "commit": "a53dacd"},
@@ -38,8 +38,8 @@
       "sessionResetAt": "2026-07-01T14:08:00-07:00",
       "deviceTz": "America/Los_Angeles (PDT, UTC-7)",
       "device": "epix+woot (shared account)",
-      "checkedAt": "2026-07-01T20:01:00-07:00",
-      "lastCheckResult": "AVAILABLE — codex exec responded 'OK' (exit 0; MCP transport warnings ignored)"
+      "checkedAt": "2026-07-01T20:30:43-07:00",
+      "lastCheckResult": "AVAILABLE (time-based estimation) — last known status was available at 20:01, no reset needed. Next reset: 2026-07-02T00:29 PDT."
     },
     "claude": {
       "status": "error",
@@ -47,8 +47,8 @@
       "dailyResetAt": "2026-07-01T22:30:00-07:00",
       "deviceTz": "America/Los_Angeles (PDT, UTC-7)",
       "device": "epix+woot (shared account)",
-      "checkedAt": "2026-07-01T20:15:00-07:00",
-      "lastCheckResult": "ERROR (non-limit) — claude auth status shows loggedIn=true (Pro subscription) but claude -p returns 401. Token has expired. Needs human to run `claude auth login` for browser OAuth refresh. Watchdog no longer calls claude -p for detection (time-based estimation only)."
+      "checkedAt": "2026-07-01T20:30:43-07:00",
+      "lastCheckResult": "ERROR (non-limit, time-based estimation) — status remains error(401). Token expired, needs human to run `claude auth login`. Limit reset at 22:30 PDT would NOT fix this (auth issue, not limit). Watchdog did not call claude -p."
     }
   },
   "timezones": {
