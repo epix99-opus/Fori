@@ -4,91 +4,80 @@
     "description": "新一代房产交易中介生态平台",
     "status": "active",
     "github": "epix99-opus/Fori",
-    "localPath": "/Users/epix/Dev/Fori"
+    "localPath": "/Users/epix/Dev/Fori",
+    "phase": "D4-active"
   },
   "currentTask": {
-    "id": "FORI-032",
-    "title": "架构级交叉审查 (Claude Code)",
+    "id": "FORI-041",
+    "title": "生产仓库结构 + ADR-009 原型→生产迁移策略",
     "status": "completed",
     "owner": "claude",
-    "verdict": "PASS (CONDITIONAL_PASS → RC-1 fixed by Hermes)",
-    "reviewFile": "docs/reviews/REVIEW-031-CROSS-CHECK.md",
-    "commit": "62bc2d0",
-    "updatedAt": "2026-07-01T22:25:00-07:00"
+    "branch": "claude/fori-041-adr-migration",
+    "updatedAt": "2026-07-02T22:00:00-07:00",
+    "artifacts": [
+      "docs/adr/ADR-009-prototype-to-production-migration.md",
+      "docs/execution/REPO_LAYOUT.md",
+      "docs/ARCHITECTURE.md"
+    ],
+    "note": "ADR 编号为 009（非 007），因 ADR-001～ADR-008 已由 ARCHITECTURE.md §12 使用。"
+  },
+  "nextTask": {
+    "id": "FORI-042",
+    "title": "Monorepo 初始化",
+    "owner": "codex",
+    "branch": "codex/fori-042-monorepo-init",
+    "handoff": ".ai/handoffs/FORI-042.md",
+    "blockedBy": "FORI-041 评审 PASS（L2）+ quota-check.sh codex"
   },
   "completedTasks": [
     {
-      "id": "FORI-002",
-      "title": "PRD 深度生成",
+      "id": "FORI-033",
+      "title": "多 Agent 编排系统化配置",
+      "owner": "cursor"
+    },
+    {
+      "id": "FORI-040",
+      "title": "MVP 实施切片",
+      "owner": "cursor",
+      "output": "docs/execution/MVP_SLICE.md"
+    },
+    {
+      "id": "FORI-041",
+      "title": "生产仓库结构 + ADR-009 原型→生产迁移策略",
       "owner": "claude",
-      "commit": "a53dacd"
-    },
-    {
-      "id": "FORI-003",
-      "title": "架构设计文档",
-      "owner": "claude",
-      "commit": "64f1e86"
-    },
-    {
-      "id": "FORI-004",
-      "title": "移动端Web App UI/UX设计",
-      "owner": "claude",
-      "commit": "9949013"
-    },
-    {
-      "id": "FORI-010/011/012",
-      "title": "PRD/架构/UI 三项设计评审 (3x CONDITIONAL_PASS)",
-      "owner": "claude",
-      "commit": "df0c9a4"
-    },
-    {
-      "id": "FORI-013/014",
-      "title": "PRD+架构+UI 修订 + 复审 (3x PASS)",
-      "owner": "codex",
-      "commit": "32d6403"
-    },
-    {
-      "id": "FORI-020",
-      "title": "原型脚手架 (Next.js 14 + Tailwind + shadcn/ui)",
-      "owner": "codex",
-      "commit": "f9b2293"
-    },
-    {
-      "id": "FORI-021.A~U",
-      "title": "21个移动端页面原型实现",
-      "owner": "codex",
-      "commit": "13f21be"
-    },
-    {
-      "id": "FORI-022",
-      "title": "原型集成验证 + 修复 (TabBar路由+5死链)",
-      "owner": "hermes+codex",
-      "commit": "1b0f921"
+      "output": "docs/adr/ADR-009-prototype-to-production-migration.md"
     }
   ],
+  "orchestration": {
+    "status": "ready",
+    "quota_model": "dual_layer",
+    "master_guide": ".ai/orchestration/QUOTA_ROUTING.md",
+    "quota_ledger": ".ai/orchestration/quota-ledger.json",
+    "agent_routes": ".ai/agent-routes.json",
+    "ecc_setup": ".ai/orchestration/ECC_SETUP.md"
+  },
   "agents": {
-    "lastActive": "hermes",
-    "lastModel": "glm-5.2",
-    "sessionCount": 1
+    "lastActive": "cursor",
+    "sessionCount": 2
   },
   "limits": {
-    "codex": {
-      "status": "available",
-      "resetAt": "2026-07-02T00:29:00-07:00",
-      "sessionResetAt": "2026-07-01T14:08:00-07:00",
-      "deviceTz": "America/Los_Angeles (PDT, UTC-7)",
-      "device": "epix+woot (shared account)",
-      "checkedAt": "2026-07-01T20:30:43-07:00",
-      "lastCheckResult": "AVAILABLE (time-based estimation) — last known status was available at 20:01, no reset needed. Next reset: 2026-07-02T00:29 PDT."
-    },
+    "model": "dual_layer",
     "claude": {
       "status": "available",
-      "resetAt": "2026-07-01T22:30:00-07:00",
-      "dailyResetAt": "2026-07-01T22:30:00-07:00",
-      "deviceTz": "America/Los_Angeles (PDT, UTC-7)",
+      "layer": "A",
+      "msgsRemaining": 45,
+      "windowResetsAt": null,
+      "dailyResetAt": "2026-07-02T22:30:00-07:00",
+      "primary_node": "epix"
+    },
+    "codex": {
+      "status": "available",
+      "layer": "A",
+      "minutesRemaining": 300,
+      "windowResetsAt": null,
+      "dailyResetAt": "2026-07-03T00:29:00-07:00",
       "device": "epix+woot (shared account)",
-      "checkedAt": "2026-07-01T22:25:00-07:00",
-      "lastCheckResult": "AVAILABLE — claude auth login completed, refreshToken in Keychain, auto-refresh active"
+      "primary_node": "woot"
     }
   },
   "timezones": {
@@ -105,5 +94,10 @@
   "mergePolicy": {
     "responsible": "cursor (human)",
     "rule": "代码合并统一由 Cursor/Human 负责执行，其他 Agent 不得直接合并到 main"
-  }
+  },
+  "wootSetupPending": [
+    "rsync .ai/orchestration/ 到 woot",
+    "git pull 同步编排配置",
+    "在 ~/.codex/config.toml 添加 [projects.\"/Users/woot/Dev/Fori\"] trust_level = \"trusted\""
+  ]
 }

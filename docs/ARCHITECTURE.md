@@ -2416,6 +2416,64 @@ class CreateListingRequest(BaseModel):
 
 ---
 
-*文档结束 — 版本 v1.0.0 | 2026-07-01*
+### ADR-009 · Prototype → Production 一次性迁移策略
 
-*字数统计：约 16,000 字（含代码注释、表格内容）*
+| 字段 | 内容 |
+|-----|------|
+| **状态** | 已采纳 |
+| **上下文** | `prototype/` 是可构建的交互原型（Tailwind 3.x + Mock 数据）；生产要求 Tailwind 4.x + Monorepo 结构；长期双维护成本过高 |
+| **决策** | FORI-042 由 Codex 一次性将 `prototype/` 迁移至 `apps/web`，同步升级 Tailwind 4.x，迁移完成后立即冻结原型，Wave 1 验证后归档至 `archive/prototype-v0/` |
+| **理由** | 1. 单一代码库消除双写；2. 路由路径 1:1 保留（`marketing/` 例外，合并至 `workspace/media/`）；3. UI 原语提取至 `packages/ui`，共享工具至 `packages/shared`；4. E2E 覆盖从 Wave 1 起连续积累 |
+| **风险** | Tailwind 3→4 升级可能引入视觉回退；通过 `docs/MIGRATION-TAILWIND4.md` 和截图验收缓解 |
+| **备选** | 增量并行迁移（双维护成本高）；全部重写（浪费已验证的 UI 设计投入）|
+| **完整 ADR** | `docs/adr/ADR-009-prototype-to-production-migration.md` |
+
+---
+
+## 13. 仓库布局
+
+D4 阶段（FORI-041/042）产出的生产 Monorepo 顶层结构：
+
+```
+Fori/
+├── apps/
+│   ├── web/          # Next.js 14 PWA 生产前端（自 prototype/ 迁移，Tailwind 4.x）
+│   └── api/          # FastAPI 主 API（Python 3.12）
+├── packages/
+│   ├── shared/       # 跨应用共享类型、DTO、工具（@fori/shared）
+│   └── ui/           # UI 原语组件库（@fori/ui，自 prototype/components 抽取）
+├── services/
+│   ├── agents/       # 六大业务 Agent Python 包（ARCHITECTURE.md §6）
+│   │   ├── property-dict/     # M1 PropertyDictAgent
+│   │   ├── listing-match/     # M2 ListingMatchAgent
+│   │   ├── credit-notary/     # M3 CreditNotaryAgent
+│   │   ├── trade-settlement/  # M3 TradeSettlementAgent
+│   │   ├── media-gen/         # M4 MediaGenAgent
+│   │   └── price-eval/        # M5 PriceEvalAgent
+│   └── workers/      # Kafka 消费者 + Celery 异步任务
+├── prototype/        # 冻结（FORI-042 后）→ Wave 1 后归档至 archive/prototype-v0/
+├── docs/
+│   ├── adr/          # 架构决策记录独立文件（ADR-009 起）
+│   └── execution/    # MVP 切片与目录布局
+└── tests/
+    ├── e2e/          # Playwright E2E
+    └── integration/  # pytest 集成测试
+```
+
+**详细目录树**（含每个路由文件、Wave 标注、占位说明）见 `docs/execution/REPO_LAYOUT.md`。
+
+**路径别名**：
+
+| 别名 | 目标 |
+|------|------|
+| `@fori/ui` | `packages/ui/src` |
+| `@fori/shared` | `packages/shared/src` |
+| `@/` | `apps/web/` |
+
+**OpenAPI 契约位置**：FastAPI 在 CI 中导出 `apps/api/openapi.json`，`packages/shared/src/api/` 通过 `openapi-typescript` 生成类型安全客户端（Wave 1 起生效）。
+
+---
+
+*文档结束 — 版本 v1.1.0 | 2026-07-02（增补 §13 仓库布局、ADR-009）*
+
+*字数统计：约 17,000 字（含代码注释、表格内容）*
