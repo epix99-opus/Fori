@@ -258,6 +258,13 @@ export default function PriceEvaluationPage({ params }: { params: { communityId:
               ))}
             </section>
 
+            {community.tier === "D" ? (
+              <div className="rounded-xl border border-semantic-warning/40 bg-semantic-warning/10 px-4 py-3 text-body-s text-semantic-warning" role="alert">
+                <p className="font-semibold">样本数量不足，仅作参考</p>
+                <p className="mt-1 text-neutral-700">D 层级成交样本较少，测算结果不建议直接用于出价决策，请扩大周期或结合实地勘察。</p>
+              </div>
+            ) : null}
+
             <ChartCard title="动态价格测算仪表盘" eyebrow={`测算价 ¥${formatUnitPrice(calculated)} 元/㎡ · ${conclusion}`} option={gaugeOption} height={260} />
 
             <ChartCard title="价格因素拆解瀑布图" eyebrow="基准价、楼层、朝向、装修、税费、稀缺度逐项归因" option={waterfallOption} />

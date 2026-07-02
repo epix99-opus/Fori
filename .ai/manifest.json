@@ -8,26 +8,28 @@
     "phase": "D4-active"
   },
   "currentTask": {
-    "id": "FORI-041",
-    "title": "生产仓库结构 + ADR-009 原型→生产迁移策略",
-    "status": "completed",
-    "owner": "claude",
-    "branch": "claude/fori-041-adr-migration",
-    "updatedAt": "2026-07-02T22:00:00-07:00",
-    "artifacts": [
-      "docs/adr/ADR-009-prototype-to-production-migration.md",
-      "docs/execution/REPO_LAYOUT.md",
-      "docs/ARCHITECTURE.md"
-    ],
-    "note": "ADR 编号为 009（非 007），因 ADR-001～ADR-008 已由 ARCHITECTURE.md §12 使用。"
-  },
-  "nextTask": {
     "id": "FORI-042",
     "title": "Monorepo 初始化",
+    "status": "completed",
     "owner": "codex",
     "branch": "codex/fori-042-monorepo-init",
-    "handoff": ".ai/handoffs/FORI-042.md",
-    "blockedBy": "FORI-041 评审 PASS（L2）+ quota-check.sh codex"
+    "updatedAt": "2026-07-02T09:10:00-07:00",
+    "artifacts": [
+      "apps/web/",
+      "apps/api/",
+      "packages/shared/",
+      "packages/ui/",
+      "services/agents/",
+      "turbo.json",
+      "Makefile"
+    ]
+  },
+  "nextTask": {
+    "id": "FORI-043",
+    "title": "定价 API + 数据模型（Wave 1 首切片）",
+    "owner": "codex",
+    "branch": "codex/fori-043-pricing-api",
+    "blockedBy": null
   },
   "completedTasks": [
     {
@@ -43,9 +45,17 @@
     },
     {
       "id": "FORI-041",
-      "title": "生产仓库结构 + ADR-009 原型→生产迁移策略",
+      "title": "ADR-009 原型迁移 + 仓库布局",
       "owner": "claude",
+      "branch": "claude/fori-041-adr-migration",
       "output": "docs/adr/ADR-009-prototype-to-production-migration.md"
+    },
+    {
+      "id": "FORI-042",
+      "title": "Monorepo 脚手架",
+      "owner": "codex",
+      "branch": "codex/fori-042-monorepo-init",
+      "output": "apps/ + packages/ + services/"
     }
   ],
   "orchestration": {
@@ -58,7 +68,7 @@
   },
   "agents": {
     "lastActive": "cursor",
-    "sessionCount": 2
+    "sessionCount": 3
   },
   "limits": {
     "model": "dual_layer",
@@ -96,8 +106,14 @@
     "rule": "代码合并统一由 Cursor/Human 负责执行，其他 Agent 不得直接合并到 main"
   },
   "wootSetupPending": [
-    "rsync .ai/orchestration/ 到 woot",
-    "git pull 同步编排配置",
-    "在 ~/.codex/config.toml 添加 [projects.\"/Users/woot/Dev/Fori\"] trust_level = \"trusted\""
-  ]
+    "修复 woot git 仓库（rsync 损坏了 .git/objects）",
+    "重新 clone 或 git fetch --all 恢复",
+    "在 ~/.codex/config.toml 添加 Fori trust"
+  ],
+  "prototypeDesign": {
+    "status": "complete",
+    "completionPercent": 97,
+    "checklist": "docs/execution/PROTOTYPE_COMPLETION.md",
+    "buildVerified": "2026-07-02"
+  }
 }
