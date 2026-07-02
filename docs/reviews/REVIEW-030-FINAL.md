@@ -1,227 +1,88 @@
-# FORI-030 全链路端到端审查报告
+## VERDICT: CONDITIONAL_PASS
 
-**文档路径**：`docs/reviews/REVIEW-030-FINAL.md`  
-**审查角色**：Claude Code（Expert · 架构/深审）  
-**审查日期**：2026-07-01  
-**审查范围**：INITIAL_REQUIREMENTS.md → PRD.md → ARCHITECTURE.md → UI_DESIGN.md → SPEC.md → prototype/
+审查范围：`docs/INITIAL_REQUIREMENTS.md`、`docs/PRD.md`、`docs/ARCHITECTURE.md`、`docs/UI_DESIGN.md`、`docs/SPEC.md`、`docs/reviews/` 全量评审报告，以及当前 `prototype/` 原型路由与依赖。
 
----
+结论：需求、PRD、架构、UI 设计四层文档已经形成完整链路；REVIEW-010/011/012 的 REQUIRED_CHANGES 已在 REVIEW-014 中逐项标记 RESOLVED；移动端形态已统一为 Next.js 14 PWA + 响应式 Web；安全合规、资金监管、公证存证、数据留存边界在 PRD 与架构中均有明确设计。阻塞项集中在原型执行层：TabBar 与 UI_DESIGN 不一致、核心路由偏移、必需页面缺失、ECharts/地图/PWA 离线能力未落地、Tailwind 版本与架构约束不一致。
 
-## 一、最终裁定
+## FINDINGS
 
-```
-VERDICT: CONDITIONAL_PASS
-```
+1. 需求覆盖链路总体完整，六大初始模块均可追踪到 PRD、架构 Agent、UI 页面与原型入口。PRD §1.5 已列初始需求覆盖矩阵，PRD §3.1-§3.6 对应六大模块，ARCHITECTURE §6 对应六个业务 Agent，UI_DESIGN §1.4 建立模块到页面覆盖矩阵。
 
-文档链（需求→PRD→架构→UI设计）内部一致性强，六大核心模块全覆盖，无MVP降级，无TBD遗留。Prototype存在4处路由不一致、TabBar第4项导航架构偏差、关键UI组件缺失、ECharts未集成、Tailwind版本落后于架构规范，须在进入执行阶段前修复。
+2. PRD、ARCHITECTURE、UI_DESIGN 的核心口径已一致。移动端形态均为 Next.js 14 PWA + 响应式 Web；四方共赢模型、公证 5% 口径、交易状态机、数据留存边界、Agent 三层解耦均已在复审后对齐。
 
----
+3. 技术栈文档层面与 SPEC §5.1 基本一致：Next.js 14、FastAPI Python 3.12、PostgreSQL 16 + PostGIS + TimescaleDB、Redis 7、Kafka 3.6+、Elasticsearch 8、阿里云 ACK、OpenClaw + Hermes 均已纳入 ARCHITECTURE §2 与 ADR。
 
-## 二、严重程度分级发现（FINDINGS）
+4. 原型技术栈存在版本偏差。ARCHITECTURE §2.1 指定 Tailwind CSS 4.x，SPEC §5.1 锁定 Tailwind CSS latest；但 `prototype/package.json` 使用 `tailwindcss: ^3.4.1`，执行阶段若按架构升级会产生迁移成本。
 
-### 2.1 HIGH — 应在进入执行前修复
+5. 原型 TabBar 与 UI_DESIGN §1.1 不一致。UI_DESIGN 定义五个主 Tab 为：首页、找房、发布、工作台、我的；`prototype/components/TabBar.tsx` 实现为：首页、探索、发布、消息、我的，并将第 4 Tab 路由到 `/messages`。这会使经纪人工作台从底部主导航消失。
 
-#### H-01：Prototype TabBar Tab 4 架构偏差
-**证据**：
-- `UI_DESIGN.md §1.1`（底部导航栏）：Tab 4 = **工作台**，路由 `/workspace/agent`（经纪人）或 `/workspace/store`（门店管理员），普通用户隐藏或仅展示待办。
-- `prototype/components/TabBar.tsx:8-13`：Tab 4 实现为 **消息**（MessageCircle 图标，路由 `/messages`）；Tab 2 使用 Compass 图标标注"探索"而非"找房"。
+6. 原型核心路由与 UI_DESIGN 路由体系不一致。UI_DESIGN 定义 `/explore/search`、`/workspace/agent/matches`、`/workspace/media/generate`、`/workspace/media/manage`、`/profile/transactions/:tx_id`；当前原型分别使用 `/search`、`/match`、`/marketing/generate`、`/marketing/manage`、`/transaction/[id]`。这会导致按 UI_DESIGN 深链验收时不通过。
 
-**影响**：Tab 4 = "工作台"是经纪人日常工作的主入口，被替换为"消息"后经纪人工作台（/workspace/agent）从底部导航中消失，经纪人核心业务流（客源接受、楼盘维护、成交统计）的入口断裂。`UI_DESIGN.md §4.7.3`（经纪人认证流程映射）和`§4.7.4`（楼盘字典共建流程映射）中大量 `→ /workspace/agent` 跳转因此变为死链。
+7. UI_DESIGN §3.2 明确定义的必需页面未在原型覆盖：`/auth/login`、`/auth/kyc`、`/price`、`/workspace/agent/buyers`、`/workspace/agent/listings`、`/workspace/agent/stats` 均不存在。`prototype/app/prototype-pages.test.ts` 仍只验证 21 个核心页面，没有纳入这些必需页面。
 
----
+8. 原型 21 个页面数量达标，但不是 UI_DESIGN 中定义页面体系的完整覆盖。当前 `prototype/app` 有 21 个 `page.tsx`，覆盖核心页面演示；但 UI_DESIGN 同时定义了核心页面、必需页面、二级/三级路由与流程节点，原型缺少地图找房、楼盘字典详情、交易列表、客源管理、房源管理、成交统计等关键中间页。
 
-#### H-02：Prototype 4处路由与UI_DESIGN不一致
-**证据**（UI_DESIGN路由 → Prototype实现路由）：
+9. 在地分层房价评估的差异化体验未充分落地。ARCHITECTURE §2.1 指定 ECharts 5，UI_DESIGN 页面 07 要求仪表盘、瀑布图、走势图；原型依赖中无 `echarts` 或 `echarts-for-react`，价格页仍为 mock 布局和 CSS 视觉占位。
 
-| 页面 | UI_DESIGN路由 | Prototype实际路由 | 证据位置 |
-|------|--------------|------------------|---------|
-| 页面13 交易流程页 | `/profile/transactions/:tx_id` | `/transaction/[id]` | `UI_DESIGN.md §1.2 §3.1 p.13`；`prototype/app/transaction/[id]/page.tsx` |
-| 页面10 智能匹配推荐 | `/workspace/agent/matches` | `/match` | `UI_DESIGN.md §1.2 §3.1 p.10`；`prototype/app/match/page.tsx` |
-| 页面15 推广素材生成 | `/workspace/media/generate` | `/marketing/generate` | `UI_DESIGN.md §1.2 §3.1 p.15`；`prototype/app/marketing/generate/page.tsx` |
-| 页面16 推广管理 | `/workspace/media/manage` | `/marketing/manage` | `UI_DESIGN.md §1.2 §3.1 p.16`；`prototype/app/marketing/manage/page.tsx` |
+10. 地图找房链路缺失。ARCHITECTURE §2.1 指定高德地图 JS API 2.0，UI_DESIGN §1.2 和 §5.1.2 定义 `/explore/map` 与地图手势；原型没有 `/explore/map` 页面，也没有地图气泡组件。
 
-**影响**：`UI_DESIGN.md §4`（关键交互流程）和`§4.7`（流程节点映射表）中所有 Deep Link 均以 UI_DESIGN 路由为准。Prototype路由不一致会导致所有跨页跳转在原型演示中失效，影响后续执行阶段以原型为基础的开发工作。
+11. 楼盘字典链路缺少详情页。UI_DESIGN 定义 `/explore/dict/:community_id` 作为列表与编辑之间的小区详情枢纽；原型只有 `/explore/dict` 和 `/explore/dict/[communityId]/edit`，用户无法先查看小区级信息再进入编辑。
 
----
+12. PWA 只有 Manifest，离线能力尚未落地。`prototype/app/layout.tsx` 引用了 `/manifest.json`，`prototype/public/manifest.json` 存在；但未发现 Service Worker、IndexedDB 离线队列、Background Sync 或 `next-pwa` 集成，尚未满足 UI_DESIGN §5.3 的离线缓存策略。
 
-#### H-03：Prototype 缺少必需认证页面
-**证据**：
-- `UI_DESIGN.md §3.2`（必需页面A-B）明确定义 `/auth/login` 和 `/auth/kyc` 为"必需原型页面"，并注明："未完成认证不能进入精准匹配池、发布房源、创建交易或查看完整成交数据"。
-- `prototype/app/` 目录下无 `auth/` 子目录，无 login 页面，无 kyc 页面。
-- `prototype/app/prototype-pages.test.ts` 仅验证21个核心页面，认证页面未纳入验证。
+13. 安全合规文档链完整。PRD §4.2/§4.3/§6 与 ARCHITECTURE §11 覆盖传输加密、字段加密、KMS、审计日志、PIPL 数据边界、等保、广告合规、资金监管、公证存证、哈希与时间戳、只追加存证库、银行监管账户与资金释放双重确认。
 
-**影响**：`UI_DESIGN.md §4.1`（买家购房全流程）第R节`实名认证+购房资格核验`、`§4.2`（卖房发布全流程）B→D节认证流程、`§4.3`（经纪人入驻认证流程）均以 `/auth/login` 和 `/auth/kyc` 为必经节点。原型缺少这两个页面，导致所有需要认证的业务流程无法在原型中完整演示。
+14. 无 MVP 降级、无 TBD 遗留。全文检索中出现的 MVP/TBD/待定相关文本均为禁止项说明或“不作 MVP 降级”的正向约束；“降级”出现于 P1/P2/P3 推送、熔断、离线等可用性策略，不构成功能降级。
 
----
+15. 评审闭环已完成。REVIEW-010、REVIEW-011、REVIEW-012 的 REQUIRED_CHANGES 在 REVIEW-014 中逐条标记 RESOLVED；VERIFY-022 的 CRITICAL/HIGH/MEDIUM 原型集成问题已修复并验证 PASS，但其 LOW 占位项与本次发现的 UI_DESIGN 必需页面缺口仍需进入后续修复清单。
 
-### 2.2 MEDIUM — 建议修复，不阻塞原型演示
+## REQUIRED_CHANGES
 
-#### M-01：ECharts 未集成，价格可视化为占位符
-**证据**：
-- `ARCHITECTURE.md §2`：明确选型 ECharts 5 用于价格可视化（仪表盘、瀑布图、折线图）。
-- `UI_DESIGN.md §3.1 p.07`（在地分层房价评估页）：要求展示"仪表盘+瀑布图+折线图+成交参考"。
-- `prototype/package.json`：依赖项中无 `echarts` 或 `echarts-for-react`。
-- `prototype/app/price/[communityId]/page.tsx`：价格评估页面引用的是 mock 数据和 CSS 渐变色块，无实际图表渲染。
+1. 修正 TabBar：第 2 Tab 文案改为“找房”，第 4 Tab 改为“工作台”并路由到 `/workspace/agent`；消息中心保留为首页通知入口、侧滑菜单入口或工作台/我的内入口。
 
-**影响**：在地分层房价是 Fori 的核心差异化功能（`INITIAL_REQUIREMENTS.md §二/模块五`）。原型未展示真实图表，无法验证价格可视化 UX，可能导致评审方对核心功能体验有误判。
+2. 统一原型路由到 UI_DESIGN 路由体系：至少迁移或增加兼容路由 `/explore/search`、`/workspace/agent/matches`、`/workspace/media/generate`、`/workspace/media/manage`、`/profile/transactions/[txId]`。
 
----
+3. 补齐 UI_DESIGN §3.2 的必需页面，并纳入原型验证清单：`/auth/login`、`/auth/kyc`、`/price`、`/workspace/agent/buyers`、`/workspace/agent/listings`、`/workspace/agent/stats`。
 
-#### M-02：Tailwind CSS 版本落后于架构规范
-**证据**：
-- `ARCHITECTURE.md §2`：前端 UI 技术栈指定 Tailwind CSS 4.x。
-- `prototype/package.json:29`：`"tailwindcss": "^3.4.1"` — 为 v3 系列。
-- Tailwind CSS v4 的配置方式（`@config`、`theme()` 语法）与 v3 存在 breaking changes。
+4. 补齐关键中间页：`/explore/map` 地图找房页、`/explore/dict/[communityId]` 楼盘字典详情页、交易列表页 `/profile/transactions`。
 
-**影响**：若执行阶段直接升级至 v4，原型中的 Tailwind 类名和配置文件（`tailwind.config.ts`）需重新适配。当前原型将在生产框架下产生迁移成本。
+5. 按 ARCHITECTURE §2.1 集成 ECharts 5，实现价格评估页的仪表盘、瀑布图、走势折线图与 ChartCard 组件，避免核心差异化功能停留在静态占位。
 
----
+6. 将原型 Tailwind CSS 版本与架构/SPEC 对齐，或在 SPEC/ARCHITECTURE 中明确原型可临时使用 Tailwind 3.x、生产执行必须升级到 Tailwind 4.x，并记录迁移任务。
 
-#### M-03：缺少地图页面，多处 UI 流程引用的路由不存在
-**证据**：
-- `UI_DESIGN.md §1.2`（页面层级）：找房→搜索→`/explore/search`；搜索结果有"地图"切换 → `/explore/map`。
-- `UI_DESIGN.md §3.1 p.04`（搜索筛选页跳转关系）：`/explore/map`。
-- `prototype/app/` 目录下无 `explore/map/` 页面；`prototype/app/search/page.tsx` 存在但无地图切换。
+7. 补齐 PWA 执行能力：Service Worker、离线只读缓存、IndexedDB 草稿/离线队列、恢复网络同步提示；并用构建或浏览器检查验证 Manifest + SW 注册有效。
 
-**影响**：地图找房（气泡显示房价、点击展开详情）在 `UI_DESIGN.md §5.1.2`（特定页面手势）有详细设计，是找房模块重要路径，原型中完全缺失。
+8. 更新 `prototype/app/prototype-pages.test.ts` 或等效验证脚本，使 21 个核心页面和新增必需页面都能被导入/构建验证。
 
----
+## SUGGESTIONS
 
-#### M-04：楼盘字典详情页缺失
-**证据**：
-- `UI_DESIGN.md §1.2`（路由层级）：楼盘字典 → `/explore/dict`（列表）→ `/explore/dict/:community_id`（详情，含在售房源/成交趋势/楼栋信息 Tab）→ `/explore/dict/:community_id/edit`（编辑）。
-- `prototype/app/explore/dict/page.tsx` ✅（列表页）
-- `prototype/app/explore/dict/[communityId]/edit/page.tsx` ✅（编辑页）
-- `/explore/dict/[communityId]`（详情页） ❌ 缺失
+1. 将本报告中的原型缺口拆成 FORI-031 专项修复任务，由 Codex 实施、Hermes 独立验证。
 
-**影响**：楼盘字典详情页是用户从"浏览小区"到"进入编辑"的中间枢纽，`UI_DESIGN.md §4.4`（楼盘字典共建流程）`C →已存在 → 进入楼盘字典编辑页` 的上一步（查看详情）无法在原型中完成。
+2. 在 `prototype/app` 保留旧路由到新路由的临时 redirect，可降低既有链接迁移风险，但验收路由必须以 UI_DESIGN 为准。
 
----
+3. 为 UI_DESIGN §2.5 的业务组件建立组件实现清单，优先抽取 `ChartCard`、`MapBubble`、`TransactionTimeline`、`FilterSheet`、`CertCard`、`PermissionPrompt`、`OfflineQueue`。
 
-#### M-05：7个UI_DESIGN §2规范组件未在Prototype中实现
-**证据**（`UI_DESIGN.md §2.3` 组件规范 vs `prototype/components/`）：
+4. 原型修复后运行 `cd prototype && npm run build`，并增加死链扫描、核心路由存在性检查、PWA manifest/SW 检查作为验收命令。
 
-| 规范组件 | 用途 | Prototype状态 |
-|---------|------|-------------|
-| MapBubble | 地图气泡（房价显示）| ❌ 缺失 |
-| ChartCard | ECharts图表容器（价格评估）| ❌ 缺失 |
-| TransactionTimeline | 交易时间线（页面13）| ❌ 缺失（内联实现）|
-| FilterSheet | 筛选底部Sheet（搜索页）| ❌ 缺失（BottomSheet可复用但未专化）|
-| CertCard | 信用/认证证书卡 | ❌ 缺失（内联实现）|
-| PermissionPrompt | 权限不足提示 | ❌ 缺失 |
-| OfflineQueue | 离线操作队列UI | ❌ 缺失 |
+## 需求覆盖矩阵
 
-BottomSheet、EmptyState、ErrorState、Skeleton、Stepper、Toast ✅ 已实现。
-
----
-
-### 2.3 LOW — 建议跟踪，不阻塞
-
-#### L-01：Tab 2 标签"探索"与UI_DESIGN"找房"语义偏差
-**证据**：`UI_DESIGN.md §1.1` Tab 2 = "找房"；`prototype/components/TabBar.tsx:10` Tab 2 = "探索"。
-
-**影响**：语义差异较小，但"找房"更贴合目标用户场景，"探索"更中性。建议统一用"找房"。
-
----
-
-#### L-02：必需页面C/D/E/F在Prototype中缺失
-**证据**：`UI_DESIGN.md §3.2` 定义必需页面 C（`/price` 独立入口）、D（`/workspace/agent/buyers` 客源管理）、E（`/workspace/agent/listings` 房源管理）、F（`/workspace/agent/stats` 成交统计）。Prototype均未实现这4个页面。
-
-**影响**：这4个页面为"必需但非核心21页"，`prototype-pages.test.ts` 不要求这些，但它们影响经纪人工作台完整演示。可纳入后续迭代。
-
----
-
-## 三、必须修复项（Required Changes）
-
-在执行阶段开始前，以下问题必须解决：
-
-1. **[H-01] 修正 TabBar**：将 Tab 4 从"消息"改为"工作台"，路由改为 `/workspace/agent`；将"消息"入口移至首页顶部通知图标或页面内导航，与 `UI_DESIGN.md §1.1` 对齐。
-
-2. **[H-02] 修正4处路由**：
-   - `prototype/app/transaction/[id]/` → `prototype/app/profile/transactions/[txId]/`
-   - `prototype/app/match/` → `prototype/app/workspace/agent/matches/`
-   - `prototype/app/marketing/generate/` → `prototype/app/workspace/media/generate/`
-   - `prototype/app/marketing/manage/` → `prototype/app/workspace/media/manage/`
-
-3. **[H-03] 补充认证页面**：新增 `prototype/app/auth/login/page.tsx` 和 `prototype/app/auth/kyc/page.tsx`，并将二者纳入 `prototype-pages.test.ts` 验证列表（测试数量从21+2=23更新）。
-
-4. **[M-01] 集成 ECharts**：在 `prototype/package.json` 添加 `echarts` 和 `echarts-for-react`，实现 `ChartCard` 组件，在 `/price/[communityId]` 页面渲染仪表盘+瀑布图+折线图 mock 数据。
-
-5. **[M-02] Tailwind版本对齐**：将 `prototype/package.json` 的 `tailwindcss` 升级至 `^4.0.0`，同步迁移 `tailwind.config.ts`。
-
----
-
-## 四、建议优化项（Suggestions）
-
-1. 补充 `/explore/map` 地图页面（可使用 Leaflet 或 Mapbox 静态 tile 展示气泡）。
-2. 补充楼盘字典详情页 `prototype/app/explore/dict/[communityId]/page.tsx`。
-3. 将 `TransactionTimeline`、`FilterSheet`、`CertCard`、`PermissionPrompt` 提取为独立组件，与 `UI_DESIGN.md §2.3` 对齐。
-4. 实现 PWA Service Worker 离线策略（目前 `layout.tsx` 引用 `/manifest.json` 但 `public/` 目录下的 manifest 文件待确认）。
-5. 将 Tab 2 标签统一为"找房"（H-01 修正同步处理）。
-
----
-
-## 五、审查核验清单
-
-| # | 审查维度 | 核验结论 | 证据 |
-|---|---------|---------|------|
-| 1 | 需求覆盖：INITIAL_REQ → PRD | ✅ PASS | PRD §1.5覆盖矩阵；6个模块全部标注"已覆盖" |
-| 2 | PRD完整性：30条用户故事 | ✅ PASS | PRD §7列出5角色共30条用户故事 |
-| 3 | PRD业务模型：4方分成 | ✅ PASS | PRD §5服务费1%，80%/15%/5%与ARCHITECTURE §6.4一致 |
-| 4 | PRD非功能需求 → ARCHITECTURE | ✅ PASS | P99<200ms → ARCH §8；99.9%可用 → ARCH §9 HA设计 |
-| 5 | PRD 6个模块 → ARCHITECTURE 6个Agent | ✅ PASS | ARCH §6列出PropertyDict/ListingMatch/CreditNotary/TradeSettlement/MediaGen/PriceEval 6个Agent |
-| 6 | PRD RBAC 5角色 → ARCHITECTURE API鉴权 | ✅ PASS | ARCH §7 JWT双Token + 字段级权限；5角色与PRD §2一致 |
-| 7 | PRD I/O契约 → ARCHITECTURE API定义 | ✅ PASS | ARCH §7 RESTful接口设计覆盖PRD §3.0的9个业务契约区域 |
-| 8 | 三层解耦架构落地 | ✅ PASS | ARCH §4 Python代码：AgentInterface ABC + OpenClawAdapter + HermesAdapter |
-| 9 | ER图 + DDL覆盖度 | ✅ PASS | ARCH §5：18个实体，含TimescaleDB hypertable、PostGIS扩展、Citus分片 |
-| 10 | ADR记录完整性 | ✅ PASS | ARCH §12：ADR-001至ADR-008，8条决策记录含备选方案 |
-| 11 | 交易状态机 → UI_DESIGN页面13 | ✅ PASS | ARCH §9状态机9步骤 = UI_DESIGN §3.1 p.13时间线节点一一对应 |
-| 12 | RFC3161+SHA-256存证 → UI_DESIGN页面14 | ✅ PASS | UI_DESIGN §3.1 p.14存证证书卡中明确展示哈希值和时间戳格式 |
-| 13 | A/B/C/D层级定价 → UI_DESIGN页面07 | ✅ PASS | UI_DESIGN §3.1 p.07仪表盘+修正项展示层级影响 |
-| 14 | PWA Service Worker → UI_DESIGN §5.3 | ✅ PASS | UI_DESIGN §5.3分层缓存策略与ARCH §2.1 PWA需求一致 |
-| 15 | MVP降级检查（SPEC §5.3） | ✅ PASS | 4个设计文档无"TBD"/"暂不考虑"等字样；所有模块均有完整规格 |
-| 16 | Prototype 21页面全部可导入 | ✅ PASS | `prototype/app/prototype-pages.test.ts:47`：`if (pages.length !== 21) throw` |
-| 17 | Prototype TabBar路由正确性 | ❌ FAIL | TabBar.tsx Tab4=消息(routes=/messages) vs UI_DESIGN Tab4=工作台(routes=/workspace/agent) [H-01] |
-| 18 | Prototype 核心路由一致性 | ❌ FAIL | 4处路由偏差：/transaction/, /match, /marketing/* [H-02] |
-| 19 | Prototype 认证页面存在 | ❌ FAIL | 缺少 /auth/login 和 /auth/kyc [H-03] |
-| 20 | ECharts价格可视化 | ❌ FAIL | package.json无echarts依赖；价格页无真实图表 [M-01] |
-| 21 | Tailwind CSS版本 | ⚠️ WARN | package.json ^3.4.1 vs ARCHITECTURE §2规定4.x [M-02] |
-| 22 | UI_DESIGN规范组件实现率 | ⚠️ WARN | 15个规范组件中8个已实现，7个缺失 [M-05] |
-| 23 | 技术栈锁定合规（SPEC §5.1） | ✅ PASS | Next.js 14.2.35、TypeScript、Tailwind+shadcn/ui、shadcn components均已使用；Tailwind版本见M-02 |
-| 24 | 代码规范（SPEC §5.2） | ✅ PASS | TypeScript严格类型、无console.log、lucide-react图标库使用一致 |
-
----
-
-## 六、需求覆盖矩阵
-
-| 初始需求模块 | PRD章节 | ARCHITECTURE章节 | UI_DESIGN页面 | Prototype页面 |
-|------------|--------|-----------------|-------------|-------------|
-| 模块一：楼盘字典共建 | §3.1 | §5 ER图, §6.1 PropertyDictAgent | p.05 /explore/dict, p.06 /explore/dict/:id/edit | ✅ dict/page.tsx, dict/[id]/edit/page.tsx |
-| 模块二：房源客源甄别 | §3.2 | §6.2 ListingMatchAgent | p.08 /publish/listing, p.09 /publish/buyer-need, p.10 /workspace/agent/matches | ✅ publish/listing, publish/buyer-need, match ⚠️路由偏差 |
-| 模块三：信用认证+公证 | §3.3 | §6.3 CreditNotaryAgent | p.11 /profile/agent-cert, p.12 /profile/credit, p.13 /profile/transactions/:tx_id, p.14 evidence | ✅ agent-cert, credit, transaction ⚠️路由偏差, evidence |
-| 模块四：自媒体营销 | §3.4 | §6.5 MediaGenAgent | p.15 /workspace/media/generate, p.16 /workspace/media/manage | ✅ marketing/generate ⚠️路由偏差, marketing/manage ⚠️路由偏差 |
-| 模块五：在地分层价格 | §3.5 | §6.6 PriceEvalAgent | p.07 /listing/:id/price, /price/result | ✅ price/[communityId] ⚠️ECharts缺失 |
-| 模块六：Agent技术底座 | §3.6, §8 | §4全层解耦, §6全Agent设计, §12 ADR | 无用户UI（后端架构）| N/A |
-| 全链路交易结算 | §5 业务模型 | §6.4 TradeSettlementAgent | p.13 交易流程, p.14 存证 | ✅ transaction ⚠️路由偏差, evidence ✅ |
-| 用户认证流程 | §2 角色, §7 用户故事 | §7 API鉴权, JWT | p.A /auth/login, p.B /auth/kyc | ❌ 缺失 |
-| 经纪人工作台 | §2 经纪人角色 | §6.2 ListingMatchAgent | p.17 /workspace/agent, p.18 /workspace/store | ✅ workspace/agent, workspace/store |
-
----
-
-## 七、总结
-
-### 合格项（Green）
-文档链四层（INITIAL_REQ→PRD→ARCHITECTURE→UI_DESIGN）在需求覆盖、技术一致性、业务模型、状态机、RBAC、存证机制等核心设计决策上**高度一致**。PRD的6大模块全部映射到ARCHITECTURE的6个Agent，再映射到UI_DESIGN的21个核心页面，逻辑链完整无断裂。SPEC §5.3规定的"禁止MVP降级"约束在所有设计文档中得到遵守——无TBD、无功能削减、无"后续迭代"表述。
-
-### 条件项（Yellow）
-Prototype作为可视化原型，其路由偏差（4处）和TabBar架构偏差（Tab4）是系统性问题，会影响演示的业务流完整性。认证页面缺失导致Prototype无法演示超过80%的核心业务流程起点。ECharts未集成导致核心差异化功能（在地分层价格图谱）无法在原型中验证。
-
-### 下一步
-1. 完成必须修复项（三个H-级问题 + M-01 ECharts + M-02 Tailwind版本）
-2. 修复后由 Hermes 重新执行 FORI-030 验证（或执行 FORI-030.S 专项修复验证）
-3. 验证通过后标记 FORI-030 为 **PASS**，进入 FORI-040 执行阶段
-
----
-
-*本报告为只读审查，未修改任何源文件。所有发现均有文件路径+章节/行号作为证据来源。*
-*报告人：Claude Code（Expert · 架构/深审）| 2026-07-01*
+| 初始需求模块 | 功能点 | PRD章节 | 架构章节 | UI页面 | 原型文件 | 覆盖状态 |
+|---|---|---|---|---|---|---|
+| 模块一：全国全层级楼盘字典共建共享体系 | 城市-片区-小区-楼栋-单套住宅五级数据浏览 | PRD §3.1.1 | ARCH §5.1, §5.2.1, §6.1 | 页面05 `/explore/dict`, `/explore/dict/:community_id` | `prototype/app/explore/dict/page.tsx` | PARTIAL：列表已覆盖，详情页缺失 |
+| 模块一：全国全层级楼盘字典共建共享体系 | 经纪人/门店共建维护、多人协同、版本留存、冲突合并 | PRD §3.1.2 | ARCH §6.1 | 页面06 `/explore/dict/:community_id/edit` | `prototype/app/explore/dict/[communityId]/edit/page.tsx` | COVERED |
+| 模块一：全国全层级楼盘字典共建共享体系 | 权责匹配、Top3 维护优先权益、数据共享/API 开放 | PRD §3.1.3-§3.1.4 | ARCH §6.1, §7 | 页面17 工作台、页面05 字典 | `prototype/app/workspace/agent/page.tsx`, `prototype/app/explore/dict/page.tsx` | PARTIAL：权益展示有入口，API/权限为后端设计 |
+| 模块二：房源客源甄别流存与智能精准匹配体系 | 房源发布、真实性核验、重复合并、下架/重激活 | PRD §3.2.1-§3.2.2 | ARCH §6.2 | 页面08 `/publish/listing`, 页面17 房源管理 | `prototype/app/publish/listing/page.tsx` | PARTIAL：发布页有，`/workspace/agent/listings` 缺失 |
+| 模块二：房源客源甄别流存与智能精准匹配体系 | 买家需求发布、客源甄别、客源池流存、跟进状态 | PRD §3.2.1-§3.2.2 | ARCH §6.2 | 页面09 `/publish/buyer-need`, 必需页D `/workspace/agent/buyers` | `prototype/app/publish/buyer-need/page.tsx` | PARTIAL：需求发布有，客源管理页缺失 |
+| 模块二：房源客源甄别流存与智能精准匹配体系 | 定向优先匹配、P1/P2/P3 推送、4小时响应窗口 | PRD §3.2.3-§3.2.4 | ARCH §6.2 | 页面10 `/workspace/agent/matches`, 消息中心 | `prototype/app/match/page.tsx`, `prototype/app/messages/page.tsx` | PARTIAL：功能有演示，但路由偏离 UI_DESIGN |
+| 模块三：全链路信用认证与第三方公证合规交易体系 | 登录注册、实名认证、买卖双方认证、购房资格核验 | PRD §3.3.1 | ARCH §6.3, §7.3 | 必需页A `/auth/login`, 必需页B `/auth/kyc` | 无 | MISSING |
+| 模块三：全链路信用认证与第三方公证合规交易体系 | 经纪人/门店认证、信用评分、信用档案 | PRD §3.3.1 | ARCH §5.2.3, §6.3 | 页面11 `/profile/agent-cert`, 页面12 `/profile/credit`, 页面18 `/workspace/store` | `prototype/app/profile/agent-cert/page.tsx`, `prototype/app/profile/credit/page.tsx`, `prototype/app/workspace/store/page.tsx` | COVERED |
+| 模块三：全链路信用认证与第三方公证合规交易体系 | 交易状态机、合同签署、资金监管、缴税过户、佣金结算 | PRD §3.3.3-§3.3.4, §5 | ARCH §6.4, §9.4, §11.4 | 页面13 `/profile/transactions/:tx_id`, `/profile/settlement` | `prototype/app/transaction/[id]/page.tsx` | PARTIAL：交易页有，路由偏离；结算页缺失 |
+| 模块三：全链路信用认证与第三方公证合规交易体系 | 公证前置核验、电子存证、争议材料调取 | PRD §3.3.2, §6.5 | ARCH §5.2.3, §6.3, §11.3 | 页面14 `/profile/transactions/:tx_id/evidence` | `prototype/app/profile/transactions/[txId]/evidence/page.tsx` | COVERED |
+| 模块四：自媒体智能房源推广营销体系 | AI 生成视频、图文、文案、口播脚本 | PRD §3.4.2 | ARCH §6.5 | 页面15 `/workspace/media/generate` | `prototype/app/marketing/generate/page.tsx` | PARTIAL：页面有，路由偏离 UI_DESIGN |
+| 模块四：自媒体智能房源推广营销体系 | 多平台授权、定时分发、发布状态追踪、数据统计 | PRD §3.4.1, §3.4.3 | ARCH §6.5 | 页面16 `/workspace/media/manage` | `prototype/app/marketing/manage/page.tsx` | PARTIAL：页面有，路由偏离 UI_DESIGN |
+| 模块五：独创在地分层动态房价评估体系 | 在地分层理论、A/B/C/D 分层、历史走势 | PRD §3.5.1-§3.5.2 | ARCH §6.6 | 页面07 `/listing/:listing_id/price`, `/price/result` | `prototype/app/price/[communityId]/page.tsx` | PARTIAL：评估页有，ECharts 缺失 |
+| 模块五：独创在地分层动态房价评估体系 | 变量修正、动态测算、可拆解价格图谱、PDF 报告 | PRD §3.5.3 | ARCH §6.6 | 页面07、必需页C `/price` | `prototype/app/price/[communityId]/page.tsx` | PARTIAL：详情评估有，独立入口 `/price` 缺失 |
+| 模块五：独创在地分层动态房价评估体系 | 买家/卖家/经纪人三方价格赋能 | PRD §3.5.4 | ARCH §6.6 | 首页价格入口、房源详情价格入口、页面07 | `prototype/app/home/page.tsx`, `prototype/app/listing/[id]/page.tsx`, `prototype/app/price/[communityId]/page.tsx` | PARTIAL：入口有，完整角色差异与报告能力未验收 |
+| 模块六：Agent 原生智能化技术底座体系 | OpenClaw 主框架、Hermes 兜底、三层解耦 | PRD §3.6.1-§3.6.2 | ARCH §4, §12 ADR-006 | 无独立用户 UI；运营后台/监控系统 | N/A | COVERED AS BACKEND DESIGN |
+| 模块六：Agent 原生智能化技术底座体系 | 六个业务 Agent、任务契约、状态流转、DLQ | PRD §3.0, §3.6.3 | ARCH §6.0-§6.6 | 各业务页触发后台能力 | N/A | COVERED AS BACKEND DESIGN |
+| 模块六：Agent 原生智能化技术底座体系 | 版本同步、框架切换、高并发、高稳定、长期运维 | PRD §3.6.4-§3.6.5, §4 | ARCH §8-§10, §12 | 非用户端运营后台/监控 | N/A | COVERED AS BACKEND DESIGN |
