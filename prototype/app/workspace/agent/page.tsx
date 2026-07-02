@@ -36,6 +36,7 @@ type Todo = {
   title: string;
   due: string;
   priority: TodoPriority;
+  riskScore: number;
 };
 type FollowUp = {
   id: string;
@@ -46,9 +47,9 @@ type FollowUp = {
 };
 
 const todos: Todo[] = [
-  { id: "todo-1", title: "响应 P1 客源：海淀 300 万预算", due: "10:30 前", priority: "P1" },
-  { id: "todo-2", title: "补充交易公证材料", due: "今天 15:00", priority: "P2" },
-  { id: "todo-3", title: "更新中关村小区楼盘字典", due: "今天", priority: "normal" },
+  { id: "todo-1", title: "响应 P1 客源：海淀 300 万预算", due: "10:30 前", priority: "P1", riskScore: 96 },
+  { id: "todo-2", title: "补充交易公证材料", due: "今天 15:00", priority: "P2", riskScore: 78 },
+  { id: "todo-3", title: "更新中关村小区楼盘字典", due: "今天", priority: "normal", riskScore: 42 },
 ];
 
 const followUps: FollowUp[] = [
@@ -140,13 +141,13 @@ export default function AgentWorkspacePage() {
                 <QuickEntry icon={Users} label="客源" badge="5" href="/workspace/agent/buyers" />
                 <QuickEntry icon={Home} label="房源" href="/workspace/agent/listings" />
                 <QuickEntry icon={Building2} label="楼盘字典" href="/explore/dict" />
-                <QuickEntry icon={Megaphone} label="推广" href="/marketing/generate" />
+                <QuickEntry icon={Megaphone} label="推广" href="/workspace/media/generate" />
               </div>
             </Card>
 
-            <Card header={<SectionTitle icon={ListTodo} title="今日待办" action={`${todos.length} 项`} />}>
+            <Card header={<SectionTitle icon={ListTodo} title="今日必须处理" action="按超时风险排序" />}>
               <div className="space-y-3">
-                {todos.map((todo) => (
+                {[...todos].sort((a, b) => b.riskScore - a.riskScore).map((todo) => (
                   <TodoRow key={todo.id} todo={todo} onClick={() => showToast("待办处理占位")} />
                 ))}
               </div>
@@ -270,6 +271,7 @@ function TodoRow({ todo, onClick }: { todo: Todo; onClick: () => void }) {
         <p className="text-caption text-neutral-500">{todo.due}</p>
       </div>
       <span className={cn("rounded-full px-2 py-1 text-caption font-semibold", priorityClass)}>{todo.priority}</span>
+      <span className="price-nums text-caption font-semibold text-neutral-500">{todo.riskScore}</span>
     </button>
   );
 }

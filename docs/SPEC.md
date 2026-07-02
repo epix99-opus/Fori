@@ -164,7 +164,7 @@ ssh woot 'cd /Users/woot/Dev/Fori && codex exec "你是 Fori 的开发者。
 | 层 | 技术 | 版本 | 禁止替代 |
 |----|------|------|----------|
 | 前端 | Next.js 14 (App Router) + PWA | 14.x | 不得用 Vue/Angular |
-| 前端 UI | Tailwind CSS + shadcn/ui | latest | 不得用 Ant Design |
+| 前端 UI | Tailwind CSS + shadcn/ui | 生产 Tailwind 4.x；原型可临时 Tailwind 3.x | 不得用 Ant Design |
 | 后端 | FastAPI (Python 3.12) | 0.110+ | 不得用 Django/Flask |
 | 数据库 | PostgreSQL 16 + PostGIS + TimescaleDB | 16 | 不得用 MySQL |
 | 缓存 | Redis 7 | 7.x | 不得用 Memcached |

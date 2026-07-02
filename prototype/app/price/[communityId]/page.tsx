@@ -2,21 +2,21 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import type { EChartsOption } from "echarts";
 import {
   ArrowLeft,
   Building2,
   ChevronDown,
   FileText,
   Home,
-  Info,
   RefreshCw,
   Share2,
-  TrendingUp,
   Users,
 } from "lucide-react";
 
 import { BottomSheet } from "@/components/BottomSheet";
 import { Button } from "@/components/Button";
+import { ChartCard } from "@/components/ChartCard";
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
 import { Skeleton } from "@/components/Skeleton";
@@ -102,19 +102,6 @@ function formatUnitPrice(value: number) {
   return value.toLocaleString("zh-CN");
 }
 
-function buildPath(points: number[], width: number, height: number) {
-  const min = Math.min(...points);
-  const max = Math.max(...points);
-  const range = max - min || 1;
-  return points
-    .map((point, index) => {
-      const x = (index / (points.length - 1)) * width;
-      const y = height - ((point - min) / range) * (height - 12) - 6;
-      return `${index === 0 ? "M" : "L"} ${x.toFixed(1)} ${y.toFixed(1)}`;
-    })
-    .join(" ");
-}
-
 export default function PriceEvaluationPage({ params }: { params: { communityId: string } }) {
   const [status, setStatus] = useState<PageState>("loading");
   const [selectedCommunityId, setSelectedCommunityId] = useState(params.communityId);
@@ -134,14 +121,66 @@ export default function PriceEvaluationPage({ params }: { params: { communityId:
   const baseline = community.referenceRange[1] - 3000;
   const calculated = baseline + factors.reduce((sum, factor) => sum + factor.amount, 0);
   const unitPrice = Math.round((listing.priceWan * 10000) / listing.areaSqm);
-  const gaugePosition = Math.min(88, Math.max(12, ((unitPrice - community.referenceRange[0]) / (community.referenceRange[1] - community.referenceRange[0])) * 60 + 20));
   const conclusion = calculated > unitPrice ? "该房源挂牌价合理，低于测算价约 3%" : "该房源挂牌价接近测算价，可继续观察议价空间";
 
-  const trendPaths = useMemo(() => {
-    const current = buildPath(trendPoints.map((point) => point.currentTier), 280, 128);
-    const compare = buildPath(trendPoints.map((point) => point.compareTier), 280, 128);
-    return { current, compare };
-  }, []);
+  const gaugeOption = useMemo<EChartsOption>(
+    () => ({
+      series: [
+        {
+          type: "gauge",
+          min: community.referenceRange[0],
+          max: community.referenceRange[1] + 5000,
+          progress: { show: true, width: 14, itemStyle: { color: "#2563EB" } },
+          axisLine: { lineStyle: { width: 14, color: [[0.35, "#86EFAC"], [0.75, "#93C5FD"], [1, "#FCA5A5"]] } },
+          pointer: { width: 4 },
+          detail: { formatter: (value: number) => `¥${formatUnitPrice(Math.round(value))}/㎡`, fontSize: 18, color: "#111827" },
+          data: [{ value: unitPrice, name: "当前挂牌均价" }],
+        },
+      ],
+    }),
+    [community.referenceRange, unitPrice],
+  );
+
+  const waterfallOption = useMemo<EChartsOption>(() => {
+    const labels = ["基准价", ...factors.map((factor) => factor.label), "测算价"];
+    const values = [baseline, ...factors.map((factor) => factor.amount), calculated];
+    const helpers = values.reduce<number[]>((acc, value, index) => {
+      if (index === 0 || index === values.length - 1) return [...acc, 0];
+      const previous = acc[index - 1] + values[index - 1];
+      return [...acc, value < 0 ? previous + value : previous];
+    }, []);
+
+    return {
+      tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
+      grid: { left: 8, right: 8, top: 18, bottom: 24, containLabel: true },
+      xAxis: { type: "category", data: labels, axisLabel: { interval: 0, rotate: 28, fontSize: 10 } },
+      yAxis: { type: "value", axisLabel: { formatter: (value: number) => `${Math.round(value / 1000)}k` } },
+      series: [
+        { type: "bar", stack: "total", itemStyle: { color: "transparent" }, emphasis: { itemStyle: { color: "transparent" } }, data: helpers },
+        {
+          type: "bar",
+          stack: "total",
+          data: values,
+          itemStyle: { color: (params) => (Number(params.value) < 0 ? "#EF4444" : "#2563EB") },
+        },
+      ],
+    };
+  }, [baseline, calculated]);
+
+  const trendOption = useMemo<EChartsOption>(
+    () => ({
+      tooltip: { trigger: "axis" },
+      legend: { bottom: 0, data: [`${community.tier} 层级`, "C 层级参考"] },
+      grid: { left: 8, right: 12, top: 18, bottom: 48, containLabel: true },
+      xAxis: { type: "category", boundaryGap: false, data: trendPoints.map((point) => point.month) },
+      yAxis: { type: "value", axisLabel: { formatter: (value: number) => `${Math.round(value / 1000)}k` } },
+      series: [
+        { name: `${community.tier} 层级`, type: "line", smooth: true, data: trendPoints.map((point) => point.currentTier), areaStyle: { opacity: 0.08 }, color: "#2563EB" },
+        { name: "C 层级参考", type: "line", smooth: true, data: trendPoints.map((point) => point.compareTier), color: "#D97706" },
+      ],
+    }),
+    [community.tier],
+  );
 
   function showToast(message: string) {
     setToast(message);
@@ -219,77 +258,10 @@ export default function PriceEvaluationPage({ params }: { params: { communityId:
               ))}
             </section>
 
-            <section className="rounded-xl bg-white p-4 shadow-card">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-caption text-neutral-500">动态价格测算</p>
-                  <h2 className="text-price-l price-nums">¥ {formatUnitPrice(calculated)} 元/㎡</h2>
-                  <p className="text-body-s text-neutral-500">基准价 ¥{formatUnitPrice(baseline)} + 修正因子合计</p>
-                </div>
-                <span className="rounded-full bg-green-50 px-3 py-1 text-caption font-semibold text-semantic-success">{conclusion}</span>
-              </div>
+            <ChartCard title="动态价格测算仪表盘" eyebrow={`测算价 ¥${formatUnitPrice(calculated)} 元/㎡ · ${conclusion}`} option={gaugeOption} height={260} />
 
-              <div className="mt-5">
-                <div className="relative h-24 overflow-hidden">
-                  <div className="absolute inset-x-3 bottom-0 h-20 rounded-t-full bg-gradient-to-r from-green-100 via-primary-100 to-red-100" />
-                  <div className="absolute inset-x-10 bottom-0 h-14 rounded-t-full bg-white" />
-                  <div className="absolute bottom-2 left-1/2 h-1 w-[120px] origin-left rounded-full bg-primary-900 transition-transform" style={{ transform: `rotate(${gaugePosition - 90}deg)` }} />
-                  <div className="absolute bottom-0 left-1/2 size-4 -translate-x-1/2 rounded-full bg-primary-900" />
-                </div>
-                <div className="flex justify-between text-caption text-neutral-500">
-                  <span>偏低</span>
-                  <span>合理区间</span>
-                  <span>偏高</span>
-                </div>
-                <p className="mt-3 text-center text-body-s">
-                  当前挂牌 ¥ {listing.priceWan} 万（{formatUnitPrice(unitPrice)} 元/㎡）
-                </p>
-              </div>
-            </section>
-
-            <section className="rounded-xl bg-white p-4 shadow-card">
-              <div className="flex items-center justify-between">
-                <h2 className="text-h3">价格因素拆解瀑布图</h2>
-                <Info className="size-4 text-neutral-500" />
-              </div>
-              <div className="mt-4 space-y-3">
-                <WaterfallRow label="基准价" value={baseline} percent={0} max={baseline} />
-                {factors.map((factor) => (
-                  <button key={factor.label} type="button" className="w-full text-left" onClick={() => setSelectedFactor(factor)}>
-                    <WaterfallRow label={`${factor.label} ${factor.percent > 0 ? "+" : ""}${factor.percent}%`} value={factor.amount} percent={factor.percent} max={baseline} />
-                  </button>
-                ))}
-                <div className="border-t border-dashed border-neutral-200 pt-3">
-                  <WaterfallRow label="测算价" value={calculated} percent={0} max={baseline} strong />
-                </div>
-              </div>
-            </section>
-
-            <section className="rounded-xl bg-white p-4 shadow-card">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-caption text-neutral-500">近 24 个月</p>
-                  <h2 className="text-h3">片区历史价格走势</h2>
-                </div>
-                <TrendingUp className="size-5 text-primary-700" />
-              </div>
-              <svg viewBox="0 0 300 160" className="mt-3 h-44 w-full" role="img" aria-label="B 层级与 C 层级历史价格趋势线">
-                {[24, 64, 104, 144].map((y) => (
-                  <line key={y} x1="8" x2="292" y1={y} y2={y} stroke="#E5E7EB" strokeDasharray="4 4" />
-                ))}
-                <path d={trendPaths.compare} transform="translate(10 12)" fill="none" stroke="#D97706" strokeWidth="3" strokeLinecap="round" />
-                <path d={trendPaths.current} transform="translate(10 12)" fill="none" stroke="#2563EB" strokeWidth="3" strokeLinecap="round" />
-                {trendPoints.map((point, index) => (
-                  <text key={point.month} x={12 + index * 56} y="154" className="fill-neutral-500 text-[10px]">
-                    {point.month}
-                  </text>
-                ))}
-              </svg>
-              <div className="flex gap-3 text-caption">
-                <span className="flex items-center gap-1"><i className="size-2 rounded-full bg-primary-500" />{community.tier} 层级</span>
-                <span className="flex items-center gap-1"><i className="size-2 rounded-full bg-secondary-500" />C 层级参考</span>
-              </div>
-            </section>
+            <ChartCard title="价格因素拆解瀑布图" eyebrow="基准价、楼层、朝向、装修、税费、稀缺度逐项归因" option={waterfallOption} />
+            <ChartCard title="片区历史价格走势" eyebrow="近 24 个月同层级与参考层级对比" option={trendOption} />
 
             <section className="grid grid-cols-3 gap-2">
               {marketStats.map((stat) => (
@@ -388,25 +360,5 @@ export default function PriceEvaluationPage({ params }: { params: { communityId:
 
       {toast ? <Toast title={toast} /> : null}
     </main>
-  );
-}
-
-function WaterfallRow({ label, value, percent, max, strong = false }: { label: string; value: number; percent: number; max: number; strong?: boolean }) {
-  const isNegative = value < 0;
-  const width = Math.max(8, Math.min(100, (Math.abs(value) / max) * 100));
-
-  return (
-    <div className="grid grid-cols-[96px_1fr_88px] items-center gap-2 text-body-s">
-      <span className={cn("truncate", strong && "font-semibold")}>{label}</span>
-      <div className="relative h-5 rounded-full bg-neutral-100">
-        <div
-          className={cn("absolute top-1 h-3 rounded-full", isNegative ? "right-1/2 bg-red-300" : "left-0 bg-primary-500", strong && "bg-primary-900")}
-          style={{ width: `${strong ? 100 : width}%` }}
-        />
-      </div>
-      <span className={cn("text-right price-nums", strong && "font-semibold", isNegative ? "text-semantic-danger" : "text-neutral-900")}>
-        {percent === 0 && !strong ? formatUnitPrice(value) : `${value >= 0 ? "+" : ""}${formatUnitPrice(value)}`}
-      </span>
-    </div>
   );
 }

@@ -1,23 +1,23 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Compass, Home, MessageCircle, PlusCircle, User } from "lucide-react";
+import { Briefcase, Compass, Home, PlusCircle, User } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
 const tabs = [
   { key: "home", label: "首页", icon: Home },
-  { key: "explore", label: "探索", icon: Compass },
+  { key: "explore", label: "找房", icon: Compass },
   { key: "publish", label: "发布", icon: PlusCircle },
-  { key: "messages", label: "消息", icon: MessageCircle },
+  { key: "workspace", label: "工作台", icon: Briefcase },
   { key: "profile", label: "我的", icon: User },
 ];
 
 const tabRoutes: Record<string, string> = {
   home: "/home",
-  explore: "/explore/dict",
+  explore: "/explore/search",
   publish: "/publish/listing",
-  messages: "/messages",
+  workspace: "/workspace/agent",
   profile: "/profile",
 };
 

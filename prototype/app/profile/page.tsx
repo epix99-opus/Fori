@@ -59,9 +59,9 @@ export default function ProfilePage() {
   const quickEntries: QuickEntry[] = useMemo(
     () => [
       { label: "我的房源", value: `${mockListings.length}`, href: "/publish/listing", icon: Building2, tone: "bg-primary-100 text-primary-700" },
-      { label: "我的客户", value: "8", href: "/match", icon: UsersRound, tone: "bg-blue-50 text-semantic-info" },
-      { label: "我的交易", value: `${mockTransactions.length}`, href: "/transaction/txn-001", icon: FileCheck2, tone: "bg-green-50 text-semantic-success" },
-      { label: "我的收藏", value: "12", href: "/search", icon: Bookmark, tone: "bg-red-50 text-semantic-danger" },
+      { label: "我的客户", value: "8", href: "/workspace/agent/matches", icon: UsersRound, tone: "bg-blue-50 text-semantic-info" },
+      { label: "我的交易", value: `${mockTransactions.length}`, href: "/profile/transactions", icon: FileCheck2, tone: "bg-green-50 text-semantic-success" },
+      { label: "我的收藏", value: "12", href: "/explore/search", icon: Bookmark, tone: "bg-red-50 text-semantic-danger" },
     ],
     [],
   );

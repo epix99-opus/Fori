@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { PwaRuntime } from "@/components/PwaRuntime";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -27,7 +28,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN">
-      <body>{children}</body>
+      <body>
+        <PwaRuntime />
+        {children}
+      </body>
     </html>
   );
 }

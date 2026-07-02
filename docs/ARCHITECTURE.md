@@ -75,6 +75,7 @@ Fori 平台的技术架构围绕五大核心原则展开：
 4. **生态成熟度**：国内外大量高并发项目验证，文档丰富，招聘市场充裕。
 
 **UI 层**：Tailwind CSS 4.x + shadcn/ui（基于 Radix UI 无障碍原语）  
+**原型例外**：`prototype/` 为 Next.js 14 可构建交互原型，允许临时使用 Tailwind CSS 3.x 以保持当前 shadcn/ui 脚手架稳定；生产执行阶段必须升级到 Tailwind CSS 4.x，迁移步骤见 `docs/MIGRATION-TAILWIND4.md`。
 **地图组件**：高德地图 JS API 2.0（小区位置、片区边界可视化）  
 **图表组件**：ECharts 5（价格走势折线图、瀑布图、热力图）  
 **状态管理**：Zustand（轻量、TypeScript 友好，适合中等复杂度 SPA）  
