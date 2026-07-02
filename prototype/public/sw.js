@@ -39,6 +39,76 @@ self.addEventListener("fetch", (event) => {
   }
 });
 
+self.addEventListener("sync", (event) => {
+  if (event.tag === "fori-flush-queue") {
+    event.waitUntil(flushOfflineQueue());
+  }
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data === "flush-queue") {
+    flushOfflineQueue().then((count) => {
+      event.source.postMessage({ type: "queue-flushed", count });
+    }).catch(() => {});
+  }
+});
+
+async function flushOfflineQueue() {
+  const records = await getAllOfflineQueue();
+  let flushed = 0;
+  for (const record of records) {
+    try {
+      const resp = await fetch(record.url, {
+        method: record.method,
+        body: record.body || undefined,
+        headers: { "content-type": "application/json" },
+      });
+      if (resp.ok) {
+        await deleteOfflineQueue(record.id);
+        flushed++;
+      }
+    } catch (_e) {
+      break;
+    }
+  }
+  const clients = await self.clients.matchAll();
+  clients.forEach((c) => c.postMessage({ type: "queue-flushed", count: flushed }));
+  return flushed;
+}
+
+function getAllOfflineQueue() {
+  return new Promise((resolve, reject) => {
+    const open = indexedDB.open("fori-offline", 1);
+    open.onupgradeneeded = () => {
+      const db = open.result;
+      if (!db.objectStoreNames.contains("drafts")) db.createObjectStore("drafts", { keyPath: "id" });
+      if (!db.objectStoreNames.contains("offlineQueue")) db.createObjectStore("offlineQueue", { keyPath: "id" });
+    };
+    open.onerror = () => reject(open.error);
+    open.onsuccess = () => {
+      const db = open.result;
+      const tx = db.transaction("offlineQueue", "readonly");
+      const req = tx.objectStore("offlineQueue").getAll();
+      req.onsuccess = () => { db.close(); resolve(req.result || []); };
+      req.onerror = () => { db.close(); reject(req.error); };
+    };
+  });
+}
+
+function deleteOfflineQueue(id) {
+  return new Promise((resolve, reject) => {
+    const open = indexedDB.open("fori-offline", 1);
+    open.onerror = () => reject(open.error);
+    open.onsuccess = () => {
+      const db = open.result;
+      const tx = db.transaction("offlineQueue", "readwrite");
+      tx.objectStore("offlineQueue").delete(id);
+      tx.oncomplete = () => { db.close(); resolve(); };
+      tx.onerror = () => { db.close(); reject(tx.error); };
+    };
+  });
+}
+
 async function readThroughCache(request) {
   const cache = await caches.open(READ_CACHE);
   try {
@@ -71,7 +141,10 @@ async function queueWriteWhenOffline(request) {
       body,
       createdAt: new Date().toISOString(),
     });
-    return new Response(JSON.stringify({ queued: true, message: "已写入离线队列，恢复网络后同步" }), {
+    if ("sync" in self.registration) {
+      self.registration.sync.register("fori-flush-queue").catch(() => {});
+    }
+    return new Response(JSON.stringify({ queued: true, message: "已写入离线队列，网络恢复后自动同步" }), {
       status: 202,
       headers: { "content-type": "application/json" },
     });
