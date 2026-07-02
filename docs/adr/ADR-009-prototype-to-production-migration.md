@@ -111,7 +111,6 @@
 | `app/page.tsx` | `app/page.tsx` | 根页 → redirect `/home` |
 | `app/home/page.tsx` | `app/home/page.tsx` | 首页信息流 |
 | `app/search/page.tsx` | `app/search/page.tsx` | 全局房源搜索 |
-| `app/messages/page.tsx` | `app/messages/page.tsx` | 消息中心 |
 | `app/auth/login/page.tsx` | `app/auth/login/page.tsx` | 登录页 |
 | `app/profile/page.tsx` | `app/profile/page.tsx` | 个人中心入口 |
 | `app/profile/me/page.tsx` | `app/profile/me/page.tsx` | 我的资料 |
@@ -142,6 +141,7 @@
 | `app/publish/listing/page.tsx` | `app/publish/listing/page.tsx` | 发布房源 |
 | `app/publish/buyer-need/page.tsx` | `app/publish/buyer-need/page.tsx` | 发布客源 |
 | `app/match/page.tsx` | `app/match/page.tsx` | 匹配推荐列表 |
+| `app/messages/page.tsx` | `app/messages/page.tsx` | 消息中心（M2 匹配闭环配套） |
 | `app/workspace/agent/page.tsx` | `app/workspace/agent/page.tsx` | 经纪人工作台首页 |
 | `app/workspace/agent/listings/page.tsx` | `app/workspace/agent/listings/page.tsx` | 我的房源 |
 | `app/workspace/agent/buyers/page.tsx` | `app/workspace/agent/buyers/page.tsx` | 我的客源 |
@@ -191,6 +191,20 @@
 | `components/Stepper.tsx` | `packages/ui/src/Stepper.tsx` | 步骤条 |
 | `components/TabBar.tsx` | `packages/ui/src/TabBar.tsx` | 底部导航栏 |
 | `components/Toast.tsx` | `packages/ui/src/Toast.tsx` | 轻提示 |
+
+**shadcn/ui 基础件**（`prototype/components/ui/` → `packages/ui/src/ui/`）：
+
+| 原型文件 | 目标路径 | 说明 |
+|---------|---------|------|
+| `components/ui/button.tsx` | `packages/ui/src/ui/button.tsx` | shadcn 基础按钮 |
+| `components/ui/card.tsx` | `packages/ui/src/ui/card.tsx` | shadcn 卡片 |
+| `components/ui/input.tsx` | `packages/ui/src/ui/input.tsx` | shadcn 输入框 |
+| `components/ui/label.tsx` | `packages/ui/src/ui/label.tsx` | shadcn 标签 |
+| `components/ui/skeleton.tsx` | `packages/ui/src/ui/skeleton.tsx` | shadcn 骨架屏 |
+| `components/ui/tabs.tsx` | `packages/ui/src/ui/tabs.tsx` | shadcn 标签页 |
+| `components/ui/toast.tsx` | `packages/ui/src/ui/toast.tsx` | shadcn Toast 原语 |
+
+> **策略**：FORI-042 将 `components/ui/` 整目录复制至 `packages/ui/src/ui/`，保持相对 import 路径 `./ui/button` 不变。Wave 0 不重新运行 shadcn CLI；Tailwind 4 升级后逐文件验证样式。
 
 ### 5.2 应用级组件（保留在 apps/web/components）
 

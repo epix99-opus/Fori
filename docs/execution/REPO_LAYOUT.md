@@ -26,8 +26,8 @@ Fori/                                       # Monorepo 根（FORI-042 添加根 
 │   │   │   │   └── page.tsx                # 首页信息流 [Wave 0]
 │   │   │   ├── search/
 │   │   │   │   └── page.tsx                # 全局房源搜索 [Wave 0]
-│   │   │   ├── messages/
-│   │   │   │   └── page.tsx                # 消息中心 [Wave 3]
+│   │   │   ├── messages/                   # M2 匹配闭环配套 [Wave 3]
+│   │   │   │   └── page.tsx                # 消息中心
 │   │   │   │
 │   │   │   ├── auth/
 │   │   │   │   ├── login/
@@ -179,6 +179,14 @@ Fori/                                       # Monorepo 根（FORI-042 添加根 
 │       │   ├── Stepper.tsx
 │       │   ├── TabBar.tsx
 │       │   ├── Toast.tsx
+│       │   ├── ui/                         # shadcn/ui 基础件（自 prototype/components/ui/）
+│       │   │   ├── button.tsx
+│       │   │   ├── card.tsx
+│       │   │   ├── input.tsx
+│       │   │   ├── label.tsx
+│       │   │   ├── skeleton.tsx
+│       │   │   ├── tabs.tsx
+│       │   │   └── toast.tsx
 │       │   └── index.ts                    # 统一导出全部组件
 │       ├── tsconfig.json
 │       └── package.json                    # name: @fori/ui
