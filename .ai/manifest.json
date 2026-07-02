@@ -38,8 +38,8 @@
       "sessionResetAt": "2026-07-01T14:08:00-07:00",
       "deviceTz": "America/Los_Angeles (PDT, UTC-7)",
       "device": "epix+woot (shared account)",
-      "checkedAt": "2026-07-01T18:01:00-07:00",
-      "lastCheckResult": "AVAILABLE — codex exec responded 'OK' (exit 0; non-fatal MCP transport warnings ignored)"
+      "checkedAt": "2026-07-01T20:01:00-07:00",
+      "lastCheckResult": "AVAILABLE — codex exec responded 'OK' (exit 0; MCP transport warnings ignored)"
     },
     "claude": {
       "status": "error",
@@ -47,8 +47,8 @@
       "dailyResetAt": "2026-07-01T22:30:00-07:00",
       "deviceTz": "America/Los_Angeles (PDT, UTC-7)",
       "device": "epix+woot (shared account)",
-      "checkedAt": "2026-07-01T18:01:00-07:00",
-      "lastCheckResult": "ERROR (non-limit) — claude -p returned 401 Invalid authentication credentials (exit 1). NOT a rate-limit error; Claude auth credentials issue, skipped per task rules."
+      "checkedAt": "2026-07-01T20:15:00-07:00",
+      "lastCheckResult": "ERROR (non-limit) — claude auth status shows loggedIn=true (Pro subscription) but claude -p returns 401. Token has expired. Needs human to run `claude auth login` for browser OAuth refresh. Watchdog no longer calls claude -p for detection (time-based estimation only)."
     }
   },
   "timezones": {

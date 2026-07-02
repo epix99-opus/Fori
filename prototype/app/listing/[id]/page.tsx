@@ -254,7 +254,7 @@ export default function ListingDetailPage({ params }: ListingPageProps) {
       </section>
 
       <div className="safe-bottom fixed inset-x-0 bottom-0 z-40 mx-auto max-w-[430px] border-t border-neutral-200 bg-white px-4 pt-3">
-        <div className="grid grid-cols-[1fr_1fr_1.25fr] gap-2">
+        <div className="grid grid-cols-[1fr_1fr_1.35fr] gap-2">
           <Button variant="secondary" className="h-12">
             <Phone className="mr-1 size-4" />
             联系
@@ -263,21 +263,21 @@ export default function ListingDetailPage({ params }: ListingPageProps) {
             <MessageCircle className="mr-1 size-4" />
             沟通
           </Button>
-          <Button className="h-12" onClick={() => setAppointmentOpen(true)}>
+          <Button className="h-12 px-2 text-xs sm:text-sm" onClick={() => setAppointmentOpen(true)}>
             <CalendarDays className="mr-1 size-4" />
-            预约看房
+            发起购买意向
           </Button>
         </div>
       </div>
 
-      <BottomSheet open={appointmentOpen} title="预约看房" onClose={() => setAppointmentOpen(false)}>
+      <BottomSheet open={appointmentOpen} title="发起购买意向" onClose={() => setAppointmentOpen(false)}>
         <div className="space-y-3">
-          {["明天 10:00", "明天 15:00", "周末 14:00"].map((time) => (
+          {["预约明天 10:00 看房并发起意向", "提交首轮意向价 268 万", "邀请经纪人创建交易记录"].map((time) => (
             <button key={time} type="button" className="w-full rounded-xl border border-neutral-200 px-4 py-3 text-left text-body-m">
               {time}
             </button>
           ))}
-          <Button className="w-full" onClick={() => setAppointmentOpen(false)}>确认预约</Button>
+          <Button className="w-full" onClick={() => setAppointmentOpen(false)}>确认并进入交易</Button>
         </div>
       </BottomSheet>
     </main>

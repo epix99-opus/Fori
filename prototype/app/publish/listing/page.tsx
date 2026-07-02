@@ -218,6 +218,14 @@ export default function PublishListingPage() {
             保存
           </button>
         </div>
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <button type="button" className="rounded-xl bg-primary-100 px-3 py-2 text-caption font-semibold text-primary-700">
+            自己发布
+          </button>
+          <button type="button" className="rounded-xl bg-neutral-100 px-3 py-2 text-caption font-semibold text-neutral-700">
+            请经纪人协助发布
+          </button>
+        </div>
       </header>
 
       <section className="space-y-4 px-4 py-4">

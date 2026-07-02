@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Fori">
+  <rect width="512" height="512" rx="112" fill="#2563EB"/>
+  <path d="M128 342V166h250v58H197v46h144v56H197v16h-69Z" fill="#FFFFFF"/>
+  <path d="M128 382h256v48H128z" fill="#F59E0B"/>
+</svg>

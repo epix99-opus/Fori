@@ -23,14 +23,14 @@
 
 ## Breakpoint
 - Step completed: FORI-001 through FORI-030 全部完成
-- Current state: FORI-030 全案审查完成 (CONDITIONAL_PASS)，文档链一致性高，无MVP降级
-- Blockers: 无 — 双 Agent 限额均可用
-- Next action: FORI-040+ 开发阶段，需先修复审查发现的 HIGH 级问题：
-  - H-01: TabBar Tab4 应为"工作台"而非"消息"（经纪人入口断裂）
-  - H-02: 4处路由偏差需迁移到 UI_DESIGN 规定路径
-  - H-03: 缺少 /auth/login 和 /auth/kyc 认证页面
-  - MEDIUM: ECharts未集成、Tailwind版本、地图页/楼盘字典页缺失等
-  - 派发: 修复任务建议派给 Codex (woot)，按 H→M 优先级执行
+- Current state: FORI-031 原型修订中 (Codex 后台执行)
+- Blockers: Claude Code 401 认证失效，需人工执行 `claude auth login`
+- Next action: FORI-031 完成后 → Hermes 验证 → FORI-032 Claude Code 架构交叉审查 (需先修复 Claude auth)
+- 修复记录:
+  - 2026-07-01T20:15: watchdog cron 已改为时间推算限额状态，不再实际调用 Agent API
+  - 2026-07-01T20:15: Obscura MCP 已注册 (12 tools)，下次新会话生效
+  - 2026-07-01T20:15: 8个暂停 cron job 已恢复 (weixin 429 已过重置时间)
+  - 2026-07-01T20:15: fori-auto-resume skill 已创建，固化续跑流程
 
 ## Decisions & Memory
 - 2026-07-01: 项目 Fori 创建，仓库 epix99-opus/Fori
