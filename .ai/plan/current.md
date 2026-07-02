@@ -5,7 +5,7 @@
 |-------|-------|
 | Task ID | FORI-030 |
 | Title | 全案审查评估（需求→PRD→架构→UI→原型 端到端审查） |
-| Status | scheduled |
+| Status | completed |
 | Owner | claude (epix) |
 
 ## Checklist
@@ -18,18 +18,19 @@
 - [x] FORI-020: 原型脚手架搭建 (Next.js 14 + Tailwind + shadcn/ui)
 - [x] FORI-021.A~U: 21个移动端页面原型实现 (commit 13f21be)
 - [x] FORI-022: Hermes 原型集成验证 + Codex 修复 (TabBar路由+5死链, commit 1b0f921, VERDICT: PASS)
-- [ ] FORI-030: Claude Code 全案审查评估
+- [x] FORI-030: Claude Code 全案审查评估 (CONDITIONAL_PASS, 见 docs/reviews/REVIEW-030-FINAL.md)
 - [ ] FORI-040+: 开发阶段
 
 ## Breakpoint
-- Step completed: FORI-001 through FORI-022 全部完成
-- Current state: 原型集成验证通过 (FORI-022 VERDICT: PASS)，21页面 build 成功，TabBar 路由 + 5死链已修复
-- Blockers: 无 — 双 Agent 限额均已恢复 (Codex: available, Claude: available, 2026-07-01T15:00 PDT)
-- Next action: FORI-030 全案审查评估（Claude Code, epix, 限额已恢复）
-  - 输入: docs/INITIAL_REQUIREMENTS.md, docs/PRD.md, docs/ARCHITECTURE.md, docs/UI_DESIGN.md, docs/SPEC.md, prototype/
-  - 产出: docs/reviews/REVIEW-030-FINAL.md (含 VERDICT + FINDINGS + REQUIRED_CHANGES)
-  - 验收: 初始需求100%覆盖、PRD→架构→UI→原型一致性链路完整、无MVP降级
-  - 派发命令: claude -p "[自包含prompt]" --allowedTools "Read,Write,Bash" --max-turns 30 --dangerously-skip-permissions < /dev/null
+- Step completed: FORI-001 through FORI-030 全部完成
+- Current state: FORI-030 全案审查完成 (CONDITIONAL_PASS)，文档链一致性高，无MVP降级
+- Blockers: 无 — 双 Agent 限额均可用
+- Next action: FORI-040+ 开发阶段，需先修复审查发现的 HIGH 级问题：
+  - H-01: TabBar Tab4 应为"工作台"而非"消息"（经纪人入口断裂）
+  - H-02: 4处路由偏差需迁移到 UI_DESIGN 规定路径
+  - H-03: 缺少 /auth/login 和 /auth/kyc 认证页面
+  - MEDIUM: ECharts未集成、Tailwind版本、地图页/楼盘字典页缺失等
+  - 派发: 修复任务建议派给 Codex (woot)，按 H→M 优先级执行
 
 ## Decisions & Memory
 - 2026-07-01: 项目 Fori 创建，仓库 epix99-opus/Fori

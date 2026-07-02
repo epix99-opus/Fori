@@ -9,10 +9,12 @@
   "currentTask": {
     "id": "FORI-030",
     "title": "全案审查评估（需求→PRD→架构→UI→原型 端到端审查）",
-    "status": "scheduled",
+    "status": "completed",
     "owner": "claude",
+    "verdict": "CONDITIONAL_PASS",
     "planFile": ".ai/plan/current.md",
-    "updatedAt": "2026-07-01T15:10:00-07:00"
+    "reviewFile": "docs/reviews/REVIEW-030-FINAL.md",
+    "updatedAt": "2026-07-01T22:38:00-07:00"
   },
   "completedTasks": [
     {"id": "FORI-002", "title": "PRD 深度生成", "owner": "claude", "commit": "a53dacd"},
@@ -36,17 +38,17 @@
       "sessionResetAt": "2026-07-01T14:08:00-07:00",
       "deviceTz": "America/Los_Angeles (PDT, UTC-7)",
       "device": "epix+woot (shared account)",
-      "checkedAt": "2026-07-01T15:00:46-07:00",
+      "checkedAt": "2026-07-01T18:01:00-07:00",
       "lastCheckResult": "AVAILABLE — codex exec responded 'OK' (exit 0; non-fatal MCP transport warnings ignored)"
     },
     "claude": {
-      "status": "available",
-      "resetAt": "2026-07-02T22:30:00-07:00",
+      "status": "error",
+      "resetAt": "2026-07-01T22:30:00-07:00",
       "dailyResetAt": "2026-07-01T22:30:00-07:00",
       "deviceTz": "America/Los_Angeles (PDT, UTC-7)",
       "device": "epix+woot (shared account)",
-      "checkedAt": "2026-07-01T15:00:46-07:00",
-      "lastCheckResult": "AVAILABLE — claude -p responded 'OK' (exit 0)"
+      "checkedAt": "2026-07-01T18:01:00-07:00",
+      "lastCheckResult": "ERROR (non-limit) — claude -p returned 401 Invalid authentication credentials (exit 1). NOT a rate-limit error; Claude auth credentials issue, skipped per task rules."
     }
   },
   "timezones": {
