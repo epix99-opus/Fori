@@ -7,24 +7,64 @@
     "localPath": "/Users/epix/Dev/Fori"
   },
   "currentTask": {
-      "id": "FORI-031",
-      "title": "原型修订（REVIEW-030 8项必修 + UX P1改进）",
-      "status": "completed",
-      "owner": "codex",
-      "verdict": "PASS (29/29 verification checks, build passed)",
-      "planFile": ".ai/plan/current.md",
-      "commit": "ed2dd30",
-      "updatedAt": "2026-07-01T20:30:00-07:00"
+    "id": "FORI-032",
+    "title": "架构级交叉审查 (Claude Code)",
+    "status": "completed",
+    "owner": "claude",
+    "verdict": "PASS (CONDITIONAL_PASS → RC-1 fixed by Hermes)",
+    "reviewFile": "docs/reviews/REVIEW-031-CROSS-CHECK.md",
+    "commit": "62bc2d0",
+    "updatedAt": "2026-07-01T22:25:00-07:00"
   },
   "completedTasks": [
-    {"id": "FORI-002", "title": "PRD 深度生成", "owner": "claude", "commit": "a53dacd"},
-    {"id": "FORI-003", "title": "架构设计文档", "owner": "claude", "commit": "64f1e86"},
-    {"id": "FORI-004", "title": "移动端Web App UI/UX设计", "owner": "claude", "commit": "9949013"},
-    {"id": "FORI-010/011/012", "title": "PRD/架构/UI 三项设计评审 (3x CONDITIONAL_PASS)", "owner": "claude", "commit": "df0c9a4"},
-    {"id": "FORI-013/014", "title": "PRD+架构+UI 修订 + 复审 (3x PASS)", "owner": "codex", "commit": "32d6403"},
-    {"id": "FORI-020", "title": "原型脚手架 (Next.js 14 + Tailwind + shadcn/ui)", "owner": "codex", "commit": "f9b2293"},
-    {"id": "FORI-021.A~U", "title": "21个移动端页面原型实现", "owner": "codex", "commit": "13f21be"},
-    {"id": "FORI-022", "title": "原型集成验证 + 修复 (TabBar路由+5死链)", "owner": "hermes+codex", "commit": "1b0f921"}
+    {
+      "id": "FORI-002",
+      "title": "PRD 深度生成",
+      "owner": "claude",
+      "commit": "a53dacd"
+    },
+    {
+      "id": "FORI-003",
+      "title": "架构设计文档",
+      "owner": "claude",
+      "commit": "64f1e86"
+    },
+    {
+      "id": "FORI-004",
+      "title": "移动端Web App UI/UX设计",
+      "owner": "claude",
+      "commit": "9949013"
+    },
+    {
+      "id": "FORI-010/011/012",
+      "title": "PRD/架构/UI 三项设计评审 (3x CONDITIONAL_PASS)",
+      "owner": "claude",
+      "commit": "df0c9a4"
+    },
+    {
+      "id": "FORI-013/014",
+      "title": "PRD+架构+UI 修订 + 复审 (3x PASS)",
+      "owner": "codex",
+      "commit": "32d6403"
+    },
+    {
+      "id": "FORI-020",
+      "title": "原型脚手架 (Next.js 14 + Tailwind + shadcn/ui)",
+      "owner": "codex",
+      "commit": "f9b2293"
+    },
+    {
+      "id": "FORI-021.A~U",
+      "title": "21个移动端页面原型实现",
+      "owner": "codex",
+      "commit": "13f21be"
+    },
+    {
+      "id": "FORI-022",
+      "title": "原型集成验证 + 修复 (TabBar路由+5死链)",
+      "owner": "hermes+codex",
+      "commit": "1b0f921"
+    }
   ],
   "agents": {
     "lastActive": "hermes",
@@ -42,13 +82,13 @@
       "lastCheckResult": "AVAILABLE (time-based estimation) — last known status was available at 20:01, no reset needed. Next reset: 2026-07-02T00:29 PDT."
     },
     "claude": {
-      "status": "error",
+      "status": "available",
       "resetAt": "2026-07-01T22:30:00-07:00",
       "dailyResetAt": "2026-07-01T22:30:00-07:00",
       "deviceTz": "America/Los_Angeles (PDT, UTC-7)",
       "device": "epix+woot (shared account)",
-      "checkedAt": "2026-07-01T20:30:43-07:00",
-      "lastCheckResult": "ERROR (non-limit, time-based estimation) — status remains error(401). Token expired, needs human to run `claude auth login`. Limit reset at 22:30 PDT would NOT fix this (auth issue, not limit). Watchdog did not call claude -p."
+      "checkedAt": "2026-07-01T22:25:00-07:00",
+      "lastCheckResult": "AVAILABLE — claude auth login completed, refreshToken in Keychain, auto-refresh active"
     }
   },
   "timezones": {
