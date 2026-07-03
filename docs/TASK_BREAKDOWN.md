@@ -215,11 +215,95 @@
 
 ---
 
-## 第四阶段：开发 (Development Phase)
+## 第四阶段：开发 (Development Phase) — D4
 
-### FORI-040+: 开发任务
-**说明**: 全案审查通过后，按模块拆分开发任务。每个模块遵循 设计→评审→执行→验证 四阶段。
-具体任务在全案审查通过后根据评审意见细化和派发。
+> 实施顺序见 `docs/execution/MVP_SLICE.md`（**非范围削减**）
+
+### FORI-040: MVP 实施切片
+**阶段**: D4  
+**Owner**: Cursor  
+**产出**: `docs/execution/MVP_SLICE.md`  
+**状态**: ✅ 完成
+
+**验收标准**:
+- [x] 六大模块实施波次（Wave 0–6）
+- [x] 首垂直切片选定（模块五定价）
+- [x] 依赖图与 30 天里程碑
+- [x] 配额感知派发顺序
+
+### FORI-041: 生产仓库结构 + ADR-007
+**阶段**: D4 · Wave 0  
+**Owner**: Claude Code (epix)  
+**分支**: `claude/fori-041-adr-migration`  
+**Handoff**: `.ai/handoffs/FORI-041.md`  
+**前置**: FORI-040
+
+**产出**: `docs/adr/ADR-007-prototype-to-production-migration.md`
+
+### FORI-042: Monorepo 初始化
+**阶段**: D4 · Wave 0  
+**Owner**: Codex (woot)  
+**分支**: `codex/fori-042-monorepo-init`  
+**Handoff**: `.ai/handoffs/FORI-042.md`  
+**前置**: FORI-041 评审 PASS  
+**worktree**: 必须
+
+**产出**: `apps/web`、`apps/api`、`packages/*` 脚手架
+
+### FORI-043 ~ 046: 垂直切片 A — 在地分层定价（模块五）
+| ID | 标题 | Owner |
+|----|------|-------|
+| FORI-043 | 定价 API + 数据模型 | Codex |
+| FORI-044 | 定价 Agent 任务契约 | Claude |
+| FORI-045 | 定价前端接线 | Codex |
+| FORI-046 | 定价模块验证 | Hermes |
+
+**前置**: FORI-042
+
+### FORI-050+: 后续波次
+见 `docs/execution/MVP_SLICE.md` Wave 2–6（字典、匹配、公证、营销、Agent 底座）
+
+---
+
+## 第五阶段：人类评审 Round 2（2026-07-02）
+
+> 完整分解：`docs/execution/REVIEW_HUMAN_ROUND2_TASKS.md`  
+> 来源：`.ai/handoffs/Human/Fori平台原型评审意见.md`（8 条评审项 → 16 任务）
+
+### Wave R2-0 — 设计基线（Claude）
+
+| ID | 标题 | Owner | P |
+|----|------|-------|---|
+| FORI-080 | 主功能清单（无删减分级） | Claude | P0 |
+| FORI-081 | 全角色功能与交互矩阵 | Claude | P0 |
+| FORI-082 | 字典 SUUMO 式披露规范 | Claude | P0 |
+| FORI-089 | 定价与撮合机制完整方案 | Claude | P0 |
+
+Handoff: `.ai/handoffs/FORI-080.md` ~ `089.md`
+
+### Wave R2-1 — 原型 P0（Cursor）✅
+
+| ID | 标题 | Owner | P | 状态 |
+|----|------|-------|---|------|
+| FORI-083 | 字典地图/卡片/列表三态 | Cursor | P0 | done |
+| FORI-084 | 角色差异化字段脱敏 | Cursor | P0 | done |
+| FORI-085 | 登录分级可见矩阵 | Cursor | P0 | done |
+
+### Wave R2-2 ~ R2-5
+
+| ID | 标题 | Owner | P |
+|----|------|-------|---|
+| FORI-086 | 共建共赢裂变机制设计 | Claude | P1 |
+| FORI-087 | 贡献账本与奖励 UI | Codex | P1 |
+| FORI-088 | 成交分成可视化 UI | Codex | P1 |
+| FORI-090 | 价格页三角色差异化 | Codex | P1 |
+| FORI-091 | 匹配撮合流程增强 | Codex | P1 |
+| FORI-092 | 全站 Agent 页面契约 | Claude | P1 |
+| FORI-093 | Agent 助手交互壳 | Cursor | P1 |
+| FORI-094 | 文档有效性治理 CANON | Cursor | P2 |
+| FORI-095 | Round 2 协作复盘 | Hermes | P2 |
+
+**注意**：MVP_SLICE 中 FORI-050~052 仍为 D4 Wave 2 字典 API，与 R2 任务互补而非冲突。
 
 ---
 

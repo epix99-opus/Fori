@@ -1,17 +1,46 @@
 import Link from "next/link";
-import { ArrowRight, BadgeCheck, LockKeyhole, MessageSquareText, Smartphone } from "lucide-react";
+import { ArrowRight, BadgeCheck, Eye, LockKeyhole, MessageSquareText, Smartphone } from "lucide-react";
 
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { Input } from "@/components/Input";
 
+const loginTiers = [
+  {
+    tier: "未登录",
+    scope: "小区名、片区、公开图片、建筑年代",
+    blocked: "挂牌价、房号、楼层、业主联系方式、成交价",
+    action: "浏览公开字典",
+  },
+  {
+    tier: "手机验证",
+    scope: "挂牌价、户型面积、小区配套标签",
+    blocked: "精确楼层房号、历史成交明细、业主联系方式",
+    action: "一般性查询、收藏、预约看房",
+  },
+  {
+    tier: "实名认证",
+    scope: "楼层朝向、估价参考、交易进度（己方）",
+    blocked: "其他用户联系方式、经纪人内部分成",
+    action: "发布房源/购房需求、确认购买意向",
+  },
+  {
+    tier: "经纪人认证",
+    scope: "成交价、维护记录、客源匹配、分成预览",
+    blocked: "平台审核后台、原始证件影像",
+    action: "共建字典、带看、撮合交易",
+  },
+];
+
 export default function LoginPage() {
   return (
     <main className="mobile-shell min-h-dvh bg-neutral-100 px-4 py-6">
       <section className="rounded-2xl bg-primary-900 p-5 text-white shadow-card">
-        <p className="text-caption text-primary-200">Fori 账号</p>
+        <p className="text-caption text-primary-200">Fori 账号 · 分级可见</p>
         <h1 className="mt-2 text-h1">登录后继续真实交易流程</h1>
-        <p className="mt-3 text-body-s text-primary-100">统一手机号登录，发布、认证、交易和工作台权限会按实名认证状态解锁。</p>
+        <p className="mt-3 text-body-s text-primary-100">
+          一般性查询仅需手机号验证；更多真实信息按必要最小原则逐级解锁，敏感字段默认保密隔离。
+        </p>
       </section>
 
       <section className="mt-5 space-y-4">
@@ -23,6 +52,29 @@ export default function LoginPage() {
               登录 / 注册
               <ArrowRight className="ml-1 size-4" />
             </Button>
+          </div>
+        </Card>
+
+        <Card>
+          <div className="flex items-center gap-2">
+            <Eye className="size-5 text-primary-700" />
+            <h2 className="text-h3">登录分级 · 信息可见范围</h2>
+          </div>
+          <div className="mt-3 space-y-3">
+            {loginTiers.map((item) => (
+              <div key={item.tier} className="rounded-xl border border-neutral-200 p-3">
+                <p className="text-body-s font-semibold text-neutral-900">{item.tier}</p>
+                <p className="mt-1 text-caption text-neutral-600">
+                  <span className="font-semibold text-emerald-700">可见：</span>
+                  {item.scope}
+                </p>
+                <p className="mt-1 text-caption text-neutral-500">
+                  <span className="font-semibold text-amber-700">保密：</span>
+                  {item.blocked}
+                </p>
+                <p className="mt-1 text-caption text-primary-700">可执行：{item.action}</p>
+              </div>
+            ))}
           </div>
         </Card>
 

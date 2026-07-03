@@ -6,6 +6,8 @@
 > **设计基准**：移动端 375px 宽度，响应式扩展至桌面端  
 > **依据文档**：`docs/PRD.md` v1.0.0、`docs/ARCHITECTURE.md` v1.0.0
 
+> **修订 R2（2026-07-02）**：人类评审要求字典 SUUMO 式披露、地图/列表/卡片三态、角色差异化脱敏、Agent 助手入口。FORI-082 将增补 §字典披露规范；FORI-081 将增补 `docs/ROLE_UX_MATRIX.md`。原型已实现部分见 `prototype/lib/viewer-role.ts`、`prototype/components/ViewModeToggle.tsx`。
+
 ---
 
 ## 目录

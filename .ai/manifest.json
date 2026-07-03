@@ -5,115 +5,84 @@
     "status": "active",
     "github": "epix99-opus/Fori",
     "localPath": "/Users/epix/Dev/Fori",
-    "phase": "D4-active"
+    "phase": "D3-R2-human-review"
   },
   "currentTask": {
-    "id": "FORI-042",
-    "title": "Monorepo 初始化",
+    "id": "FORI-083",
+    "title": "人类评审 Round 2 · 字典三态 + 角色脱敏 + 登录分级",
     "status": "completed",
-    "owner": "codex",
-    "branch": "codex/fori-042-monorepo-init",
-    "updatedAt": "2026-07-02T09:10:00-07:00",
+    "owner": "cursor",
+    "branch": "cursor/fori-050-review-round2",
+    "updatedAt": "2026-07-02T19:45:00-07:00",
     "artifacts": [
-      "apps/web/",
-      "apps/api/",
-      "packages/shared/",
-      "packages/ui/",
-      "services/agents/",
-      "turbo.json",
-      "Makefile"
+      "docs/execution/REVIEW_HUMAN_ROUND2_TASKS.md",
+      "prototype/lib/viewer-role.ts",
+      "prototype/components/ViewModeToggle.tsx",
+      "prototype/components/ViewerRoleSwitcher.tsx",
+      "prototype/components/AgentAssistFab.tsx",
+      "prototype/app/explore/dict/page.tsx",
+      "prototype/app/auth/login/page.tsx"
     ]
   },
   "nextTask": {
-    "id": "FORI-043",
-    "title": "定价 API + 数据模型（Wave 1 首切片）",
-    "owner": "codex",
-    "branch": "codex/fori-043-pricing-api",
-    "blockedBy": null
+    "id": "FORI-080",
+    "title": "主功能清单（人类评审 R2 Wave 0）",
+    "owner": "claude",
+    "branch": "claude/fori-080-feature-inventory",
+    "blockedBy": null,
+    "parallel": ["FORI-081", "FORI-082", "FORI-089"]
+  },
+  "humanReviewRound2": {
+    "source": ".ai/handoffs/Human/Fori平台原型评审意见.md",
+    "reviewItems": 8,
+    "tasksCreated": 16,
+    "taskRange": "FORI-080 ~ FORI-095",
+    "decomposition": "docs/execution/REVIEW_HUMAN_ROUND2_TASKS.md",
+    "prototypeP0Done": ["FORI-083", "FORI-084", "FORI-085"],
+    "handoffsReady": ["FORI-080", "FORI-081", "FORI-082", "FORI-086", "FORI-089"]
   },
   "completedTasks": [
     {
-      "id": "FORI-033",
-      "title": "多 Agent 编排系统化配置",
+      "id": "FORI-042",
+      "title": "Monorepo 脚手架",
+      "owner": "codex"
+    },
+    {
+      "id": "FORI-083",
+      "title": "字典地图/卡片/列表三态",
       "owner": "cursor"
     },
     {
-      "id": "FORI-040",
-      "title": "MVP 实施切片",
-      "owner": "cursor",
-      "output": "docs/execution/MVP_SLICE.md"
+      "id": "FORI-084",
+      "title": "角色差异化字段脱敏",
+      "owner": "cursor"
     },
     {
-      "id": "FORI-041",
-      "title": "ADR-009 原型迁移 + 仓库布局",
-      "owner": "claude",
-      "branch": "claude/fori-041-adr-migration",
-      "output": "docs/adr/ADR-009-prototype-to-production-migration.md"
-    },
-    {
-      "id": "FORI-042",
-      "title": "Monorepo 脚手架",
-      "owner": "codex",
-      "branch": "codex/fori-042-monorepo-init",
-      "output": "apps/ + packages/ + services/"
+      "id": "FORI-085",
+      "title": "登录分级可见矩阵",
+      "owner": "cursor"
     }
   ],
   "orchestration": {
     "status": "ready",
     "quota_model": "dual_layer",
-    "master_guide": ".ai/orchestration/QUOTA_ROUTING.md",
-    "quota_ledger": ".ai/orchestration/quota-ledger.json",
-    "agent_routes": ".ai/agent-routes.json",
-    "ecc_setup": ".ai/orchestration/ECC_SETUP.md"
-  },
-  "agents": {
-    "lastActive": "cursor",
-    "sessionCount": 3
+    "master_guide": ".ai/orchestration/QUOTA_ROUTING.md"
   },
   "limits": {
-    "model": "dual_layer",
     "claude": {
       "status": "available",
-      "layer": "A",
-      "msgsRemaining": 45,
-      "windowResetsAt": null,
-      "dailyResetAt": "2026-07-02T22:30:00-07:00",
       "primary_node": "epix"
     },
     "codex": {
       "status": "available",
-      "layer": "A",
-      "minutesRemaining": 300,
-      "windowResetsAt": null,
-      "dailyResetAt": "2026-07-03T00:29:00-07:00",
-      "device": "epix+woot (shared account)",
       "primary_node": "woot"
     }
   },
-  "timezones": {
-    "epix": "America/Los_Angeles (PDT, UTC-7)",
-    "woot": "America/Los_Angeles (PDT, UTC-7)"
-  },
-  "branches": {
-    "main": "唯一合并点，由 Cursor/Human 负责合并",
-    "codex": "codex/* — Codex 专属分支",
-    "claude": "claude/* — Claude Code 专属分支",
-    "hermes": "hermes/* — Hermes 专属分支",
-    "cursor": "cursor/* — Cursor 专属分支"
-  },
-  "mergePolicy": {
-    "responsible": "cursor (human)",
-    "rule": "代码合并统一由 Cursor/Human 负责执行，其他 Agent 不得直接合并到 main"
-  },
-  "wootSetupPending": [
-    "修复 woot git 仓库（rsync 损坏了 .git/objects）",
-    "重新 clone 或 git fetch --all 恢复",
-    "在 ~/.codex/config.toml 添加 Fori trust"
-  ],
   "prototypeDesign": {
-    "status": "complete",
+    "status": "r2-in-progress",
     "completionPercent": 97,
+    "r2Target": "功能对齐初始需求（非仅路由覆盖）",
     "checklist": "docs/execution/PROTOTYPE_COMPLETION.md",
-    "buildVerified": "2026-07-02"
+    "r2Tasks": "docs/execution/REVIEW_HUMAN_ROUND2_TASKS.md"
   }
 }

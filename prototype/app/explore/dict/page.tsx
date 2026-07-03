@@ -14,12 +14,16 @@ import {
   UserRoundCheck,
 } from "lucide-react";
 
+import { AgentAssistFab } from "@/components/AgentAssistFab";
 import { Button } from "@/components/Button";
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
 import { Input } from "@/components/Input";
 import { Skeleton } from "@/components/Skeleton";
+import { ViewModeToggle, type DictViewMode } from "@/components/ViewModeToggle";
+import { ViewerRoleSwitcher } from "@/components/ViewerRoleSwitcher";
 import { mockAgents, mockListings, type Listing } from "@/lib/mock";
+import { canViewField, maskValue, type ViewerRole } from "@/lib/viewer-role";
 import { cn } from "@/lib/utils";
 
 type DictState = "loading" | "ready" | "empty" | "error";
@@ -124,6 +128,8 @@ export default function DictBrowsePage() {
   const [city, setCity] = useState("北京");
   const [district, setDistrict] = useState("全部片区");
   const [keyword, setKeyword] = useState("");
+  const [viewMode, setViewMode] = useState<DictViewMode>("card");
+  const [viewerRole, setViewerRole] = useState<ViewerRole>("guest");
   const [selectedCommunityId, setSelectedCommunityId] = useState<string | null>(null);
   const [expandedBuildingId, setExpandedBuildingId] = useState<string | null>(null);
 
@@ -149,12 +155,46 @@ export default function DictBrowsePage() {
       <CommunityDetail
         community={selectedCommunity}
         expandedBuildingId={expandedBuildingId}
+        viewerRole={viewerRole}
         onToggleBuilding={(buildingId) => setExpandedBuildingId((current) => (current === buildingId ? null : buildingId))}
         onBack={() => {
           setSelectedCommunityId(null);
           setExpandedBuildingId(null);
         }}
       />
+    );
+  }
+
+  if (viewMode === "map") {
+    return (
+      <main className="mobile-shell min-h-dvh bg-neutral-100">
+        <header className="sticky top-0 z-30 border-b border-neutral-200 bg-white/95 px-4 py-3 backdrop-blur">
+          <ViewModeToggle value={viewMode} onChange={setViewMode} />
+          <div className="mt-3">
+            <ViewerRoleSwitcher value={viewerRole} onChange={setViewerRole} />
+          </div>
+        </header>
+        <section className="relative h-[calc(100dvh-180px)] overflow-hidden bg-[#D8E7DF]">
+          <div className="absolute inset-0 bg-[linear-gradient(35deg,rgba(255,255,255,.55)_12%,transparent_12%,transparent_50%,rgba(255,255,255,.5)_50%,rgba(255,255,255,.5)_62%,transparent_62%)] bg-[length:88px_88px]" />
+          {filteredCommunities.slice(0, 6).map((community, index) => (
+            <button
+              key={community.id}
+              type="button"
+              className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-700 px-3 py-2 text-caption font-semibold text-white shadow-card"
+              style={{ left: `${18 + index * 14}%`, top: `${28 + (index % 3) * 18}%` }}
+              onClick={() => setSelectedCommunityId(community.id)}
+            >
+              {community.name} · {canViewField(viewerRole, "priceReference") ? `${community.saleCount}套` : "登录可见"}
+            </button>
+          ))}
+        </section>
+        <div className="px-4 py-3">
+          <Link href="/explore/map" className="block text-center text-caption font-semibold text-primary-700">
+            打开全屏地图页 →
+          </Link>
+        </div>
+        <AgentAssistFab pageContext="楼盘字典 · 地图模式" suggestedPrompts={["这片区域有哪些 A 级小区？", "帮我对比地图上的在售套数"]} />
+      </main>
     );
   }
 
@@ -202,14 +242,24 @@ export default function DictBrowsePage() {
 
       <section className="space-y-4 px-4 py-4">
         <div className="rounded-xl bg-primary-900 p-4 text-white shadow-card">
-          <p className="text-caption text-primary-300">楼盘字典</p>
+          <p className="text-caption text-primary-300">楼盘字典 · SUUMO 式规范披露</p>
           <h1 className="mt-1 text-h1">按城市、片区浏览真实小区底表</h1>
           <div className="mt-4 grid grid-cols-3 gap-2 text-center text-caption">
             <Metric label="小区" value={`${filteredCommunities.length}`} />
-            <Metric label="在售" value={`${filteredCommunities.reduce((sum, item) => sum + item.saleCount, 0)}`} />
+            <Metric
+              label="在售"
+              value={
+                canViewField(viewerRole, "priceReference")
+                  ? `${filteredCommunities.reduce((sum, item) => sum + item.saleCount, 0)}`
+                  : "—"
+              }
+            />
             <Metric label="维护人" value={`${filteredCommunities.reduce((sum, item) => sum + item.maintainerCount, 0)}`} />
           </div>
         </div>
+
+        <ViewModeToggle value={viewMode} onChange={setViewMode} />
+        <ViewerRoleSwitcher value={viewerRole} onChange={setViewerRole} />
 
         {visibleStatus === "loading" ? <Skeleton variant="list" className="rounded-xl bg-white p-4 shadow-card" /> : null}
 
@@ -233,15 +283,31 @@ export default function DictBrowsePage() {
         ) : null}
 
         {visibleStatus === "ready" ? (
-          <div className="space-y-3">
-            {filteredCommunities.map((community) => (
-              <CommunityCard key={community.id} community={community} onClick={() => setSelectedCommunityId(community.id)} />
-            ))}
+          <div className={viewMode === "list" ? "divide-y divide-neutral-200 overflow-hidden rounded-xl bg-white shadow-card" : "space-y-3"}>
+            {filteredCommunities.map((community) =>
+              viewMode === "list" ? (
+                <CommunityListRow
+                  key={community.id}
+                  community={community}
+                  viewerRole={viewerRole}
+                  onClick={() => setSelectedCommunityId(community.id)}
+                />
+              ) : (
+                <CommunityCard
+                  key={community.id}
+                  community={community}
+                  viewerRole={viewerRole}
+                  onClick={() => setSelectedCommunityId(community.id)}
+                />
+              ),
+            )}
           </div>
         ) : null}
       </section>
 
-      <div className="fixed bottom-4 right-[calc(50%-205px)] z-20 flex flex-col gap-2 px-4">
+      <AgentAssistFab pageContext="楼盘字典 · 浏览" suggestedPrompts={["这个小区适合改善型买家吗？", "哪些字段需要实名才能看？"]} />
+
+      <div className="fixed bottom-4 left-[calc(50%-205px)] z-20 flex flex-col gap-2 px-4">
         <button type="button" className="rounded-full bg-white px-3 py-2 text-caption text-neutral-500 shadow-card" onClick={() => setKeyword("没有这个小区")}>
           空状态
         </button>
@@ -262,7 +328,43 @@ function Metric({ label, value }: { label: string; value: string }) {
   );
 }
 
-function CommunityCard({ community, onClick }: { community: Community; onClick: () => void }) {
+function CommunityListRow({
+  community,
+  viewerRole,
+  onClick,
+}: {
+  community: Community;
+  viewerRole: ViewerRole;
+  onClick: () => void;
+}) {
+  return (
+    <button type="button" className="flex w-full items-center gap-3 p-3 text-left" onClick={onClick}>
+      <div className={`h-14 w-14 shrink-0 rounded-lg bg-gradient-to-br ${community.imageTone}`} />
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="line-clamp-1 text-body-s font-semibold">{community.name}</h2>
+          <GradeBadge grade={community.grade} />
+        </div>
+        <p className="mt-1 text-caption text-neutral-500">{community.district} · {community.address}</p>
+        <p className="mt-1 text-caption font-semibold text-secondary-500">
+          {canViewField(viewerRole, "priceReference")
+            ? `参考 ${(community.avgPrice / 10000).toFixed(1)} 万/㎡ · ${community.saleCount} 套在售`
+            : maskValue(viewerRole, "priceReference", "")}
+        </p>
+      </div>
+    </button>
+  );
+}
+
+function CommunityCard({
+  community,
+  viewerRole,
+  onClick,
+}: {
+  community: Community;
+  viewerRole: ViewerRole;
+  onClick: () => void;
+}) {
   return (
     <button type="button" className="w-full overflow-hidden rounded-xl bg-white text-left shadow-card" onClick={onClick}>
       <div className="flex gap-3 p-3">
@@ -276,8 +378,18 @@ function CommunityCard({ community, onClick }: { community: Community; onClick: 
             <GradeBadge grade={community.grade} />
           </div>
           <div className="mt-3 grid grid-cols-3 gap-2 text-caption">
-            <SmallMetric label="参考均价" value={`${(community.avgPrice / 10000).toFixed(1)}万/㎡`} />
-            <SmallMetric label="在售" value={`${community.saleCount}套`} />
+            <SmallMetric
+              label="参考均价"
+              value={
+                canViewField(viewerRole, "priceReference")
+                  ? `${(community.avgPrice / 10000).toFixed(1)}万/㎡`
+                  : "登录可见"
+              }
+            />
+            <SmallMetric
+              label="在售"
+              value={canViewField(viewerRole, "priceReference") ? `${community.saleCount}套` : "—"}
+            />
             <SmallMetric label="维护" value={`${community.maintainerCount}人`} />
           </div>
         </div>
@@ -296,11 +408,13 @@ function CommunityCard({ community, onClick }: { community: Community; onClick: 
 function CommunityDetail({
   community,
   expandedBuildingId,
+  viewerRole,
   onToggleBuilding,
   onBack,
 }: {
   community: Community;
   expandedBuildingId: string | null;
+  viewerRole: ViewerRole;
   onToggleBuilding: (buildingId: string) => void;
   onBack: () => void;
 }) {
@@ -336,7 +450,19 @@ function CommunityDetail({
             <SpecItem label="开发商" value={community.developer} />
             <SpecItem label="竣工年份" value={`${community.year} 年`} />
             <SpecItem label="总楼栋" value={`${community.buildings.length} 栋`} />
-            <SpecItem label="参考均价" value={`${community.avgPrice.toLocaleString("zh-CN")} 元/㎡`} />
+            <SpecItem
+              label="参考均价"
+              value={
+                canViewField(viewerRole, "priceReference")
+                  ? `${community.avgPrice.toLocaleString("zh-CN")} 元/㎡`
+                  : maskValue(viewerRole, "priceReference", "")
+              }
+            />
+            {canViewField(viewerRole, "dealHistory") ? (
+              <SpecItem label="近 12 月成交" value="18 套 · 均价 8.2 万/㎡" />
+            ) : (
+              <SpecItem label="近 12 月成交" value={maskValue(viewerRole, "dealHistory", "")} masked />
+            )}
             <SpecItem label="容积率" value="2.6" />
             <SpecItem label="绿化率" value="32%" />
           </div>
@@ -372,7 +498,7 @@ function CommunityDetail({
                     <div className="mt-2 flex flex-wrap gap-2">
                       {building.unitsRecorded.map((unit) => (
                         <span key={unit} className="rounded-full bg-neutral-100 px-3 py-1 text-caption font-semibold">
-                          {unit}
+                          {canViewField(viewerRole, "unitNumber") ? unit : "房号保密"}
                         </span>
                       ))}
                     </div>
@@ -425,11 +551,11 @@ function SmallMetric({ label, value }: { label: string; value: string }) {
   );
 }
 
-function SpecItem({ label, value }: { label: string; value: string }) {
+function SpecItem({ label, value, masked }: { label: string; value: string; masked?: boolean }) {
   return (
     <div>
       <p className="text-caption text-neutral-500">{label}</p>
-      <p className="mt-1 font-semibold text-neutral-900">{value}</p>
+      <p className={cn("mt-1 font-semibold", masked ? "text-neutral-400" : "text-neutral-900")}>{value}</p>
     </div>
   );
 }
