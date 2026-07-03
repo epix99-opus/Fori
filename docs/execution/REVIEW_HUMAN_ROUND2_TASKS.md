@@ -2,8 +2,9 @@
 
 > **来源**: `.ai/handoffs/Human/Fori平台原型评审意见.md`  
 > **对照**: `.ai/handoffs/Human/Fori房地产智能中介交易平台初始需求.md`  
-> **版本**: 1.0 · 2026-07-02  
-> **分支**: `cursor/fori-050-review-round2`
+> **版本**: 2.0 · 2026-07-02（FORI-043 设计修订后更新）  
+> **分支设计**: `claude/fori-043-human-review-design`  
+> **分支实现**: `codex/fori-043-pricing-api`（待派发）
 
 ---
 
@@ -18,11 +19,17 @@
 | P0（阻塞） | 7 |
 | P1（重要） | 7 |
 | P2（建议） | 2 |
-| 本回合已实现（原型 P0） | 3（FORI-083/084/085） |
+| 已完成（设计+原型） | 15（FORI-080~094） |
+| 剩余 | 1（FORI-095 复盘） |
 
-**本轮 Cursor 已实现**：楼盘字典地图/卡片/列表三态切换、角色差异化字段脱敏、登录分级可见矩阵；共享组件 `ViewerRoleSwitcher`、`ViewModeToggle`、`AgentAssistFab`。
+**Round 2 设计完成**：FORI-080~082/086/089/092（Claude 设计文档全部产出）  
+**Round 2 原型完成**：FORI-083/084/085（P0）+ FORI-087/088/090/091/093/094（P1/P2）  
+**D4 Wave 1 就绪**：FORI-043 实现 handoff 已就绪，待 Codex 派发
 
-**待派发**：设计文档 4 项（Claude）、共建裂变/定价撮合/Agent 规范 7 项、流程治理 2 项。
+**v2.0 更新**（2026-07-02）：
+- 全部任务状态同步至 `PM_TASK_PLAN.md` 实际完成状态
+- 新增 FORI-043 定价 API 实现条目（D4 Wave 1）
+- 设计修订三条（R-1 信息隔离 / R-2 付费墙 / R-3 结算快照）记录于 `FORI-043_DESIGN.md`
 
 ---
 
@@ -176,49 +183,57 @@
 
 ### Wave R2-0 — 设计基线（P0，Claude 优先）
 
+| ID | 标题 | Owner | P | 状态 | 产出文件 |
+|----|------|-------|---|------|---------|
+| FORI-080 | 主功能清单（无删减分级） | Claude | P0 | ✅ done | `docs/FEATURE_INVENTORY.md` |
+| FORI-081 | 全角色功能与交互矩阵 | Claude | P0 | ✅ done | `docs/ROLE_UX_MATRIX.md` |
+| FORI-082 | 字典 SUUMO 式披露规范 | Claude | P0 | ✅ done | `docs/UI_DESIGN.md` §字典 |
+| FORI-089 | 定价与撮合机制完整方案 | Claude | P0 | ✅ done | `docs/PRICING_MATCHING.md` |
+
+### Wave R2-1 — 原型 P0
+
 | ID | 标题 | Owner | P | 状态 |
 |----|------|-------|---|------|
-| FORI-080 | 主功能清单（无删减分级） | Claude | P0 | queued |
-| FORI-081 | 全角色功能与交互矩阵 | Claude | P0 | queued |
-| FORI-082 | 字典 SUUMO 式披露规范 | Claude | P0 | queued |
-| FORI-089 | 定价与撮合机制完整方案 | Claude | P0 | queued |
-
-### Wave R2-1 — 原型 P0（本回合）
-
-| ID | 标题 | Owner | P | 状态 |
-|----|------|-------|---|------|
-| FORI-083 | 字典地图/卡片/列表三态 | Cursor | P0 | **done** |
-| FORI-084 | 角色差异化字段脱敏 | Cursor | P0 | **done** |
-| FORI-085 | 登录分级可见矩阵 | Cursor | P0 | **done** |
+| FORI-083 | 字典地图/卡片/列表三态 | Cursor | P0 | ✅ done |
+| FORI-084 | 角色差异化字段脱敏 | Cursor | P0 | ✅ done |
+| FORI-085 | 登录分级可见矩阵 | Cursor | P0 | ✅ done |
 
 ### Wave R2-2 — 共建裂变（P1）
 
-| ID | 标题 | Owner | P | 状态 |
-|----|------|-------|---|------|
-| FORI-086 | 共建共赢裂变机制设计 | Claude | P1 | queued |
-| FORI-087 | 贡献账本与奖励 UI | Codex | P1 | queued |
-| FORI-088 | 成交分成可视化 UI | Codex | P1 | queued |
+| ID | 标题 | Owner | P | 状态 | 产出文件 |
+|----|------|-------|---|------|---------|
+| FORI-086 | 共建共赢裂变机制设计 | Claude | P1 | ✅ done | `docs/CO_CREATION_FISSION.md` |
+| FORI-087 | 贡献账本与奖励 UI | Codex | P1 | ✅ done | `prototype/app/explore/dict/*/edit` |
+| FORI-088 | 成交分成可视化 UI | Codex | P1 | ✅ done | `prototype/app/transaction/[id]` |
 
 ### Wave R2-3 — 定价撮合增强（P1）
 
 | ID | 标题 | Owner | P | 状态 |
 |----|------|-------|---|------|
-| FORI-090 | 价格页三角色差异化 | Codex | P1 | queued |
-| FORI-091 | 匹配撮合流程增强 | Codex | P1 | queued |
+| FORI-090 | 价格页三角色差异化 | Codex | P1 | ✅ done |
+| FORI-091 | 匹配撮合流程增强 | Codex | P1 | ✅ done |
 
 ### Wave R2-4 — Agent 原生（P1）
 
-| ID | 标题 | Owner | P | 状态 |
-|----|------|-------|---|------|
-| FORI-092 | 全站 Agent 页面契约 | Claude | P1 | queued |
-| FORI-093 | Agent 助手交互壳 | Cursor | P1 | partial（FAB 已加字典页） |
+| ID | 标题 | Owner | P | 状态 | 产出文件 |
+|----|------|-------|---|------|---------|
+| FORI-092 | 全站 Agent 页面契约 | Claude | P1 | ✅ done | `docs/AGENT_PAGE_CONTRACTS.md` |
+| FORI-093 | Agent 助手交互壳 | Cursor/Codex | P1 | ✅ done | `prototype/components/AgentAssistFab.tsx` |
 
 ### Wave R2-5 — 治理与复盘（P2）
 
 | ID | 标题 | Owner | P | 状态 |
 |----|------|-------|---|------|
-| FORI-094 | 文档有效性治理 CANON | Cursor | P2 | queued |
-| FORI-095 | Round 2 协作复盘 | Hermes | P2 | queued |
+| FORI-094 | 文档有效性治理 CANON | Cursor | P2 | ✅ done |
+| FORI-095 | Round 2 协作复盘 | Hermes | P2 | ⏳ queued |
+
+### D4 Wave 1 — 定价 API 实现（接续）
+
+| ID | 标题 | Owner | P | 状态 | 依赖 |
+|----|------|-------|---|------|------|
+| FORI-043 | 定价+撮合 API 实现 | Codex | P0 | ⏳ ready | FORI-042 ✅ |
+| FORI-044 | PriceEvalAgent OpenClaw 接入 | Codex | P1 | queued | FORI-043 |
+| FORI-045 | 付费验证模块 | Codex | P1 | queued | FORI-043 |
 
 ---
 

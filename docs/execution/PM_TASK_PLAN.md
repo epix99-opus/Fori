@@ -1,7 +1,7 @@
 # Fori 产品开发 PM + 任务分配计划
 
-> **版本**: 1.0 · 2026-07-02  
-> **Sprint**: Round2 完成 + R3 PASS + D4 Wave1 启动
+> **版本**: 1.1 · 2026-07-02（FORI-043 设计 handoff 就绪）  
+> **Sprint**: Round2 全部完成 + D4 Wave1 定价 API 设计就绪待实现
 
 ---
 
@@ -12,8 +12,10 @@
 | 人类评审 R2 交叉换位 | ✅ | ROUND2_R1/R2_MERGED |
 | R3 Minor 清零 | ✅ PASS | ROUND2_R3_MERGED |
 | 集成合并 | ✅ | `cursor/fori-060-integration` |
-| D4 Wave1 定价 API | ⏳ | FORI-043~045 |
-| Human 原型复审 | 待 | `/home` 演示 |
+| **FORI-043 设计** | ✅ | `docs/execution/FORI-043_DESIGN.md` + handoff |
+| D4 Wave1 定价 API 实现 | ⏳ Codex 待派发 | FORI-043（`.ai/handoffs/FORI-043-implement.md`） |
+| D4 Wave1 Agent 接入 | ⏳ | FORI-044/045（依赖 043 完成） |
+| Human 原型复审 | 待 | `/home`、`/price/community-001`、`/match` |
 
 ---
 
@@ -86,10 +88,21 @@
 
 ## 6. 下一步行动
 
-1. **Human**: `claude auth login`（epix 一次）→ 恢复 headless 编排
-2. **Human**: 预览 `prototype` → `/home`、`/explore/dict`、`/price/community-001`
-3. **Codex**: FORI-043 定价 API（woot）
-4. **Cursor**: 合并 `cursor/fori-060-integration` → `main`
+1. **Human**: 预览 `prototype` → `/home`、`/explore/dict`、`/price/community-001`（Round 2 验收）
+2. **Cursor**: 合并 `claude/fori-043-human-review-design` → `main`（本轮设计）
+3. **Codex**: 派发 FORI-043（`.ai/handoffs/FORI-043-implement.md`）实现定价 + 撮合 API
+4. **Human**: `claude auth login`（epix 一次）→ 恢复 headless 编排（FORI-044/045 用）
+
+### 门控命令
+
+```bash
+# 派发前
+.ai/orchestration/scripts/quota-check.sh codex || exit 1
+
+# 验收后
+cd apps/api && python -m pytest tests/test_pricing_smoke.py -v
+cd packages/shared && npx tsc --noEmit
+```
 
 ---
 

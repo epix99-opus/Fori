@@ -1,8 +1,9 @@
 # Fori 技术方案（执行摘要）
 
-> **版本**: 1.0 · 2026-07-02  
+> **版本**: 1.1 · 2026-07-02（FORI-043 设计后更新）  
 > **受众**: 开发、编排、Human 审阅  
-> **详细架构**: 见 [ADR-009](../adr/ADR-009-prototype-to-production-migration.md)（不重复全文）
+> **详细架构**: 见 [ADR-009](../adr/ADR-009-prototype-to-production-migration.md)（不重复全文）  
+> **Wave 1 完整 API 规格**: 见 [`FORI-043_DESIGN.md`](./FORI-043_DESIGN.md)
 
 ---
 
@@ -69,35 +70,50 @@ Turbo + npm workspaces；详见 `docs/execution/REPO_LAYOUT.md`。
 
 ## 4. Wave 1 API 契约 — 定价模块
 
-### 4.1 `GET /api/v1/price/evaluate`
+> **完整规格**见 [`FORI-043_DESIGN.md`](./FORI-043_DESIGN.md)（本节为摘要）
 
-**Query**: `community_id`, `area_sqm`, `floor`, `orientation`
+### 4.1 端点清单
 
-**Response 200**:
-```json
-{
-  "community_id": "community-001",
-  "tier": "B",
-  "unit_price_cny": 68500,
-  "calculated_total_cny": 2950000,
-  "factors": [{"label": "楼层", "percent": 3, "amount_cny": 12000}],
-  "confidence": "high",
-  "viewer_role": "buyer"
-}
-```
+| 方法 | 路径 | 认证级 | 说明 |
+|------|------|--------|------|
+| GET | `/api/v1/price/evaluate` | L2 | 三角色差异化估价（核心） |
+| GET | `/api/v1/price/communities/{id}/trend` | L1 | 24 月走势 |
+| POST | `/api/v1/price/reports` | L3+付费 | 完整因子报告 ¥29 |
+| POST | `/api/v1/match/needs` | L2 | 买家发布需求 |
+| POST | `/api/v1/match/{id}/respond` | L2+经纪人 | 4h 窗口响应 |
+| PUT | `/api/v1/match/{id}/status` | L2 | 状态机推进 |
 
-### 4.2 `GET /api/v1/price/communities/{id}/trend`
+### 4.2 三角色信息隔离原则（评审修订 R-1）
 
-**Response**: 24 个月 `{month, tier_price, compare_price}[]`
+- `viewer_role=buyer`：显示公允区间 + 议价建议；**隐藏**卖家底价、佣金明细
+- `viewer_role=seller`：显示挂牌建议 + 净收益预估；**隐藏**买家最高预算
+- `viewer_role=agent`：完整因子 + 双方区间 + 佣金预估（需 `user.role=agent` 验证）
+- 信息隔离在 API 层实现，不依赖前端过滤
 
-### 4.3 `POST /api/v1/price/reports`
+### 4.3 付费墙（评审修订 R-2）
 
-**Body**: `{community_id, viewer_role, payment_ref?}`  
-**Response**: `{report_id, pdf_url, unlocked: true}` — 付费墙 ¥29 对接点
+- L1（手机验证）：片区均价 + 层级 + 趋势线（免费）
+- L2（实名）：基础估价区间（免费）
+- L3（付费 ¥29/报告）：完整因子 + PDF + 历史对比
 
-### 4.4 Agent 契约
+Wave 1 Mock：`payment_ref !== null` 即验证通过；Wave 2+ 接真实支付网关。
 
-`services/agents/price-eval/` 实现 `PriceEvalAgent.evaluate(context) → PriceResult`；OpenClaw adapter 见 `apps/api/adapters/openclaw.py`。
+### 4.4 成交结算快照（评审修订 R-3）
+
+`completed` 状态触发 `settlement_snapshot`，分成比例：
+
+| 分配方 | 比例 | 说明 |
+|--------|------|------|
+| 平台 | 0.3% | 平台服务费 |
+| 一线经纪人 | 0.9% | 全程服务 |
+| 楼盘首建者 | 0.15% | 字典贡献 |
+| 协作维护者 | 0.075% | 均摊 |
+| 推荐人 | 0.075% | 裂变激励 |
+| **总计** | **1.5%** | 买方支付 |
+
+### 4.5 Agent 契约
+
+`services/agents/price-eval/` 实现 `PriceEvalAgent.evaluate(context) → PriceResult`；OpenClaw adapter 见 `apps/api/adapters/openclaw.py`。完整契约见 `docs/AGENT_PAGE_CONTRACTS.md`。
 
 ---
 
