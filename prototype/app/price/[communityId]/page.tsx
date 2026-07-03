@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { EChartsOption } from "echarts";
@@ -100,6 +100,14 @@ function normalizeMode(value: string | null): PriceMode {
 }
 
 export default function PriceEvaluationPage({ params }: { params: { communityId: string } }) {
+  return (
+    <Suspense fallback={<PriceEvaluationFallback />}>
+      <PriceEvaluationContent params={params} />
+    </Suspense>
+  );
+}
+
+function PriceEvaluationContent({ params }: { params: { communityId: string } }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<PageState>("loading");
@@ -467,6 +475,22 @@ export default function PriceEvaluationPage({ params }: { params: { communityId:
         pageContext={`价格图谱三角色评估 · ${roleLabel(priceRole)}`}
         suggestedPrompts={getSuggestedPrompts(priceRole, assessmentData)}
       />
+    </main>
+  );
+}
+
+
+function PriceEvaluationFallback() {
+  return (
+    <main className="mobile-shell pb-36">
+      <header className="sticky top-0 z-30 border-b border-neutral-200 bg-white/95 px-4 pb-3 pt-3 backdrop-blur">
+        <div className="h-10 rounded-xl bg-neutral-100" />
+      </header>
+      <section className="space-y-4 px-4 py-4">
+        <Skeleton className="h-24 rounded-xl" />
+        <Skeleton variant="card" />
+        <Skeleton variant="list" />
+      </section>
     </main>
   );
 }
