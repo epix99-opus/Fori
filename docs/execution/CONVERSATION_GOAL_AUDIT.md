@@ -499,7 +499,7 @@ cd prototype && npm run build  # ✅ 2026-07-03 审计日 PASS，37 路由
 
 **关闭后加权达成率**: **约 93%**（14/14 附录 B 项）
 
-**`main` HEAD**: `b355114`
+**`main` HEAD**: `6819012`
 
 ## 附录 C — Claude auth 关闭证据（2026-07-03 · AUTH_PERSISTENCE v1.1）
 
