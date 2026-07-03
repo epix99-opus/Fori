@@ -158,6 +158,15 @@ ssh woot 'cd /Users/woot/Dev/Fori && codex exec "[自包含 prompt]" < /dev/null
 | `src/` | 源代码 |
 | `tests/` | 测试 |
 
+
+## 配额与续跑编排
+
+- **主指南（v3）**: `.ai/orchestration/QUOTA_ROUTING.md` — Layer S/A/B、双节点路由、模型矩阵。
+- **续跑 SSOT**: `.ai/orchestration/RESUME_ORCHESTRATION.md` — `pendingResume`、`resume-pending.sh`、`auto-resume-cron.sh`。
+- Cursor 负责编排与 main 合并；Claude/Codex 设计/实现/评审不得由 Cursor 代写。
+- 派发前运行 `.ai/orchestration/scripts/quota-check.sh`；Session 限流时写入 manifest 并交 cron 续跑。
+- 证据链：`.ai/orchestration/dispatch-log.jsonl` + 各轮 `docs/reviews/REVIEW-*.md` VERDICT。
+
 ## 关键约束
 
 1. 合法合规：仅合法房产交易软件开发
