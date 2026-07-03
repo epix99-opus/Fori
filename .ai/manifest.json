@@ -12,8 +12,8 @@
     "title": "全量原型设计+实现（人类评审 Round2 完整交付）",
     "status": "partial_pending_claude",
     "owner": "multi-agent",
-    "branch": "main",
-    "updatedAt": "2026-07-03T05:45:00-07:00",
+    "branch": "claude/fori-044-full-design",
+    "updatedAt": "2026-07-02T22:43:59-07:00",
     "artifacts": [
       "docs/reviews/REVIEW-044-DESIGN-CODEX.md",
       "docs/execution/PROTOTYPE_COMPLETION.md",
@@ -22,7 +22,8 @@
       "prototype/app/explore/dict/[communityId]/page.tsx",
       "prototype/app/price/page.tsx",
       "prototype/app/auth/login/page.tsx",
-      ".ai/orchestration/dispatch-log.jsonl"
+      ".ai/orchestration/dispatch-log.jsonl",
+      ".ai/handoffs/PENDING_CLAUDE_RESUME.md"
     ],
     "verdicts": {
       "wave1Design": "PENDING_CLAUDE",
@@ -45,8 +46,16 @@
     "source": ".ai/handoffs/Human/Fori平台原型评审意见.md",
     "crossSwap": {
       "protocol": ".ai/orchestration/CROSS_SWAP_PROTOCOL.md",
-      "fori043_design": { "designer": "claude/epix", "reviewer": "codex/woot", "verdict": "CONDITIONAL_PASS" },
-      "fori043_impl": { "designer": "codex/woot", "reviewer": "claude/epix", "verdict": "CONDITIONAL_PASS" }
+      "fori043_design": {
+        "designer": "claude/epix",
+        "reviewer": "codex/woot",
+        "verdict": "CONDITIONAL_PASS"
+      },
+      "fori043_impl": {
+        "designer": "codex/woot",
+        "reviewer": "claude/epix",
+        "verdict": "CONDITIONAL_PASS"
+      }
     }
   },
   "orchestration": {
@@ -57,8 +66,17 @@
     "claude_auth": "auth_local_keychain_ok"
   },
   "limits": {
-    "claude": { "status": "available", "primary_node": "epix", "usage": "3/45" },
-    "codex": { "status": "available", "primary_node": "woot", "usage": "12/300" }
+    "claude": {
+      "status": "session_limited",
+      "primary_node": "epix",
+      "usage": "3/45",
+      "session_reset": "2:10am America/Los_Angeles"
+    },
+    "codex": {
+      "status": "available",
+      "primary_node": "woot",
+      "usage": "12/300"
+    }
   },
   "prototypeDesign": {
     "status": "fori-043-enhanced",
