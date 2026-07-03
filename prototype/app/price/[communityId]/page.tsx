@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import type { EChartsOption } from "echarts";
 import {
   AlertTriangle,
@@ -99,19 +99,26 @@ function normalizeMode(value: string | null): PriceMode {
   return value === "unit" || value === "manual" ? value : "community";
 }
 
-export default function PriceEvaluationPage({ params }: { params: { communityId: string } }) {
+function resolvePageState(communityId: string, communities: CommunityListItem[]): PageState {
+  return communities.some((item) => item.id === communityId) ? "ready" : "empty";
+}
+
+export default function PriceEvaluationPage() {
   return (
     <Suspense fallback={<PriceEvaluationFallback />}>
-      <PriceEvaluationContent params={params} />
+      <PriceEvaluationContent />
     </Suspense>
   );
 }
 
-function PriceEvaluationContent({ params }: { params: { communityId: string } }) {
+function PriceEvaluationContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [status, setStatus] = useState<PageState>("loading");
-  const [selectedCommunityId, setSelectedCommunityId] = useState(params.communityId);
+  const routeParams = useParams<{ communityId: string }>();
+  const communities = useMemo(() => getCommunities(), []);
+  const routeCommunityId = routeParams.communityId ?? communities[0]?.id ?? "";
+  const [status, setStatus] = useState<PageState>(() => resolvePageState(routeCommunityId, communities));
+  const [selectedCommunityId, setSelectedCommunityId] = useState(routeCommunityId);
   const [communitySheetOpen, setCommunitySheetOpen] = useState(false);
   const [selectedFactor, setSelectedFactor] = useState<FactorDisplay | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -120,7 +127,6 @@ function PriceEvaluationContent({ params }: { params: { communityId: string } })
 
   const priceRole = normalizeRole(searchParams.get("role"));
   const mode = normalizeMode(searchParams.get("mode"));
-  const communities = useMemo(() => getCommunities(), []);
   const community = communities.find((item) => item.id === selectedCommunityId) ?? communities[0];
   const assessmentData = useMemo(
     () => evaluatePrice(selectedCommunityId, priceRole, mode),
@@ -137,11 +143,9 @@ function PriceEvaluationContent({ params }: { params: { communityId: string } })
   );
 
   useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setStatus(communities.some((item) => item.id === selectedCommunityId) ? "ready" : "empty");
-    }, 450);
-    return () => window.clearTimeout(timer);
-  }, [communities, selectedCommunityId]);
+    setSelectedCommunityId(routeCommunityId);
+    setStatus(resolvePageState(routeCommunityId, communities));
+  }, [communities, routeCommunityId]);
 
   const conclusion =
     assessmentData.adjustedPricePerSqm >= assessmentData.basePricePerSqm
@@ -222,8 +226,8 @@ function PriceEvaluationContent({ params }: { params: { communityId: string } })
   }
 
   function selectCommunity(nextCommunityId: string) {
-    setStatus("loading");
     setSelectedCommunityId(nextCommunityId);
+    setStatus(resolvePageState(nextCommunityId, communities));
     setCommunitySheetOpen(false);
     router.push(`/price/${nextCommunityId}?mode=${mode}&role=${priceRole}`);
   }
