@@ -3,34 +3,34 @@
 ## Meta
 | Field | Value |
 |-------|-------|
-| Task ID | FORI-060-INTEGRATION |
-| Title | Round2+R3 集成 + 交付 |
-| Status | completed |
-| Owner | cursor |
-| Branch | `cursor/fori-060-integration` |
+| Task ID | FORI-043 |
+| Title | D4 Wave1 在地分层定价 + 原型增强 |
+| Status | completed (CONDITIONAL_PASS) |
+| Owner | multi-agent |
+| Branch | `cursor/fori-043-integration` → main |
 
 ## Checklist
-- [x] AUTH_PERSISTENCE.md
-- [x] 合并 cursor/fori-055 → integration
-- [x] R3 M1-12 + M3-10 + FORI-094
-- [x] R3 评审 PASS
-- [x] TECHNICAL_SOLUTION + PM_TASK_PLAN
-- [x] prototype build PASS
-- [ ] Human: claude auth login（一次）
-- [ ] Human: 审阅合并 → main
+- [x] quota-check claude + codex (exit 0)
+- [x] Claude design `claude -p` → FORI-043_DESIGN.md (02208ea)
+- [x] Codex design review → REVIEW-043-DESIGN-CODEX.md CONDITIONAL_PASS (5cc4411)
+- [x] Codex prototype impl → price-data.ts + /price/* (c7415a5)
+- [x] Claude impl review → REVIEW-043-IMPL-CLAUDE.md CONDITIONAL_PASS (8f1133b)
+- [x] Integration merge + prototype build PASS (33 routes)
+- [ ] Human: 预览 /price/community-001 与 /price/community-004
 
 ## Breakpoint
-- **完成**: R3 PASS、集成分支就绪、交付文档齐全
-- **Claude**: auth_error（单次冒烟已执行，禁止重复探测）
-- **下一**: FORI-043 定价 API（Codex woot）
+- **完成**: FORI-043 交叉换位 4 轮真实派发，无 Cursor 后备
+- **下一**: FORI-044 定价 Agent 契约（Claude epix）
 
 ## Cross-Swap Trace
 | Round | Designer | Reviewer | VERDICT |
 |-------|----------|----------|---------|
-| R1 | Claude/Cursor | Codex | CONDITIONAL_PASS |
-| R2 | Codex | Claude/Cursor | CONDITIONAL_PASS |
-| R3 | Claude/Cursor | Cursor | **PASS** |
+| D4-W1 设计 | Claude epix | Codex woot | CONDITIONAL_PASS |
+| D4-W1 原型 | Codex woot | Claude epix | CONDITIONAL_PASS |
 
 ## Branches
-- `cursor/fori-060-integration` ← **当前**
-- 待合并 `main`
+- `claude/fori-043-pricing-design` (02208ea)
+- `codex/fori-043-design-review` (5cc4411)
+- `codex/fori-043-prototype-impl` (c7415a5)
+- `claude/fori-043-impl-review` (8f1133b)
+- `cursor/fori-043-integration` ← 待合并 main

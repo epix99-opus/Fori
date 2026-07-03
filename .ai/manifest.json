@@ -5,63 +5,62 @@
     "status": "active",
     "github": "epix99-opus/Fori",
     "localPath": "/Users/epix/Dev/Fori",
-    "phase": "D3-R3-complete-D4-wave1-ready"
+    "phase": "D4-wave1-fori-043-complete"
   },
   "currentTask": {
-    "id": "FORI-043-design-in-progress",
-    "title": "D4 Wave1 在地分层定价模块完整设计",
-    "status": "design_complete_pending_review",
-    "owner": "claude",
-    "branch": "claude/fori-043-pricing-design",
-    "updatedAt": "2026-07-02T21:00:00-07:00",
+    "id": "FORI-043",
+    "title": "D4 Wave1 在地分层定价设计+原型",
+    "status": "completed_conditional_pass",
+    "owner": "multi-agent",
+    "branch": "cursor/fori-043-integration",
+    "updatedAt": "2026-07-02T22:00:00-07:00",
     "artifacts": [
       "docs/execution/FORI-043_DESIGN.md",
-      "docs/execution/TECHNICAL_SOLUTION.md",
-      "docs/execution/PM_TASK_PLAN.md"
+      "docs/reviews/REVIEW-043-DESIGN-CODEX.md",
+      "docs/reviews/REVIEW-043-IMPL-CLAUDE.md",
+      "prototype/lib/price-data.ts",
+      "prototype/app/price/page.tsx",
+      "prototype/app/price/[communityId]/page.tsx",
+      ".ai/orchestration/dispatch-log.jsonl"
     ],
-    "nextStep": "FORI-043 Review — 换会话，Hermes 或 Cursor 评审 FORI-043_DESIGN.md"
-  },
-  "previousTask": {
-    "id": "FORI-060-INTEGRATION",
-    "title": "Round2+R3 集成合并 + 交付物",
-    "status": "completed",
-    "owner": "cursor",
-    "branch": "cursor/fori-060-integration",
-    "updatedAt": "2026-07-02T20:35:00-07:00"
+    "verdicts": {
+      "designReview": "CONDITIONAL_PASS",
+      "implReview": "CONDITIONAL_PASS"
+    }
   },
   "nextTask": {
-    "id": "FORI-043-review",
-    "title": "D4 Wave1 定价设计评审",
-    "owner": "hermes",
-    "blockedBy": null,
-    "parallel": ["FORI-095"]
+    "id": "FORI-044",
+    "title": "定价 Agent 任务契约",
+    "owner": "claude",
+    "branch": "claude/fori-044-agent-contract",
+    "blockedBy": null
   },
   "humanReviewRound2": {
     "source": ".ai/handoffs/Human/Fori平台原型评审意见.md",
     "crossSwap": {
       "protocol": ".ai/orchestration/CROSS_SWAP_PROTOCOL.md",
-      "r1": { "designer": "claude/cursor-fallback", "reviewer": "codex", "verdict": "CONDITIONAL_PASS" },
-      "r2": { "designer": "codex", "reviewer": "claude/cursor-fallback", "verdict": "CONDITIONAL_PASS" },
-      "r3": { "designer": "claude/cursor-fallback", "reviewer": "cursor", "verdict": "PASS" }
-    },
-    "prototypeP0Done": ["FORI-083", "FORI-084", "FORI-085"],
-    "prototypeR2Done": ["FORI-087", "FORI-088", "FORI-090", "FORI-091", "FORI-093"],
-    "prototypeR3Done": ["M1-12", "M3-10", "FORI-094"]
+      "fori043_design": { "designer": "claude/epix", "reviewer": "codex/woot", "verdict": "CONDITIONAL_PASS" },
+      "fori043_impl": { "designer": "codex/woot", "reviewer": "claude/epix", "verdict": "CONDITIONAL_PASS" }
+    }
   },
   "orchestration": {
     "status": "ready",
     "quota_model": "dual_layer",
     "master_guide": ".ai/orchestration/QUOTA_ROUTING.md",
     "auth_persistence": ".ai/orchestration/AUTH_PERSISTENCE.md",
-    "claude_auth": "auth_error_epix_human_login_required"
+    "claude_auth": "auth_local_keychain_ok"
   },
   "limits": {
-    "claude": { "status": "auth_error", "primary_node": "epix", "note": "Single smoke done; jq no token; Human login once" },
-    "codex": { "status": "available", "primary_node": "woot" }
+    "claude": { "status": "available", "primary_node": "epix", "usage": "3/45" },
+    "codex": { "status": "available", "primary_node": "woot", "usage": "12/300" }
   },
   "prototypeDesign": {
-    "status": "r3-complete",
-    "completionPercent": 100,
-    "buildVerified": "2026-07-02 epix PASS 33 routes"
+    "status": "fori-043-enhanced",
+    "buildVerified": "2026-07-02 epix PASS 33 routes",
+    "previewUrls": [
+      "http://localhost:3000/price",
+      "http://localhost:3000/price/community-001",
+      "http://localhost:3000/price/community-004"
+    ]
   }
 }

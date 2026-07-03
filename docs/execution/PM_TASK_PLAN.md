@@ -12,7 +12,7 @@
 | 人类评审 R2 交叉换位 | ✅ | ROUND2_R1/R2_MERGED |
 | R3 Minor 清零 | ✅ PASS | ROUND2_R3_MERGED |
 | 集成合并 | ✅ | `cursor/fori-060-integration` |
-| D4 Wave1 定价 API | 🔄 **进行中** | FORI-043 设计完成，待评审 |
+| D4 Wave1 定价原型 | ✅ | FORI-043 设计+原型 CONDITIONAL_PASS |
 | Human 原型复审 | 待 | `/home` 演示 |
 
 ---
@@ -47,9 +47,9 @@
 | 07-02 ✅ | R1 | Claude/Cursor | Codex | 设计包 |
 | 07-02 ✅ | R2 | Codex | Claude/Cursor | 实现 |
 | 07-02 ✅ | R3 | Claude/Cursor | Cursor | 纠错+付费墙 |
-| 07-02~03 | D4-W1 FORI-043 | Claude | Hermes/Cursor | 定价 API 设计（本文档）→ 待评审 |
-| 07-03~05 | D4-W1a | Hermes/Cursor | Claude | FORI-043 设计评审 |
-| 07-06~08 | D4-W1b | Codex | Claude | FORI-044/045 实现 |
+| 07-02 ✅ | D4-W1 FORI-043 设计 | Claude epix | Codex woot | CONDITIONAL_PASS |
+| 07-02 ✅ | D4-W1 FORI-043 原型 | Codex woot | Claude epix | CONDITIONAL_PASS |
+| 07-03~05 | D4-W1b | Codex | Claude | FORI-044 Agent 契约 + API |
 | 07-09~12 | D4-W2 | Claude | Codex | 字典 API Wave2 |
 
 ---
@@ -61,7 +61,7 @@
 | 时段 (PDT) | Agent | 任务类型 | 备注 |
 |------------|-------|----------|------|
 | 09:00–14:00 | Codex woot | 实现/测试 | 主节点 |
-| 14:00–19:00 | Claude epix | 设计/ADR | **需 auth 恢复** |
+| 14:00–19:00 | Claude epix | 设计/ADR | ✅ Keychain auth |
 | 19:00–22:30 | Cursor | 合并/评审后备 | 不限额 |
 | 22:30 重置 | Claude | 日配额刷新 | |
 | 00:29 重置 | Codex | 日配额刷新 | |
@@ -70,19 +70,19 @@
 
 ---
 
-## 5. D4 Wave 1 Agent Attribution（FORI-043~046）
+## 5. D4 Wave 1 Agent Attribution（FORI-043）
 
-| 任务 | 阶段 | Claude (epix) | Codex (woot) | SHA |
-|------|------|:-------------:|:------------:|-----|
-| FORI-043 | Design | ✅ 设计者 | — | 待填（commit SHA） |
-| FORI-043 | Review | — | ✅ 评审者 | 待填 |
-| FORI-044 | Design | ✅ 设计者 | — | 待填 |
-| FORI-044 | Review | — | ✅ 评审者 | 待填 |
-| FORI-045 | Execute | — | ✅ 实现者 | 待填 |
-| FORI-045 | Review | ✅ 评审者 | — | 待填 |
-| FORI-046 | Verify | Hermes | Hermes | 待填 |
+| 阶段 | Agent | 节点 | 命令 | 分支 | SHA | VERDICT | 退出码 |
+|------|-------|------|------|------|-----|---------|--------|
+| 设计 | **Claude** | epix | `claude -p FORI-043-design --max-turns 30` | `claude/fori-043-pricing-design` | `02208ea` | — | 0 |
+| 设计评审 | **Codex** | woot | `codex exec review --model gpt-5.4-mini --yolo` | `codex/fori-043-design-review` | `5cc4411` | CONDITIONAL_PASS | 0 |
+| 原型实现 | **Codex** | woot | `codex exec impl --model gpt-5.5 --yolo` | `codex/fori-043-prototype-impl` | `c7415a5` | — | 0 |
+| 实现评审 | **Claude** | epix | `claude -p FORI-043-impl-review --max-turns 15` | `claude/fori-043-impl-review` | `8f1133b` | CONDITIONAL_PASS | 0 |
+| 集成合并 | **Cursor** | epix | merge 4 branches + build | `cursor/fori-043-integration` | 待填 | build PASS | 0 |
 
-> SHA 列在对应任务 commit 后由 Hermes 回填，格式：`git log --oneline -1 <branch>`
+**派发日志**: `.ai/orchestration/dispatch-log.jsonl`（4 条 claude/codex 真实 invocation）
+
+**非 Cursor 后备证明**: 本轮 4 次派发均为真实 `claude -p` / `codex exec`；无 401/429 失败记录。
 
 ---
 
@@ -103,10 +103,10 @@
 
 ## 6. 下一步行动
 
-1. **Human**: `claude auth login`（epix 一次）→ 恢复 headless 编排
-2. **Human**: 预览 `prototype` → `/home`、`/explore/dict`、`/price/community-001`
-3. **Codex**: FORI-043 定价 API（woot）
-4. **Cursor**: 合并 `cursor/fori-060-integration` → `main`
+1. **Human**: 预览 `prototype` → `/price`、`/price/community-001`、`/price/community-004`（D-tier）
+2. **Codex**: FORI-044 定价 Agent 契约 + FORI-043 API 端点（woot）
+3. **Claude**: FORI-044 设计（epix）
+4. **Hermes**: FORI-046 单测验证
 
 ---
 
