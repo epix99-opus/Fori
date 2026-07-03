@@ -169,69 +169,24 @@ export default function DictBrowsePage() {
     return (
       <main className="mobile-shell min-h-dvh bg-neutral-100">
         <header className="sticky top-0 z-30 border-b border-neutral-200 bg-white/95 px-4 py-3 backdrop-blur">
-          <p className="mb-2 text-caption font-semibold text-neutral-500">三态视图 · 地图找小区</p>
           <ViewModeToggle value={viewMode} onChange={setViewMode} />
           <div className="mt-3">
             <ViewerRoleSwitcher value={viewerRole} onChange={setViewerRole} />
           </div>
         </header>
-        <section className="relative h-[calc(100dvh-260px)] min-h-[420px] overflow-hidden bg-[#D8E7DF]">
+        <section className="relative h-[calc(100dvh-180px)] overflow-hidden bg-[#D8E7DF]">
           <div className="absolute inset-0 bg-[linear-gradient(35deg,rgba(255,255,255,.55)_12%,transparent_12%,transparent_50%,rgba(255,255,255,.5)_50%,rgba(255,255,255,.5)_62%,transparent_62%)] bg-[length:88px_88px]" />
-
-          {visibleStatus === "loading" ? (
-            <div className="absolute inset-x-4 top-4">
-              <Skeleton variant="card" className="bg-white/80" />
-            </div>
-          ) : null}
-
-          {visibleStatus === "error" ? (
-            <div className="absolute inset-x-4 top-4">
-              <ErrorState
-                title="地图字典加载失败"
-                code="DICT_MAP_MOCK_ERROR"
-                description="地图视图与卡片/列表共用同一筛选条件，可重试恢复。"
-                onRetry={() => {
-                  setStatus("loading");
-                  window.setTimeout(() => setStatus("ready"), 450);
-                }}
-              />
-            </div>
-          ) : null}
-
-          {visibleStatus === "empty" ? (
-            <div className="absolute inset-x-4 top-4">
-              <EmptyState
-                title="地图范围内暂无小区"
-                description="可清空搜索关键词或切换片区后继续查看。"
-                actionLabel="重置筛选"
-                onAction={() => {
-                  setKeyword("");
-                  setDistrict("全部片区");
-                }}
-              />
-            </div>
-          ) : null}
-
-          {visibleStatus === "ready"
-            ? filteredCommunities.slice(0, 6).map((community, index) => (
-                <button
-                  key={community.id}
-                  type="button"
-                  className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-700 px-3 py-2 text-caption font-semibold text-white shadow-card"
-                  style={{ left: `${18 + index * 14}%`, top: `${28 + (index % 3) * 18}%` }}
-                  onClick={() => setSelectedCommunityId(community.id)}
-                >
-                  {community.name} · {canViewField(viewerRole, "priceReference") ? `${community.saleCount}套` : "登录可见"}
-                </button>
-              ))
-            : null}
-
-          <div className="absolute bottom-4 left-4 right-4 rounded-xl bg-white/95 p-3 shadow-card backdrop-blur">
-            <p className="text-caption font-semibold text-neutral-900">地图披露规则</p>
-            <p className="mt-1 text-caption text-neutral-600">
-              游客只看小区点位；实名买卖家可看参考价和在售数；经纪人/平台角色进入详情查看楼栋与成交字段。
-            </p>
-          </div>
+          {filteredCommunities.slice(0, 6).map((community, index) => (
+            <button
+              key={community.id}
+              type="button"
+              className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-700 px-3 py-2 text-caption font-semibold text-white shadow-card"
+              style={{ left: `${18 + index * 14}%`, top: `${28 + (index % 3) * 18}%` }}
+              onClick={() => setSelectedCommunityId(community.id)}
+            >
+              {community.name} · {canViewField(viewerRole, "priceReference") ? `${community.saleCount}套` : "登录可见"}
+            </button>
+          ))}
         </section>
         <div className="px-4 py-3">
           <Link href="/explore/map" className="block text-center text-caption font-semibold text-primary-700">
@@ -303,8 +258,6 @@ export default function DictBrowsePage() {
           </div>
         </div>
 
-        <ViewModeExplanation viewMode={viewMode} viewerRole={viewerRole} />
-
         <ViewModeToggle value={viewMode} onChange={setViewMode} />
         <ViewerRoleSwitcher value={viewerRole} onChange={setViewerRole} />
 
@@ -363,30 +316,6 @@ export default function DictBrowsePage() {
         </button>
       </div>
     </main>
-  );
-}
-
-function ViewModeExplanation({ viewMode, viewerRole }: { viewMode: DictViewMode; viewerRole: ViewerRole }) {
-  const copy: Record<DictViewMode, { title: string; text: string }> = {
-    card: {
-      title: "卡片视图",
-      text: "适合购房者快速比较小区品质、维护人和公开指标。",
-    },
-    list: {
-      title: "列表视图",
-      text: "适合经纪人和平台人员扫描更多条目，快速进入详情维护。",
-    },
-    map: {
-      title: "地图视图",
-      text: "适合按位置发现小区，并按身份控制价格和成交字段披露。",
-    },
-  };
-
-  return (
-    <div className="rounded-xl border border-primary-100 bg-white p-3 shadow-card">
-      <p className="text-caption font-semibold text-primary-700">{copy[viewMode].title} · 当前身份 {viewerRole}</p>
-      <p className="mt-1 text-body-s text-neutral-600">{copy[viewMode].text}</p>
-    </div>
   );
 }
 
