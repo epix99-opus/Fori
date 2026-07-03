@@ -18,8 +18,8 @@
 
 **修复**:
 - 新增 `auto-resume-cron.sh` — 每 15min 检查 `pendingResume[].after` vs `now()`，派发 Wave 1→4
+- **2026-07-03 03:35 PDT**: epix crontab 已注册 `*/15 * * * * auto-resume-cron.sh`
 - Hermes/Cursor cron 建议见 §4.4
-- 手动恢复由 Cursor 于 2026-07-03 ~02:40 PDT 执行
 
 ---
 

@@ -1,7 +1,7 @@
 {
   "$schema": "./quota-ledger.schema.json",
   "version": 3,
-  "updatedAt": "2026-07-03T02:53:07.807961-07:00",
+  "updatedAt": "2026-07-03T03:35:00-07:00",
   "timezone": "America/Los_Angeles",
   "description": "Fori \u4e09\u5c42\u914d\u989d\u8d26\u672c \u2014 Layer S session + Layer A 5h + Layer B \u65e5\u91cd\u7f6e",
   "agents": {
@@ -17,7 +17,7 @@
       "layer_a": {
         "window_hours": 5,
         "budget_msgs_per_window": 45,
-        "msgs_used_in_window": 13,
+        "msgs_used_in_window": 15,
         "window_started_at": "2026-07-02T19:40:00-07:00",
         "window_resets_at": "2026-07-03T00:40:00-07:00",
         "status": "available"
@@ -39,7 +39,7 @@
       "layer_a": {
         "window_hours": 5,
         "budget_minutes_per_window": 300,
-        "minutes_used_in_window": 12,
+        "minutes_used_in_window": 45,
         "window_started_at": "2026-07-02T19:45:00-07:00",
         "window_resets_at": "2026-07-03T00:45:00-07:00",
         "status": "available"

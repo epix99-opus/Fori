@@ -1,0 +1,47 @@
+# FORI-044 Wave 4 — Implementation Review (Claude epix) — Retry
+
+You are Claude Code on epix in /Users/epix/Dev/Fori.
+
+## Setup
+```bash
+git fetch origin && git checkout -B claude/fori-044-impl-review origin/main
+```
+
+## Mission
+Adversarial review of Codex Wave 3 R2 implementation (commit 72cdabc on codex/fori-044-full-prototype, merged to main). Do NOT modify prototype code — review only.
+
+## Required Reading
+1. `.ai/handoffs/Human/Fori平台原型评审意见.md` — 8 items
+2. `docs/reviews/REVIEW-044-DESIGN-R2-CODEX.md` — design PASS
+3. `docs/execution/FORI-044_FULL_DESIGN.md` — §3.26–§3.30, §8.4
+4. `.ai/handoffs/FORI-044-full-implement.md`
+5. `docs/execution/REVIEW_HUMAN_ROUND2_TASKS.md`
+6. Git diff for prototype/ changes in merge of codex/fori-044-full-prototype
+7. Run: `cd prototype && npm run build`
+
+## Deliverable
+Create `docs/reviews/REVIEW-044-IMPL-CLAUDE.md`:
+
+```
+# REVIEW-044-IMPL-CLAUDE
+
+## VERDICT
+[PASS | CONDITIONAL_PASS | FAIL]
+
+## FINDINGS
+...
+
+## REQUIRED_CHANGES
+(if not PASS)
+```
+
+Check all 8 human review items and R2 fixes (settlement BottomSheet, SUUMO tabs, etc.).
+
+## Git
+```bash
+git add docs/reviews/REVIEW-044-IMPL-CLAUDE.md
+git commit -m "review: FORI-044 implementation adversarial review [claude]"
+git push -u origin claude/fori-044-impl-review
+```
+
+Do NOT modify prototype/ — review docs only.

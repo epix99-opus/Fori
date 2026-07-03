@@ -1,0 +1,47 @@
+# FORI-044 Wave 2.5 — Design Re-Review (Codex woot)
+
+You are Codex on woot in /Users/woot/Dev/Fori.
+
+## Context
+Claude revised design on branch `claude/fori-044-design-revision` to fix REQUIRED_CHANGES from `docs/reviews/REVIEW-044-DESIGN-CODEX.md` (original VERDICT: FAIL).
+
+## Setup
+```bash
+git fetch origin
+git checkout -B codex/fori-044-design-review-r2 origin/claude/fori-044-design-revision
+```
+
+## Required Reading
+1. `docs/reviews/REVIEW-044-DESIGN-CODEX.md` — original FAIL + REQUIRED_CHANGES
+2. `docs/execution/FORI-044_FULL_DESIGN.md` — revised design (check RC1-RC4 fixes)
+3. `docs/execution/PM_TASK_PLAN.md` — Wave 3 gate
+4. Scan prototype routes to verify design covers:
+   - `/`, `/profile`, `/profile/settings`, `/workspace/agent/listings`, `/workspace/agent/stats`
+5. Verify §5.2 vs §8.4 settlement path consistency
+
+## Deliverable
+Create `docs/reviews/REVIEW-044-DESIGN-R2-CODEX.md` with mandatory format:
+
+```
+# REVIEW-044-DESIGN-R2-CODEX
+
+## VERDICT
+[PASS | CONDITIONAL_PASS | FAIL]
+
+## FINDINGS
+(numbered list with severity)
+
+## REQUIRED_CHANGES
+(only if FAIL or CONDITIONAL_PASS — actionable items)
+```
+
+Check each original REQUIRED_CHANGE (RC1-RC4) and state resolved/partial/unresolved.
+
+## Git
+```bash
+git add docs/reviews/REVIEW-044-DESIGN-R2-CODEX.md
+git commit -m "review: FORI-044 design R2 re-review after Claude revision [codex]"
+git push -u origin codex/fori-044-design-review-r2
+```
+
+Do NOT modify prototype/ or design docs in this wave — review only.

@@ -1,0 +1,38 @@
+# FORI-044 Wave 3 — Prototype Implement R2 (Codex woot)
+
+You are Codex on woot in /Users/woot/Dev/Fori.
+
+## Setup
+```bash
+git fetch origin
+git checkout -B codex/fori-044-full-prototype origin/claude/fori-044-design-revision
+```
+
+## Mission
+Implement prototype gaps per `.ai/handoffs/FORI-044-full-implement.md` AND R2 design fixes from `docs/execution/FORI-044_FULL_DESIGN.md` (§3.26–§3.30, §8.4 settlement BottomSheet).
+
+## Required Reading
+1. `.ai/handoffs/FORI-044-full-implement.md` — P0/P1 implementation handoff
+2. `docs/execution/FORI-044_FULL_DESIGN.md` — §3.26–§3.30, §8.4
+3. `docs/reviews/REVIEW-044-DESIGN-R2-CODEX.md` — PASS (design gate cleared)
+4. `.ai/handoffs/Human/Fori平台原型评审意见.md` — 8 human review items
+
+## R2 Priority Fixes (must implement)
+1. `/profile` — Wire 「收益结算」card to BottomSheet per §8.4 (replace showToast placeholder)
+2. Ensure `/`, `/profile`, `/profile/settings`, `/workspace/agent/listings`, `/workspace/agent/stats` match design specs
+3. P0 items from handoff: SUUMO 6-tab dict, co-creation UI, pricing 3-role tabs, Agent FAB on major pages
+
+## Constraints
+- ONLY modify `prototype/` directory
+- `cd prototype && npm run build` MUST PASS (0 TS errors)
+- No blank pages, no fake completion
+- Do NOT modify docs/
+
+## Git (when done)
+```bash
+git add prototype/
+git commit -m "feat: FORI-044 prototype R2 — settlement BottomSheet + design spec alignment [codex]"
+git push -u origin codex/fori-044-full-prototype
+```
+
+Report: files changed, build output, routes verified.

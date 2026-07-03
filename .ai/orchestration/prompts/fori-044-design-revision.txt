@@ -1,0 +1,65 @@
+# FORI-044 Design Revision (Claude epix) — Wave 1.5
+
+You are Claude Code in /Users/epix/Dev/Fori.
+
+## Mission
+Fix ALL REQUIRED_CHANGES from `docs/reviews/REVIEW-044-DESIGN-CODEX.md` (VERDICT: FAIL). This is a targeted revision — do NOT rewrite the entire design pack from scratch.
+
+## Branch
+```bash
+git fetch origin
+git checkout -B claude/fori-044-design-revision origin/main
+```
+
+## Required Reading (read before editing)
+1. `docs/reviews/REVIEW-044-DESIGN-CODEX.md` — REQUIRED_CHANGES (authoritative)
+2. `docs/execution/FORI-044_FULL_DESIGN.md` — current design (fix gaps)
+3. `docs/execution/PM_TASK_PLAN.md` — add Wave 3 gate
+4. `docs/execution/TECHNICAL_SOLUTION.md` — update route count note if needed
+5. Scan these prototype routes for ground truth:
+   - `prototype/app/page.tsx` (/)
+   - `prototype/app/profile/page.tsx` (/profile)
+   - `prototype/app/profile/settings/page.tsx` (/profile/settings)
+   - `prototype/app/workspace/agent/listings/page.tsx`
+   - `prototype/app/workspace/agent/stats/page.tsx`
+   - `prototype/app/profile/page.tsx` — settlement CTA behavior
+
+## REQUIRED_CHANGES to implement
+
+### RC1 — Missing route specs
+Add explicit UI specs in FORI-044_FULL_DESIGN.md §3 route catalog for:
+- `/` — onboarding/splash
+- `/profile` — profile hub
+- `/profile/settings` — settings
+- `/workspace/agent/listings` — agent listings management
+- `/workspace/agent/stats` — agent stats dashboard
+
+For EACH route specify: visible content, empty/error states, role gating, navigation behavior, Agent FAB presence (yes/no + suggestedPrompts if yes).
+
+### RC2 — Settlement path consistency
+Make ONE unambiguous decision:
+- Promote `/profile/settlement` as first-class route with full UI spec, OR
+- Fold settlement into `/profile/me` with embedded spec and remove standalone CTA concept.
+
+Update §5.2 AND §8.4 so they agree. The prototype profile page has "收益结算" CTA — spec must match chosen IA.
+
+### RC3 — PM_TASK_PLAN gate
+Add hard acceptance gate blocking Wave 3 until route inventory matches prototype and each page has documented UI spec. Mark uncovered routes as explicit owned tasks.
+
+### RC4 — Transaction alias
+If `/profile/transactions/[txId]` is a separate alias from `/transaction/[id]`, state explicitly in design pack.
+
+## Constraints
+- Design/docs ONLY — do NOT modify prototype/ code
+- Chinese primary for user-facing spec text
+- No TBD placeholders
+- Keep existing good content; surgical edits preferred
+
+## Git (when done)
+```bash
+git add docs/execution/FORI-044_FULL_DESIGN.md docs/execution/PM_TASK_PLAN.md docs/execution/TECHNICAL_SOLUTION.md
+git commit -m "docs: FORI-044 design revision — route specs + settlement IA fix [claude]"
+git push -u origin claude/fori-044-design-revision
+```
+
+Report: summary of decisions (especially settlement IA choice) and files changed.
