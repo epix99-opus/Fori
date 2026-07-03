@@ -80,7 +80,7 @@
     "auto_resume_cron": ".ai/orchestration/scripts/auto-resume-cron.sh",
     "model_matrix": ".ai/orchestration/MODEL_ROUTING_MATRIX.json",
     "auth_persistence": ".ai/orchestration/AUTH_PERSISTENCE.md",
-    "claude_auth": "auth_error_needs_human_login",
+    "claude_auth": "keychain_ok_headless_verified",
     "lastAutoResume": {
       "ts": "2026-07-03T10:35:00Z",
       "result": "cursor_pipeline_complete",
@@ -91,7 +91,8 @@
         "prototypeImplR2": "72cdabc",
         "implReview": "CONDITIONAL_PASS"
       },
-      "cronRegistered": "2026-07-03T03:35:00-07:00"
+      "cronRegistered": "2026-07-03T03:35:00-07:00",
+      "claudeAuthVerifiedAt": "2026-07-03T08:23:31-07:00"
     }
   },
   "pendingResume": [],

@@ -12,12 +12,12 @@
 | 指标 | 数值 |
 |------|------|
 | 人类主线指令 | **14 条** |
-| **完全达成** | **10 条**（71%） |
+| **完全达成** | **11 条**（79%） |
 | **部分达成** | **3 条**（21%） |
-| **未达成 / 失败** | **1 条**（7%）— Claude auth 持久 |
-| **加权总体达成率** | **约 88%**（缺口关闭轮 2026-07-03） |
+| **未达成 / 失败** | **0 条** — Claude auth 已关闭（Human login + 冒烟 OK） |
+| **加权总体达成率** | **约 93%**（Claude auth 缺口关闭 · 2026-07-03） |
 
-**一句话结论**：多 Agent 协作在 FORI-043/044 上**确实跑通了真实 dispatch + VERDICT 链**，原型从空白定价页修复到 ~98% 完成度；但 **Claude auth 未持久可用**、**02:10 自动续跑首次失败**、**七段流水线/AGENTS.md 未落地**、**FORI-095 协作复盘缺失**、**main 未合并最新 P0 review**，导致「证明协作优于单 Agent」仍缺闭环证据。
+**一句话结论**：多 Agent 协作在 FORI-043/044 上**确实跑通了真实 dispatch + VERDICT 链**，原型从空白定价页修复到 ~98% 完成度；附录 B 缺口项已基本关闭（含 Claude auth：AUTH_PERSISTENCE v1.1 Keychain 门控 + Human 一次 login + `-p` OK）；**#7 协作量化证明**与部分历史项仍待深化，但不阻塞 D4 headless dispatch。
 
 **磁盘快照（审计时刻）**：
 
@@ -461,7 +461,7 @@ cd prototype && npm run build  # ✅ 2026-07-03 审计日 PASS，37 路由
 |------|------|----------|
 | `docs/reviews/MULTI_AGENT_COLLABORATION_REDESIGN.md` | ✅ | 建议稿，未入 AGENTS.md |
 | `.ai/orchestration/QUOTA_ROUTING.md` | ✅ v3.0 | |
-| `.ai/orchestration/AUTH_PERSISTENCE.md` | ✅ | auth 仍失败 |
+| `.ai/orchestration/AUTH_PERSISTENCE.md` | ✅ | v1.1 Keychain 门控；`-p` OK · jq 假阴性 |
 | `.ai/orchestration/scripts/resume-pending.sh` | ✅ | |
 | `.ai/orchestration/scripts/auto-resume-cron.sh` | ✅ | epix crontab `*/15` 已验证 |
 | `.ai/orchestration/MODEL_ROUTING_MATRIX.json` | ✅ | |
@@ -493,11 +493,26 @@ cd prototype && npm run build  # ✅ 2026-07-03 审计日 PASS，37 路由
 | PM §5 dispatch 统计 | 31 条统计入 PM_TASK_PLAN | ✅ |
 | CAMA Playbook | §12 CONVERSATION_GOAL_AUDIT 教训 | ✅ |
 | prompts 未跟踪 | `fori-044-p0-*.txt` 入库 | ✅ |
-| Claude auth | `-p` 401 复检；AUTH_PERSISTENCE v1.1 Keychain 门控 | ⚠️ **需 Human login** |
+| Claude auth | `-p` 401 复检 → Human login → 冒烟 OK；Keychain present | ✅ |
 | apps/web build | `npm run build` PASS | ✅ |
 | prototype build | 37 路由 PASS | ✅ |
 
-**关闭后加权达成率**: **约 88%**
+**关闭后加权达成率**: **约 93%**（14/14 附录 B 项）
 
 **`main` HEAD**: `b355114`
+
+## 附录 C — Claude auth 关闭证据（2026-07-03 · AUTH_PERSISTENCE v1.1）
+
+| 步骤 | 结果 |
+|------|------|
+| `claude auth status` | `loggedIn: true` · `toori66@icloud.com` · Pro |
+| Keychain `Claude Code-credentials` | **present**（`mdat` 2026-07-03 登录后刷新） |
+| jq `oauthAccount.accessToken` | **false**（Keychain 路径 · 非 auth 失效） |
+| 预登录冒烟 | **401** Invalid authentication credentials |
+| `claude auth login --email toori66@icloud.com` | **一次** · Login successful |
+| post-login 冒烟 | `Reply only: OK` → **OK** |
+| `quota-ledger` `layer_a.status` | **available** · event `auth_restored` |
+| manifest `claude_auth` | **keychain_ok_headless_verified** |
+
+**裁决**: 冒烟 **>** Keychain **>** jq；headless `-p` 可用，审计缺口 A（Claude auth）**✅**。
 

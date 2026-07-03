@@ -1,9 +1,9 @@
 {
   "$schema": "./quota-ledger.schema.json",
   "version": 3,
-  "updatedAt": "2026-07-03T03:35:00-07:00",
+  "updatedAt": "2026-07-03T08:23:31-07:00",
   "timezone": "America/Los_Angeles",
-  "description": "Fori \u4e09\u5c42\u914d\u989d\u8d26\u672c \u2014 Layer S session + Layer A 5h + Layer B \u65e5\u91cd\u7f6e",
+  "description": "Fori 三层配额账本 — Layer S session + Layer A 5h + Layer B 日重置",
   "agents": {
     "claude": {
       "plan": "claude_pro",
@@ -20,16 +20,16 @@
         "msgs_used_in_window": 15,
         "window_started_at": "2026-07-02T19:40:00-07:00",
         "window_resets_at": "2026-07-03T00:40:00-07:00",
-        "status": "auth_error"
+        "status": "available"
       },
       "layer_b": {
         "daily_reset_pdt": "22:30",
-        "daily_reset_cst": "\u6b21\u65e5 13:30",
+        "daily_reset_cst": "次日 13:30",
         "daily_exhausted": false,
         "next_daily_reset_at": "2026-07-03T22:30:00-07:00"
       },
       "last_exhausted_at": "2026-07-02T22:43:00-07:00",
-      "last_error_snippet": "401 Invalid authentication credentials \u00b7 2026-07-03 audit smoke"
+      "last_error_snippet": null
     },
     "codex": {
       "plan": "codex_plus",
@@ -46,7 +46,7 @@
       },
       "layer_b": {
         "daily_reset_pdt": "00:29",
-        "daily_reset_cst": "\u5f53\u65e5 15:29",
+        "daily_reset_cst": "当日 15:29",
         "daily_exhausted": false,
         "next_daily_reset_at": "2026-07-03T00:29:00-07:00"
       },
@@ -127,6 +127,12 @@
       "agent": "claude",
       "event": "auth_error",
       "detail": "audit gap-close: jq false + claude -p 401; not keychain false positive"
+    },
+    {
+      "at": "2026-07-03T08:23:31-07:00",
+      "agent": "claude",
+      "event": "auth_restored",
+      "detail": "Human login once; smoke OK; KEYCHAIN:present; jq hasAccessToken false (v1.1 keychain path)"
     }
   ]
 }
