@@ -15,9 +15,12 @@ export default function AgentBuyersPage() {
   return (
     <main className="mobile-shell min-h-dvh bg-neutral-100 px-4 py-5">
       <header className="rounded-2xl bg-white p-4 shadow-card">
-        <p className="text-caption text-neutral-500">客源管理</p>
+        <p className="text-caption text-neutral-500">买家快速视图</p>
         <h1 className="text-h2">跟进 {mockBuyerDemands.length + buyers.length} 位有效买家</h1>
         <p className="mt-2 text-body-s text-neutral-500">按响应超时、成交概率和预计佣金综合排序。</p>
+        <Link href="/workspace/agent/leads" className="mt-3 block rounded-xl bg-primary-50 px-3 py-2 text-center text-caption font-semibold text-primary-700">
+          查看完整 CRM 漏斗 →
+        </Link>
       </header>
 
       <section className="mt-4 space-y-3">

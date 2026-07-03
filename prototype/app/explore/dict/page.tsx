@@ -128,7 +128,7 @@ export default function DictBrowsePage() {
   const [city, setCity] = useState("北京");
   const [district, setDistrict] = useState("全部片区");
   const [keyword, setKeyword] = useState("");
-  const [viewMode, setViewMode] = useState<DictViewMode>("card");
+  const [viewMode, setViewMode] = useState<DictViewMode>("map");
   const [viewerRole, setViewerRole] = useState<ViewerRole>("guest");
   const [selectedCommunityId, setSelectedCommunityId] = useState<string | null>(null);
   const [expandedBuildingId, setExpandedBuildingId] = useState<string | null>(null);
@@ -167,32 +167,41 @@ export default function DictBrowsePage() {
 
   if (viewMode === "map") {
     return (
-      <main className="mobile-shell min-h-dvh bg-neutral-100">
+      <main className="mobile-shell min-h-dvh bg-neutral-100 pb-8">
         <header className="sticky top-0 z-30 border-b border-neutral-200 bg-white/95 px-4 py-3 backdrop-blur">
           <ViewModeToggle value={viewMode} onChange={setViewMode} />
           <div className="mt-3">
             <ViewerRoleSwitcher value={viewerRole} onChange={setViewerRole} />
           </div>
         </header>
-        <section className="relative h-[calc(100dvh-180px)] overflow-hidden bg-[#D8E7DF]">
-          <div className="absolute inset-0 bg-[linear-gradient(35deg,rgba(255,255,255,.55)_12%,transparent_12%,transparent_50%,rgba(255,255,255,.5)_50%,rgba(255,255,255,.5)_62%,transparent_62%)] bg-[length:88px_88px]" />
-          {filteredCommunities.slice(0, 6).map((community, index) => (
-            <button
-              key={community.id}
-              type="button"
-              className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-700 px-3 py-2 text-caption font-semibold text-white shadow-card"
-              style={{ left: `${18 + index * 14}%`, top: `${28 + (index % 3) * 18}%` }}
-              onClick={() => setSelectedCommunityId(community.id)}
-            >
-              {community.name} · {canViewField(viewerRole, "priceReference") ? `${community.saleCount}套` : "登录可见"}
-            </button>
-          ))}
-        </section>
-        <div className="px-4 py-3">
-          <Link href="/explore/map" className="block text-center text-caption font-semibold text-primary-700">
-            打开全屏地图页 →
+        <section className="space-y-4 px-4 py-4">
+          <Link href="/explore/map" className="block overflow-hidden rounded-2xl bg-primary-900 text-white shadow-card">
+            <div className="relative h-72 bg-[#D8E7DF]">
+              <div className="absolute inset-0 bg-[linear-gradient(35deg,rgba(255,255,255,.55)_12%,transparent_12%,transparent_50%,rgba(255,255,255,.5)_50%,rgba(255,255,255,.5)_62%,transparent_62%)] bg-[length:88px_88px]" />
+              {filteredCommunities.slice(0, 6).map((community, index) => (
+                <div
+                  key={community.id}
+                  className="absolute -translate-x-1/2 -translate-y-1/2 rounded-lg border border-primary-200 bg-white px-3 py-2 text-caption font-semibold text-neutral-900 shadow-card"
+                  style={{ left: `${18 + index * 14}%`, top: `${28 + (index % 3) * 18}%` }}
+                >
+                  {community.name}
+                  <br />
+                  <span className="text-primary-700">{community.grade}层</span>
+                  <span className="text-neutral-500"> · {canViewField(viewerRole, "priceReference") ? `${community.saleCount}套` : "登录可见"}</span>
+                </div>
+              ))}
+            </div>
+            <div className="p-4">
+              <p className="text-caption text-primary-200">楼盘字典默认入口</p>
+              <h1 className="mt-1 text-h2">打开地图找房，浏览 8 城 50 个 Mock 小区</h1>
+              <p className="mt-2 text-body-s text-primary-100">支持城市、区域、层级、参考总价筛选，点击小区 Pin 可进入 SUUMO 式详情。</p>
+              <span className="mt-4 inline-flex rounded-lg bg-white px-4 py-2 text-caption font-semibold text-primary-700">进入真实地图 →</span>
+            </div>
           </Link>
-        </div>
+          <p className="rounded-xl bg-white p-3 text-caption text-neutral-500 shadow-card">
+            原型使用 OpenStreetMap + Mock 坐标；生产接入高德地图 JS API 2.0 + 开源底图业务数据层
+          </p>
+        </section>
         <AgentAssistFab pageContext="楼盘字典 · 地图模式" suggestedPrompts={["这片区域有哪些 A 级小区？", "帮我对比地图上的在售套数"]} />
       </main>
     );

@@ -1,10 +1,10 @@
 # Fori 技术方案（执行摘要）
 
-> **版本**: 2.0 · 2026-07-03  
-> **变更**: 全模块 API 契约、六大业务 Agent 规格、跨换位编排集成、原型迁移完整路径  
-> **前版**: v1.1 (2026-07-02) — §4 定价 API 契约；§5 price-eval Agent  
+> **版本**: 3.0 · 2026-07-03  
+> **变更**: §9 地图模块（原型 + 生产技术栈）；§10 媒体/短视频 Pipeline；§11 CRM 线索模块；FORI-046 三大 GAP 补齐  
+> **前版**: v2.0 (2026-07-03) — 全模块 API 契约、六大业务 Agent 规格  
 > **受众**: 开发、编排、Human 审阅  
-> **详细设计**: `docs/execution/FORI-043_DESIGN.md`（定价模块 SSOT）, `docs/execution/FORI-044_FULL_DESIGN.md`（原型完整规格）
+> **详细设计**: `docs/execution/FORI-043_DESIGN.md`（定价模块 SSOT）, `docs/execution/FORI-044_FULL_DESIGN.md`（原型完整规格）, `docs/execution/FORI-046_CORE_GAPS_DESIGN.md`（地图/媒体/CRM GAP 补齐设计 SSOT）
 
 ---
 
@@ -471,4 +471,235 @@ CI: `.github/workflows/ci.yml` — prototype build + lint + typecheck。
 
 ---
 
-*技术方案执行摘要 v2.0 · 2026-07-03 · Claude Code (epix)*
+---
+
+## 14. 地图模块技术规格（FORI-046 补齐）
+
+> **SSOT**: `docs/execution/FORI-046_CORE_GAPS_DESIGN.md §1`
+
+### 14.1 原型地图栈
+
+| 层 | 技术 | 备注 |
+|----|------|------|
+| 地图库 | `leaflet` + `react-leaflet` | 无 API Key，`npm install leaflet react-leaflet @types/leaflet` |
+| 底图瓦片 | OpenStreetMap (`https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png`) | 免费，原型专用 |
+| 业务标记 | `react-leaflet` Marker + 自定义 DivIcon | 渲染价格气泡 |
+| Mock 数据 | `prototype/lib/mock-map.ts`：50 个小区，8 城市 | 覆盖北京/上海/广州/深圳/成都/杭州/武汉/重庆 |
+
+**已知约束**：`leaflet` 在 Next.js SSR 环境下需 dynamic import（`ssr: false`）；地图容器必须有明确高度。
+
+### 14.2 生产地图栈
+
+```
+底图层:   高德地图 JS API 2.0（DECIDED · 主选）；腾讯地图（备选 fallback）
+          选型依据：中国大陆合规、POI 数据覆盖全、JS SDK 成熟度高
+          非阻塞后续事项：高德 Web 服务 Key 申请（部署阶段完成）
+业务层:   平台自维护 GeoJSON 小区坐标层（PostgreSQL + PostGIS）
+服务端:   Viewport bounds 动态裁剪（不全量下发 ~80 万坐标）
+缓存:     Redis 缓存 tile 级别聚合结果（TTL 5min）
+实时:     SSE 推送在售套数、价格变化到地图客户端
+```
+
+### 14.3 地图 API 契约（Wave 2 实现）
+
+**`GET /api/v1/dict/communities/map`**
+
+Query 参数:
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `bounds` | string | `minLat,minLng,maxLat,maxLng`，当前地图可视区域 |
+| `zoom` | number | 地图缩放级别；< 10 返回聚合，≥ 10 返回个体 Pin |
+| `city?` | string | 城市名（如 `北京`）；可选 |
+| `district[]?` | string[] | 区域名多选（如 `海淀,朝阳`）；空 = 不过滤 |
+| `tier[]?` | string[] | 层级多选（`A`/`B`/`C`/`D`）；空 = 不过滤 |
+| `priceWanMax?` | number | 参考总价上限（万元）；空 = 不限 |
+
+> **价格单位说明**：API 响应中 `priceMin`/`priceMax` 为元/㎡（单价），客户端按公式推算参考总价：
+> `totalPriceWan = (priceMin + priceMax) / 2 × avgAreaSqm ÷ 10000`
+> 筛选参数 `priceWanMax` 为万元总价，服务端按上述公式换算后过滤。
+
+Response（zoom < 10 时返回聚合，zoom ≥ 10 时返回个体 Pin）:
+```json
+{
+  "success": true,
+  "data": {
+    "mode": "individual",
+    "communities": [
+      {
+        "id": "community-001",
+        "name": "中关村小区",
+        "city": "北京",
+        "district": "海淀",
+        "lat": 39.9800,
+        "lng": 116.3090,
+        "tier": "B",
+        "priceMin": 32000,
+        "priceMax": 38000,
+        "avgAreaSqm": 92,
+        "totalPriceWanRef": 322,
+        "listingCount": 12,
+        "maintainerCount": 3
+      }
+    ],
+    "clusters": []
+  }
+}
+```
+
+> `totalPriceWanRef` 为服务端预计算字段，等于 `(priceMin+priceMax)/2 × avgAreaSqm ÷ 10000`，供前端 Pin 气泡直接显示"参考总价 322万"，无需前端再次计算。
+
+---
+
+## 15. 媒体 Pipeline 技术规格（FORI-046 补齐）
+
+> **SSOT**: `docs/execution/FORI-046_CORE_GAPS_DESIGN.md §2`
+
+### 15.1 短视频生成 Pipeline
+
+```
+输入: 房源图片(≥3张) + 房源参数 + 视频类型
+  ↓
+media-gen Agent (MATERIAL_GEN_VIDEO 任务)
+  ↓ 步骤 1: AI 分析房源参数，生成分镜脚本（JSON）
+  ↓ 步骤 2: 按分镜顺序抓取对应图片帧
+  ↓ 步骤 3: 调用视频合成服务（Wave 5 接入，原型 Mock）
+  ↓ 步骤 4: 添加字幕/背景音乐/品牌尾帧
+  ↓ 步骤 5: 输出 MP4 + 封面图
+输出: MP4 文件 + 封面图 (S3-compatible 存储)
+```
+
+**分镜脚本数据结构**（原型 Mock + 生产共用）：
+```typescript
+interface Storyboard {
+  videoType: "overview" | "immersive" | "script_only";
+  totalDurationSec: number;
+  scenes: Scene[];
+}
+interface Scene {
+  index: number;
+  startSec: number;
+  endSec: number;
+  label: string;         // 画面说明
+  caption: string;       // 字幕文字
+  cameraMove: string;    // 运镜描述
+  imageHint?: string;    // 建议使用的图片类型
+}
+```
+
+### 15.2 多渠道发布合规架构
+
+```
+渠道分类:
+  A类（官方 API）: 抖音 / 微信视频号 / 微博 / 今日头条
+    → 平台 OAuth + 官方发布 API
+    → 系统自动调用，无需人工
+  
+  B类（辅助发布）: 小红书 / 微信朋友圈
+    → 生成素材包 + 复制文案 + 手动发布引导
+    → 系统不模拟登录，合规边界明确
+  
+  C类（自定义分享）: PWA 分享链接
+    → 生成房源落地页链接，用户自行分享
+```
+
+### 15.3 新增 API 端点（Wave 5）
+
+| 端点 | 说明 |
+|------|------|
+| `POST /api/v1/media/video/generate` | 触发短视频生成任务（返回 taskId） |
+| `GET /api/v1/media/video/{taskId}/status` | 查询生成进度（SSE 或轮询） |
+| `GET /api/v1/media/video/{taskId}/storyboard` | 获取分镜脚本 JSON |
+| `POST /api/v1/media/publish` | 创建多渠道发布任务 |
+| `GET /api/v1/media/publish/{jobId}/status` | 各渠道发布状态 |
+| `GET /api/v1/media/reach/{promotionId}` | 触达分析数据（各渠道指标 + 线索归因） |
+| `POST /api/v1/media/leads` | 手动录入触达产生的线索 |
+
+---
+
+## 16. CRM 线索模块技术规格（FORI-046 补齐）
+
+> **SSOT**: `docs/execution/FORI-046_CORE_GAPS_DESIGN.md §3`
+
+### 16.1 数据模型
+
+```sql
+-- 线索总表
+CREATE TABLE crm_leads (
+  id UUID PRIMARY KEY,
+  agent_id UUID REFERENCES users(id),
+  type VARCHAR(10) NOT NULL CHECK (type IN ('buyer', 'landlord')),
+  stage VARCHAR(30) NOT NULL,
+  name_masked VARCHAR(20),       -- 脱敏姓名：周先生
+  phone_masked VARCHAR(20),      -- 脱敏手机：138****5678
+  source VARCHAR(30) NOT NULL,   -- platform_match / media_reach / manual / referral
+  source_detail TEXT,
+  need_summary TEXT,
+  probability INT DEFAULT 50,    -- 0-100
+  expected_value_yuan INT,
+  last_contact_at TIMESTAMPTZ,
+  next_action TEXT,
+  next_action_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 跟进记录
+CREATE TABLE crm_activities (
+  id UUID PRIMARY KEY,
+  lead_id UUID REFERENCES crm_leads(id),
+  activity_type VARCHAR(20) NOT NULL,  -- call / wechat / visit / house_view / listing / note
+  summary TEXT,
+  duration_min INT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 平台联动（线索与平台事件的关联）
+CREATE TABLE crm_platform_links (
+  lead_id UUID REFERENCES crm_leads(id),
+  entity_type VARCHAR(20),   -- match_record / listing / transaction
+  entity_id UUID,
+  linked_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+### 16.2 新增 API 端点（Wave 3）
+
+| 端点 | 说明 |
+|------|------|
+| `GET /api/v1/crm/leads` | 线索列表（by type, stage, date range） |
+| `GET /api/v1/crm/leads/{id}` | 线索详情 + 活动时间线 |
+| `POST /api/v1/crm/leads` | 手动创建线索 |
+| `PATCH /api/v1/crm/leads/{id}/stage` | 更新漏斗阶段 |
+| `POST /api/v1/crm/leads/{id}/activities` | 记录跟进动作 |
+| `GET /api/v1/crm/funnel` | 漏斗聚合统计（各阶段数量 + 转化率） |
+| `POST /api/v1/crm/leads/from-match/{matchId}` | 平台匹配接受后自动创建线索 |
+
+### 16.3 与平台的自动化联动
+
+```python
+# 平台事件 → CRM 自动创建线索
+@event_handler("match:lead_accepted")
+async def on_lead_accepted(event: MatchAcceptedEvent):
+    await crm_service.create_lead(
+        agent_id=event.agent_id,
+        type="buyer",
+        stage="following",
+        source="platform_match",
+        source_detail=f"P{event.priority} 匹配 {event.created_at.strftime('%m-%d')}",
+        match_id=event.match_id
+    )
+
+@event_handler("media:lead_captured")
+async def on_media_lead(event: MediaLeadEvent):
+    await crm_service.create_lead(
+        agent_id=event.agent_id,
+        type="buyer",
+        stage="new",
+        source="media_reach",
+        source_detail=f"来自{event.channel}推广"
+    )
+```
+
+---
+
+*技术方案执行摘要 v3.0 · 2026-07-03 · Claude Code (epix)*

@@ -16,6 +16,7 @@ import {
   ListTodo,
   Megaphone,
   TrendingUp,
+  UserCheck,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -154,10 +155,11 @@ export default function AgentWorkspacePage() {
 
             <Card header={<SectionTitle icon={Briefcase} title="快捷入口" action="全部功能" />}>
               <div className="grid grid-cols-4 gap-3">
-                <QuickEntry icon={Users} label="客源" badge="5" href="/workspace/agent/buyers" />
+                <QuickEntry icon={Users} label="线索" badge="18" href="/workspace/agent/leads" />
                 <QuickEntry icon={Home} label="房源" href="/workspace/agent/listings" />
+                <QuickEntry icon={UserCheck} label="房东" href="/workspace/agent/landlords" />
                 <QuickEntry icon={Building2} label="楼盘字典" href="/explore/dict" />
-                <QuickEntry icon={Megaphone} label="推广" href="/workspace/media/generate" />
+                <QuickEntry icon={Megaphone} label="短视频" href="/workspace/media/video" />
               </div>
             </Card>
 
