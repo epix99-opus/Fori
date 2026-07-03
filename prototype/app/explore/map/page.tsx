@@ -6,9 +6,9 @@ import { Card } from "@/components/Card";
 import { mockListings } from "@/lib/mock";
 
 const pins = [
-  { left: "22%", top: "34%", label: "中关村", count: 28 },
-  { left: "54%", top: "44%", label: "知春路", count: 16 },
-  { left: "68%", top: "26%", label: "学院路", count: 11 },
+  { left: "22%", top: "34%", id: "community-001", name: "中关村小区", tier: "B", price: "35,000" },
+  { left: "54%", top: "44%", id: "community-002", name: "知春里", tier: "C", price: "29,000" },
+  { left: "68%", top: "26%", id: "community-003", name: "上地嘉园", tier: "A", price: "48,000" },
 ];
 
 export default function ExploreMapPage() {
@@ -43,12 +43,15 @@ export default function ExploreMapPage() {
         <div className="absolute inset-0 bg-[linear-gradient(35deg,rgba(255,255,255,.55)_12%,transparent_12%,transparent_50%,rgba(255,255,255,.5)_50%,rgba(255,255,255,.5)_62%,transparent_62%)] bg-[length:88px_88px]" />
         {pins.map((pin) => (
           <Link
-            key={pin.label}
-            href="/explore/dict/community-001"
-            className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-700 px-3 py-2 text-caption font-semibold text-white shadow-card"
+            key={pin.id}
+            href={`/explore/dict/${pin.id}`}
+            className="absolute -translate-x-1/2 -translate-y-1/2 rounded-lg border border-primary-200 bg-white px-3 py-2 text-caption font-semibold text-neutral-900 shadow-card"
             style={{ left: pin.left, top: pin.top }}
           >
-            {pin.label} · {pin.count}
+            {pin.name}
+            <br />
+            <span className="text-primary-700">{pin.tier} 层级</span>
+            <span className="text-neutral-500"> ¥{pin.price}/㎡</span>
           </Link>
         ))}
         <button className="absolute bottom-4 right-4 flex size-12 items-center justify-center rounded-full bg-white text-primary-700 shadow-card" type="button" aria-label="定位">
@@ -72,6 +75,9 @@ export default function ExploreMapPage() {
           <Link href="/listing/listing-001" className="mt-4 block">
             <Button className="w-full">查看房源详情</Button>
           </Link>
+          <p className="mt-3 text-center text-caption text-neutral-500">
+            高德地图 JS API 2.0 接入于 FORI-052+，当前展示 Mock 位置
+          </p>
         </Card>
       </section>
     </main>

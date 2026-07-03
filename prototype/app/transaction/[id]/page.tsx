@@ -111,20 +111,16 @@ const riskTips = [
   "过户材料如被驳回，将回到当前步骤并列出逐项修复要求。",
 ];
 
-const revenueTotal = 30000;
+const revenueTotal = 60000;
 const revenueShares = [
-  { label: "平台服务费", amount: 2400, percent: 8, receiver: "Fori 平台", tone: "bg-primary-500" },
-  { label: "推广传播费", amount: 1500, percent: 5, receiver: "张三 · 素材分发", tone: "bg-secondary-500" },
-  { label: "信息贡献费", amount: 3600, percent: 12, receiver: "字典维护链", tone: "bg-emerald-500", expandable: true },
-  { label: "带看服务费", amount: 7500, percent: 25, receiver: "王五 · 带看经纪人", tone: "bg-blue-500" },
-  { label: "全程服务费", amount: 13500, percent: 45, receiver: "王五 · 主成交经纪人", tone: "bg-indigo-500" },
-  { label: "公证合规费", amount: 1500, percent: 5, receiver: "第三方公证机构", tone: "bg-neutral-500" },
+  { label: "经纪人服务池", amount: 48000, percent: 80, receiver: "主成交经纪人 + 带看协作", tone: "bg-blue-500" },
+  { label: "平台运营", amount: 9000, percent: 15, receiver: "Fori 平台", tone: "bg-emerald-500" },
+  { label: "字典贡献奖励", amount: 3000, percent: 5, receiver: "首建者与团队维护者", tone: "bg-secondary-500", expandable: true },
 ];
 const informationShareChildren = [
-  { label: "首建者", amount: 1440, percent: 40, receiver: "李四" },
-  { label: "协作者", amount: 1260, percent: 35, receiver: "Top3 维护者" },
-  { label: "纠错贡献", amount: 360, percent: 10, receiver: "业主/买家平台券" },
-  { label: "推广线索", amount: 540, percent: 15, receiver: "素材制作者" },
+  { label: "首建者", amount: 1200, percent: 40, receiver: "李建国" },
+  { label: "团队维护者", amount: 900, percent: 30, receiver: "王芳" },
+  { label: "团队维护者", amount: 900, percent: 30, receiver: "张明" },
 ];
 
 export default function TransactionPage() {
@@ -239,7 +235,7 @@ export default function TransactionPage() {
           </div>
         </Card>
 
-        <Card header={<SectionTitle icon={Banknote} title="收益分成" subtitle="成交服务费按 80% 经纪人 / 15% 平台 / 5% 公证展示" />}>
+        <Card header={<SectionTitle icon={Banknote} title="收益分成" subtitle="成交价 300 万 · 佣金 2% · 按 80% 经纪人 / 15% 平台 / 5% 字典贡献展示" />}>
           <div className="rounded-xl bg-neutral-100 p-3">
             <div className="flex items-end justify-between gap-3">
               <div>
@@ -248,7 +244,7 @@ export default function TransactionPage() {
               </div>
               <div className="text-right text-caption text-neutral-500">
                 <p>经纪人 80% · 平台 15%</p>
-                <p>公证 5%</p>
+                <p>字典贡献 5%</p>
               </div>
             </div>
           </div>
@@ -274,7 +270,7 @@ export default function TransactionPage() {
                 {share.expandable && revenueExpanded ? (
                   <div className="mt-3 space-y-2 border-t border-neutral-200 pt-3">
                     {informationShareChildren.map((child) => (
-                      <div key={child.label} className="flex items-center justify-between rounded-lg bg-neutral-100 px-3 py-2 text-caption">
+                      <div key={`${child.label}-${child.receiver}`} className="flex items-center justify-between rounded-lg bg-neutral-100 px-3 py-2 text-caption">
                         <span>{child.label} · {child.receiver}</span>
                         <span className="font-semibold">¥{child.amount.toLocaleString("zh-CN")} · {child.percent}%</span>
                       </div>
@@ -312,7 +308,7 @@ export default function TransactionPage() {
       {toast ? <Toast title={toast} /> : null}
       <AgentAssistFab
         pageContext="交易流程与分成结算"
-        suggestedPrompts={["解释这笔交易的下一步材料", "帮我核对收益分成是否合理", "生成给买卖双方的进度摘要"]}
+        suggestedPrompts={["帮我确认税费", "下一步需要做什么？", "分成计算有问题吗？"]}
       />
     </main>
   );

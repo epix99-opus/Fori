@@ -343,7 +343,7 @@ function PriceEvaluationContent() {
                       className="mt-2 px-0 text-semantic-warning"
                       onClick={() => router.push(`/price?district=${community.district}&tier=C`)}
                     >
-                      扩大搜索范围
+                      扩大搜索范围 →
                     </Button>
                   </div>
                 </div>
@@ -477,7 +477,7 @@ function PriceEvaluationContent() {
       {toast ? <Toast title={toast} /> : null}
       <AgentAssistFab
         pageContext={`价格图谱三角色评估 · ${roleLabel(priceRole)}`}
-        suggestedPrompts={getSuggestedPrompts(priceRole, assessmentData)}
+        suggestedPrompts={getSuggestedPrompts(priceRole)}
       />
     </main>
   );
@@ -503,7 +503,7 @@ function ConfidenceBadge({ confidence }: { confidence: ConfidenceLevel }) {
   const copy: Record<ConfidenceLevel, { label: string; className: string }> = {
     high: { label: "高置信", className: "bg-semantic-success/10 text-semantic-success" },
     medium: { label: "中置信", className: "bg-secondary-200 text-secondary-600" },
-    low: { label: "低置信 · 仅参考", className: "bg-semantic-warning/10 text-semantic-warning" },
+    low: { label: "低置信 · 仅参考", className: "animate-pulse bg-semantic-warning/10 text-semantic-warning" },
   };
 
   return <span className={cn("rounded-full px-3 py-1 text-caption font-semibold", copy[confidence].className)}>{copy[confidence].label}</span>;
@@ -565,27 +565,27 @@ function InsightItem({ label, value, note }: { label: string; value: string; not
   );
 }
 
-function getSuggestedPrompts(role: PriceViewerRole, assessmentData: PriceAssessmentResponse) {
+function getSuggestedPrompts(role: PriceViewerRole) {
   if (role === "seller") {
     return [
-      "基于当前样本生成挂牌策略",
-      "如果 30 天无带看应该如何调价",
-      "把竞品对比整理成卖家沟通话术",
+      "我的房子应该挂多少？",
+      "多久能成交？",
+      "如何提高挂牌吸引力？",
     ];
   }
 
   if (role === "agent") {
     return [
-      "计算买卖双方撮合空间",
-      "生成经纪人议价推进步骤",
-      `解释 ${assessmentData.tier} 层级置信度风险`,
+      "买卖双方价差是多少？",
+      "我的佣金预估是多少？",
+      "帮我准备谈判话术",
     ];
   }
 
   return [
-    "生成一段买家议价话术",
-    "解释这个小区的价格风险",
-    "我应该以哪个价格作为首轮出价",
+    "这个价格合理吗？",
+    "我应该出价多少？",
+    "还有哪些同层级竞品？",
   ];
 }
 

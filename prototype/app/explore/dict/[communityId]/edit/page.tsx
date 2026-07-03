@@ -127,7 +127,7 @@ export default function DictEditPage({ params }: DictEditPageProps) {
     setSaveState("saving");
     window.setTimeout(() => {
       setSaveState("submitted");
-      showToast("提交成功，进入核验队列");
+      showToast("✅ 已提交！获得 +5 维护积分，当前楼盘排名第 2");
     }, 750);
   }
 

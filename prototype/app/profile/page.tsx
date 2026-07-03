@@ -23,6 +23,7 @@ import {
   UsersRound,
 } from "lucide-react";
 
+import { BottomSheet } from "@/components/BottomSheet";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { EmptyState } from "@/components/EmptyState";
@@ -51,6 +52,7 @@ const utilityLinks = [
 export default function ProfilePage() {
   const [state, setState] = useState<PageState>("loading");
   const [toast, setToast] = useState<string | null>(null);
+  const [settlementOpen, setSettlementOpen] = useState(false);
 
   const user = mockUsers[0];
   const agent = mockAgents[0];
@@ -176,7 +178,7 @@ export default function ProfilePage() {
                   <p className="mt-2 text-body-s font-semibold">公证存证记录</p>
                   <p className="text-caption text-neutral-500">1 条可下载</p>
                 </Link>
-                <button type="button" className="rounded-xl bg-neutral-100 p-3 text-left" onClick={() => showToast("收益结算入口占位")}>
+                <button type="button" className="rounded-xl bg-neutral-100 p-3 text-left" onClick={() => setSettlementOpen(true)}>
                   <CircleDollarSign className="size-5 text-secondary-600" />
                   <p className="mt-2 text-body-s font-semibold">收益结算</p>
                   <p className="text-caption text-neutral-500">待结算 ¥2,800</p>
@@ -212,6 +214,52 @@ export default function ProfilePage() {
       </section>
 
       <TabBar active="profile" />
+      <BottomSheet open={settlementOpen} title="收益结算" onClose={() => setSettlementOpen(false)}>
+        <div className="space-y-4">
+          <section className="rounded-xl bg-primary-100 p-4">
+            <p className="text-caption font-semibold text-primary-700">当前结算周期</p>
+            <p className="mt-2 price-nums text-h1 text-primary-900">¥2,800</p>
+            <p className="mt-2 text-body-s text-neutral-700">经纪服务费 80% 分成 ¥2,400，字典维护 5% 贡献奖励 ¥400。</p>
+          </section>
+
+          <section className="grid grid-cols-2 gap-3">
+            <div className="rounded-xl bg-neutral-100 p-3">
+              <p className="text-caption text-neutral-500">可申请</p>
+              <p className="price-nums mt-1 text-h3">¥2,800</p>
+            </div>
+            <div className="rounded-xl bg-neutral-100 p-3">
+              <p className="text-caption text-neutral-500">累计维护收益</p>
+              <p className="price-nums mt-1 text-h3">¥9,640</p>
+            </div>
+          </section>
+
+          <section>
+            <h3 className="text-body-s font-semibold text-neutral-900">历史结算记录</h3>
+            <div className="mt-2 divide-y divide-neutral-100 rounded-xl border border-neutral-200">
+              {[
+                { period: "2026 Q2", amount: "¥11,200", status: "已结算" },
+                { period: "2026 Q1", amount: "¥8,600", status: "已结算" },
+                { period: "2025 Q4", amount: "¥7,450", status: "已结算" },
+                { period: "2025 Q3", amount: "¥5,980", status: "已结算" },
+              ].map((item) => (
+                <div key={item.period} className="flex items-center justify-between px-3 py-2 text-body-s">
+                  <span className="font-semibold text-neutral-900">{item.period}</span>
+                  <span className="text-neutral-500">{item.amount} · {item.status}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <div className="grid grid-cols-2 gap-3">
+            <Button variant="secondary" className="w-full" onClick={() => showToast("全部记录将在 Wave 4 开放")}>
+              查看全部记录
+            </Button>
+            <Button className="w-full" onClick={() => { setSettlementOpen(false); showToast("申请结算已提交 Mock"); }}>
+              申请结算
+            </Button>
+          </div>
+        </div>
+      </BottomSheet>
       {toast ? <Toast title={toast} /> : null}
     </main>
   );
