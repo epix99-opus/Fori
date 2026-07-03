@@ -499,5 +499,5 @@ cd prototype && npm run build  # ✅ 2026-07-03 审计日 PASS，37 路由
 
 **关闭后加权达成率**: **约 88%**
 
-**`main` HEAD**: 见本轮 commit SHA
+**`main` HEAD**: `b355114`
 
