@@ -1,9 +1,9 @@
 {
   "$schema": "./quota-ledger.schema.json",
   "version": 3,
-  "updatedAt": "2026-07-02T23:15:00-07:00",
+  "updatedAt": "2026-07-03T02:53:07.807961-07:00",
   "timezone": "America/Los_Angeles",
-  "description": "Fori 三层配额账本 — Layer S session + Layer A 5h + Layer B 日重置",
+  "description": "Fori \u4e09\u5c42\u914d\u989d\u8d26\u672c \u2014 Layer S session + Layer A 5h + Layer B \u65e5\u91cd\u7f6e",
   "agents": {
     "claude": {
       "plan": "claude_pro",
@@ -17,19 +17,19 @@
       "layer_a": {
         "window_hours": 5,
         "budget_msgs_per_window": 45,
-        "msgs_used_in_window": 3,
+        "msgs_used_in_window": 13,
         "window_started_at": "2026-07-02T19:40:00-07:00",
         "window_resets_at": "2026-07-03T00:40:00-07:00",
-        "status": "session_limited"
+        "status": "available"
       },
       "layer_b": {
         "daily_reset_pdt": "22:30",
-        "daily_reset_cst": "次日 13:30",
+        "daily_reset_cst": "\u6b21\u65e5 13:30",
         "daily_exhausted": false,
         "next_daily_reset_at": "2026-07-03T22:30:00-07:00"
       },
       "last_exhausted_at": "2026-07-02T22:43:00-07:00",
-      "last_error_snippet": "session limit · resets 2:10am America/Los_Angeles"
+      "last_error_snippet": "session limit \u00b7 resets 2:10am America/Los_Angeles"
     },
     "codex": {
       "plan": "codex_plus",
@@ -46,7 +46,7 @@
       },
       "layer_b": {
         "daily_reset_pdt": "00:29",
-        "daily_reset_cst": "当日 15:29",
+        "daily_reset_cst": "\u5f53\u65e5 15:29",
         "daily_exhausted": false,
         "next_daily_reset_at": "2026-07-03T00:29:00-07:00"
       },
@@ -67,9 +67,9 @@
     {
       "task_id": "FORI-044-wave1-design",
       "agent": "claude",
-      "status": "session_limited",
-      "paused_at": "2026-07-02T22:43:00-07:00",
-      "resume_at": "2026-07-03T02:10:00-07:00",
+      "status": "completed",
+      "completed_at": "2026-07-03T02:53:00-07:00",
+      "commit": "caa83da",
       "layer": "S",
       "branch": "claude/fori-044-full-design",
       "handoff": ".ai/handoffs/PENDING_CLAUDE_RESUME.md",
@@ -78,7 +78,8 @@
     {
       "task_id": "FORI-044-wave4-impl-review",
       "agent": "claude",
-      "status": "queued",
+      "status": "max_turns_exceeded",
+      "completed_at": "2026-07-03T02:56:00-07:00",
       "depends_on": "FORI-044-wave1-design",
       "branch": "claude/fori-044-impl-review",
       "handoff": ".ai/orchestration/prompts/fori-044-wave4-impl-review.txt"
@@ -114,6 +115,12 @@
       "agent": "cursor",
       "event": "pending_resume_scheduled",
       "detail": "manifest pendingResume + resume-pending.sh"
+    },
+    {
+      "at": "2026-07-03T02:53:07.807961-07:00",
+      "agent": "claude",
+      "event": "resume_success",
+      "detail": "resume-pending.sh"
     }
   ]
 }

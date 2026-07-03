@@ -5,42 +5,45 @@
     "status": "active",
     "github": "epix99-opus/Fori",
     "localPath": "/Users/epix/Dev/Fori",
-    "phase": "D4-fori-044-partial"
+    "phase": "D4-fori-044-wave1-done-review-fail"
   },
   "currentTask": {
     "id": "FORI-044",
     "title": "全量原型设计+实现（人类评审 Round2 完整交付）",
-    "status": "partial_pending_claude",
+    "status": "design_review_fail_wave4_max_turns",
     "owner": "multi-agent",
-    "branch": "claude/fori-044-full-design",
-    "updatedAt": "2026-07-02T23:34:03-07:00",
+    "branch": "main",
+    "updatedAt": "2026-07-03T03:00:00-07:00",
     "artifacts": [
+      "docs/execution/FORI-044_FULL_DESIGN.md",
+      "docs/execution/TECHNICAL_SOLUTION.md",
+      "docs/execution/PM_TASK_PLAN.md",
+      ".ai/handoffs/FORI-044-full-implement.md",
       "docs/reviews/REVIEW-044-DESIGN-CODEX.md",
       "docs/execution/PROTOTYPE_COMPLETION.md",
       "docs/execution/REVIEW_HUMAN_ROUND2_TASKS.md",
-      "prototype/app/home/page.tsx",
-      "prototype/app/explore/dict/[communityId]/page.tsx",
-      "prototype/app/price/page.tsx",
-      "prototype/app/auth/login/page.tsx",
-      ".ai/orchestration/dispatch-log.jsonl",
-      ".ai/handoffs/PENDING_CLAUDE_RESUME.md"
+      ".ai/orchestration/scripts/auto-resume-cron.sh",
+      ".ai/orchestration/dispatch-log.jsonl"
     ],
     "verdicts": {
-      "wave1Design": "PENDING_CLAUDE",
+      "wave1Design": "DONE",
       "designReview": "FAIL",
-      "implReview": "PENDING_CLAUDE"
+      "designReviewR2": "FAIL",
+      "implReview": "MAX_TURNS_EXCEEDED"
     },
     "commits": {
+      "wave1Design": "caa83da",
       "wave2DesignReview": "ee16b87",
-      "wave3PrototypeImpl": "8fca35e"
+      "wave3PrototypeImpl": "8fca35e",
+      "wave2DesignReviewR2": "7ac94d3"
     }
   },
   "nextTask": {
-    "id": "FORI-044-resume",
-    "title": "Claude Wave1 设计 + Wave4 实现评审（配额重置后）",
+    "id": "FORI-044-design-revision",
+    "title": "Claude 修订设计包（Codex R2 评审 FAIL：缺路由规格）+ Wave4 实现评审重试",
     "owner": "claude",
     "branch": "claude/fori-044-full-design",
-    "blockedBy": "claude_session_limit_until_0210_PDT"
+    "blockedBy": "design_review_fail_required_changes"
   },
   "humanReviewRound2": {
     "source": ".ai/handoffs/Human/Fori平台原型评审意见.md",
@@ -59,43 +62,29 @@
     }
   },
   "orchestration": {
-    "status": "pending_resume",
+    "status": "manual_resume_executed",
     "quota_model": "triple_layer",
     "master_guide": ".ai/orchestration/QUOTA_ROUTING.md",
     "resume_playbook": ".ai/orchestration/RESUME_ORCHESTRATION.md",
+    "auto_resume_cron": ".ai/orchestration/scripts/auto-resume-cron.sh",
     "model_matrix": ".ai/orchestration/MODEL_ROUTING_MATRIX.json",
     "auth_persistence": ".ai/orchestration/AUTH_PERSISTENCE.md",
     "claude_auth": "keychain_ok_no_jq_token",
     "lastAutoResume": {
-      "ts": "2026-07-03T06:34:03Z",
-      "result": "session_limited",
-      "nextWave1After": "2026-07-03T02:10:00-07:00",
-      "nextWave4After": "2026-07-03T02:30:00-07:00"
+      "ts": "2026-07-03T09:40:17Z",
+      "result": "manual_cursor_resume",
+      "trigger": "human_urgent_at_0239_PDT",
+      "missedCronAt": "2026-07-03T02:10:00-07:00",
+      "wave1": "success_caa83da",
+      "wave4": "max_turns_exceeded"
     }
   },
-  "pendingResume": [
-    {
-      "task": "FORI-044-wave1",
-      "wave": 1,
-      "after": "2026-07-03T02:10:00-07:00",
-      "branch": "claude/fori-044-full-design",
-      "handoff": ".ai/handoffs/PENDING_CLAUDE_RESUME.md",
-      "script": ".ai/orchestration/scripts/resume-pending.sh --wave 1"
-    },
-    {
-      "task": "FORI-044-wave4",
-      "wave": 4,
-      "after": "2026-07-03T02:30:00-07:00",
-      "dependsOn": "FORI-044-wave1",
-      "branch": "claude/fori-044-impl-review",
-      "script": ".ai/orchestration/scripts/resume-pending.sh --wave 4"
-    }
-  ],
+  "pendingResume": [],
   "limits": {
     "claude": {
-      "status": "session_limited",
+      "status": "available",
       "primary_node": "epix",
-      "usage": "3/45",
+      "usage": "13/45",
       "session_reset": "2:10am America/Los_Angeles",
       "session_reset_at": "2026-07-03T02:10:00-07:00"
     },
@@ -106,8 +95,8 @@
     }
   },
   "prototypeDesign": {
-    "status": "fori-043-enhanced",
-    "buildVerified": "2026-07-02 epix PASS 33 routes",
+    "status": "fori-044-design-v1",
+    "buildVerified": "2026-07-02 epix PASS 36 routes",
     "previewUrls": [
       "http://localhost:3000/price",
       "http://localhost:3000/price/community-001",

@@ -1,8 +1,25 @@
 # Cursor 拥有：自动续跑编排手册
 
-> **版本**: 1.0 · 2026-07-03  
+> **版本**: 1.1 · 2026-07-03  
 > **所有者**: Cursor（非 Human）  
-> **脚本**: `.ai/orchestration/scripts/resume-pending.sh`
+> **脚本**: `.ai/orchestration/scripts/resume-pending.sh`  
+> **Cron**: `.ai/orchestration/scripts/auto-resume-cron.sh`
+
+---
+
+## 0. 已知故障（2026-07-03 02:10 PDT）
+
+**问题**: Session limit 于 **02:10 PDT** 释放后，自动续跑 **未触发**。Human 于 ~02:39 PDT 手动催促后 Cursor 才执行 Wave 1。
+
+**根因**:
+1. `resume-pending.sh` 存在但 **无 cron/Hermes 定时任务** 实际注册
+2. `manifest.json` `limits.claude.status` 仍为 `session_limited`（ledger 未自动 roll）
+3. `lastAutoResume` 在 02:10 前探测到 session_limited 后退出，**无 02:15+ 重试**
+
+**修复**:
+- 新增 `auto-resume-cron.sh` — 每 15min 检查 `pendingResume[].after` vs `now()`，派发 Wave 1→4
+- Hermes/Cursor cron 建议见 §4.4
+- 手动恢复由 Cursor 于 2026-07-03 ~02:40 PDT 执行
 
 ---
 
@@ -62,12 +79,19 @@ flowchart TD
 .ai/orchestration/scripts/resume-pending.sh --wave 4
 ```
 
-### 4.4 Hermes cron 建议
+### 4.4 Hermes / Cursor cron 建议
 
 ```cron
-# 每 15 分钟，02:00–08:00 PDT 加密检查 FORI-044
-*/15 2-8 * * * cd /Users/epix/Dev/Fori && .ai/orchestration/scripts/resume-pending.sh --wave 1 >> /tmp/fori-resume.log 2>&1
+# 每 15 分钟检查 pendingResume + quota，自动派发 Wave 1→4
+*/15 * * * * cd /Users/epix/Dev/Fori && .ai/orchestration/scripts/auto-resume-cron.sh >> /tmp/fori-auto-resume.log 2>&1
 ```
+
+`auto-resume-cron.sh` 逻辑：
+1. `git pull` 同步 manifest
+2. `pendingResume[].after <= now()` → 继续
+3. `quota-check.sh claude` exit 0 → 派发
+4. Wave 1 成功 → 再检 quota → Wave 4
+5. 全部结果追加 `dispatch-log.jsonl`
 
 ---
 
