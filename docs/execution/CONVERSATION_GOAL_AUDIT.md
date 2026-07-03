@@ -463,20 +463,29 @@ cd prototype && npm run build  # ✅ 2026-07-03 审计日 PASS，37 路由
 | `.ai/orchestration/QUOTA_ROUTING.md` | ✅ v3.0 | |
 | `.ai/orchestration/AUTH_PERSISTENCE.md` | ✅ | auth 仍失败 |
 | `.ai/orchestration/scripts/resume-pending.sh` | ✅ | |
-| `.ai/orchestration/scripts/auto-resume-cron.sh` | ✅ | crontab 未验证 |
+| `.ai/orchestration/scripts/auto-resume-cron.sh` | ✅ | epix crontab `*/15` 已验证 |
 | `.ai/orchestration/MODEL_ROUTING_MATRIX.json` | ✅ | |
 | `docs/execution/TECHNICAL_SOLUTION.md` | ✅ v2.0 | |
 | `docs/execution/PM_TASK_PLAN.md` | ✅ v2.0 | |
 | `docs/execution/FORI-044_FULL_DESIGN.md` | ✅ | |
 | `docs/execution/PROTOTYPE_COMPLETION.md` | ✅ v1.4 ~98% | |
 | `.ai/orchestration/dispatch-log.jsonl` | ✅ 31 条 | |
-| `main` HEAD + prototype build | ✅ / ⚠️ | main 落后 P0 review 1 commit |
-| Obsidian HermesEpix | ✅ | 配额 doc stale |
+| `main` HEAD + prototype build | ✅ | `4d42811`（含 P0 review cherry-pick `6d4554e`） |
+| Obsidian HermesEpix | ✅ | FORI-043/044 § 已同步 |
 | `REVIEW_HUMAN_ROUND2_TASKS.md` 8 项 | ⚠️ | 16 任务 mostly done；FORI-095 GAP |
 
 ---
 
 *审计：Cursor · 只读 · 无 claude/codex dispatch · 2026-07-03*
 
+## 附录 B — 审计缺口关闭（2026-07-03 Cursor）
 
-**关闭后 main HEAD**: 
+| 缺口 | 动作 | 状态 |
+|------|------|------|
+| P0 review `c3ca96f` 未在 main | cherry-pick → `6d4554e` + push | ✅ |
+| Obsidian v2 未同步 v3 | `协作机制交付证明.md` §6 + `配额优化与续跑编排.md` | ✅ |
+| auto-resume cron | epix `crontab -l` 已有 `*/15` | ✅ |
+| AGENTS.md 缺配额/续跑指针 | 「配额与续跑编排」节 | ✅ |
+
+**关闭后 `main` HEAD**: `4d42811`
+
