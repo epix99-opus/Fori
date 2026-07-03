@@ -13,7 +13,7 @@
     "status": "partial_pending_claude",
     "owner": "multi-agent",
     "branch": "claude/fori-044-full-design",
-    "updatedAt": "2026-07-02T22:43:59-07:00",
+    "updatedAt": "2026-07-02T23:34:03-07:00",
     "artifacts": [
       "docs/reviews/REVIEW-044-DESIGN-CODEX.md",
       "docs/execution/PROTOTYPE_COMPLETION.md",
@@ -65,7 +65,13 @@
     "resume_playbook": ".ai/orchestration/RESUME_ORCHESTRATION.md",
     "model_matrix": ".ai/orchestration/MODEL_ROUTING_MATRIX.json",
     "auth_persistence": ".ai/orchestration/AUTH_PERSISTENCE.md",
-    "claude_auth": "keychain_ok_no_jq_token"
+    "claude_auth": "keychain_ok_no_jq_token",
+    "lastAutoResume": {
+      "ts": "2026-07-03T06:34:03Z",
+      "result": "session_limited",
+      "nextWave1After": "2026-07-03T02:10:00-07:00",
+      "nextWave4After": "2026-07-03T02:30:00-07:00"
+    }
   },
   "pendingResume": [
     {
