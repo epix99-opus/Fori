@@ -117,6 +117,8 @@ export default function PriceEvaluationPage({ params }: { params: { communityId:
   const [selectedFactor, setSelectedFactor] = useState<PriceFactor | null>(null);
   const [priceRole, setPriceRole] = useState<PriceViewerRole>("buyer");
   const [toast, setToast] = useState<string | null>(null);
+  const [paywallOpen, setPaywallOpen] = useState(false);
+  const [reportUnlocked, setReportUnlocked] = useState(false);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -345,13 +347,36 @@ export default function PriceEvaluationPage({ params }: { params: { communityId:
               <Home className="mr-1 size-4" />
               设为挂牌价
             </Button>
-            <Button className="flex-1" onClick={() => showToast("PDF 报告生成中")}>
+            <Button className="flex-1" onClick={() => (reportUnlocked ? showToast("PDF 报告生成中") : setPaywallOpen(true))}>
               <FileText className="mr-1 size-4" />
-              生成报告
+              {reportUnlocked ? "生成报告" : "深度报告 ¥29"}
             </Button>
           </div>
         </div>
       ) : null}
+
+      <BottomSheet open={paywallOpen} title="解锁深度估价报告" onClose={() => setPaywallOpen(false)}>
+        <div className="space-y-4">
+          <div className="rounded-xl bg-primary-100 p-4">
+            <p className="text-caption font-semibold text-primary-700">深度估价报告 · UI_DESIGN §7.2</p>
+            <p className="mt-2 text-h2 price-nums text-primary-900">¥29</p>
+            <p className="mt-2 text-body-s text-neutral-700">含完整因子拆解、竞品对比、议价区间与 PDF 导出（Mock 支付流程）</p>
+          </div>
+          <ul className="space-y-2 text-body-s text-neutral-700">
+            <li>· 24 个月片区走势 + 瀑布图详解</li>
+            <li>· 买家/卖家双视角议价建议</li>
+            <li>· 可分享脱敏版报告链接</li>
+          </ul>
+          <div className="grid grid-cols-2 gap-3">
+            <Button variant="secondary" className="w-full" onClick={() => { setReportUnlocked(true); setPaywallOpen(false); showToast("微信支付 Mock 成功"); }}>
+              微信支付
+            </Button>
+            <Button className="w-full" onClick={() => { setReportUnlocked(true); setPaywallOpen(false); showToast("支付宝 Mock 成功"); }}>
+              支付宝
+            </Button>
+          </div>
+        </div>
+      </BottomSheet>
 
       <BottomSheet open={communitySheetOpen} title="选择评估小区" onClose={() => setCommunitySheetOpen(false)}>
         <div className="space-y-2">

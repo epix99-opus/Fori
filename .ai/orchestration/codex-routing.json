@@ -1,0 +1,173 @@
+{
+  "version": 2,
+  "updated": "2026-07-02T12:00:00-07:00",
+  "description": "Fori Codex 任务路由 — 双层配额（Layer A 5h 主，Layer B 日重置辅）",
+  "prompt_templates": {
+    "implement": ".ai/prompts/implement-task.md"
+  },
+  "quota": {
+    "model": "dual_layer",
+    "plan": "codex_plus",
+    "ledger": ".ai/orchestration/quota-ledger.json",
+    "gate_script": ".ai/orchestration/scripts/quota-check.sh",
+    "cama_record_script": "CAMA/BestCfg/hermes-agent/hermes-codex/scripts/codex-quota-record.sh",
+    "layer_a": {
+      "name": "rolling_5h_window",
+      "window_hours": 5,
+      "budget_minutes_per_window": 300,
+      "primary_for": ["scheduling", "pause_resume", "burst_allocation"],
+      "detection": [
+        "429_AccountQuotaExceeded_with_resets_at",
+        "usage_limit_reached_resets_in_seconds",
+        "quota_ledger_minutes_used"
+      ],
+      "on_exhausted": {
+        "task_status": "paused_quota",
+        "record_script": "codex-quota-record.sh",
+        "resume_when": "quota_reset_at_from_429"
+      }
+    },
+    "layer_b": {
+      "name": "daily_reset_floor",
+      "reset_pdt": "00:29",
+      "reset_cst": "当日 15:29",
+      "shared_account": "epix+woot",
+      "on_exhausted": {
+        "task_status": "scheduled_daily_reset",
+        "resume_when": "next_daily_reset_at"
+      }
+    },
+    "conservation_rules": [
+      "派发前运行 quota-check.sh codex",
+      "文档/简单任务用 gpt-5.4-mini",
+      "复杂编码/重构用 gpt-5.5",
+      "429 时 codex-quota-record.sh 写 pending + ledger",
+      "Layer A 耗尽：paused_quota；Layer B：scheduled_daily_reset",
+      "禁止 epix 与 woot 同时 heavy codex exec"
+    ]
+  },
+  "nodes": {
+    "primary": {
+      "device": "woot",
+      "workdir": "/Users/woot/Dev/Fori",
+      "branch_prefix": "codex/",
+      "codex_path": "/Users/woot/.local/bin/codex"
+    },
+    "fallback": {
+      "device": "epix",
+      "workdir": "/Users/epix/Dev/Fori",
+      "trigger": "woot_codex_layer_a_or_b_exhausted_or_unreachable"
+    }
+  },
+  "defaults": {
+    "stdin_redirect": "< /dev/null",
+    "yolo": true,
+    "trust_level": "trusted",
+    "sandbox_mode": "workspace-write",
+    "approval_policy": "on-request"
+  },
+  "models": {
+    "mini": {
+      "id": "gpt-5.4-mini",
+      "use_for": ["docs", "simple_fix", "lint_format", "test_scaffold", "batch_pages"]
+    },
+    "standard": {
+      "id": "gpt-5.5",
+      "use_for": ["complex_coding", "refactor", "api_implementation", "agent_integration", "security_sensitive"]
+    }
+  },
+  "task_types": {
+    "implement": {
+      "description": "功能实现、页面、API、测试",
+      "model": "gpt-5.5",
+      "estimated_quota_minutes": 30,
+      "node": "woot",
+      "fallback_node": "epix",
+      "yolo": true,
+      "estimated_minutes": 30,
+      "worktree_required_from": "FORI-040",
+      "command_template": "ssh woot 'cd /Users/woot/Dev/Fori && git checkout -B {branch} && codex exec \"$(cat {prompt_file})\" --model gpt-5.5 --yolo < /dev/null 2>&1'"
+    },
+    "implement_simple": {
+      "description": "文档修订、简单修复、格式化",
+      "model": "gpt-5.4-mini",
+      "estimated_quota_minutes": 15,
+      "node": "woot",
+      "fallback_node": "epix",
+      "yolo": true,
+      "estimated_minutes": 15,
+      "command_template": "ssh woot 'cd /Users/woot/Dev/Fori && codex exec \"$(cat {prompt_file})\" --model gpt-5.4-mini --yolo < /dev/null 2>&1'"
+    },
+    "refactor": {
+      "description": "重构、迁移、CI 友好改动",
+      "model": "gpt-5.5",
+      "estimated_quota_minutes": 30,
+      "node": "woot",
+      "yolo": true,
+      "estimated_minutes": 30,
+      "command_template": "ssh woot 'cd /Users/woot/Dev/Fori && codex exec \"$(cat {prompt_file})\" --model gpt-5.5 --yolo < /dev/null 2>&1'"
+    },
+    "test": {
+      "description": "单元测试、集成测试编写",
+      "model": "gpt-5.4-mini",
+      "estimated_quota_minutes": 20,
+      "node": "woot",
+      "yolo": true,
+      "estimated_minutes": 20,
+      "command_template": "ssh woot 'cd /Users/woot/Dev/Fori && codex exec \"$(cat {prompt_file})\" --model gpt-5.4-mini --yolo < /dev/null 2>&1'"
+    },
+    "verify_fix": {
+      "description": "验证失败后的修复循环",
+      "model": "gpt-5.5",
+      "estimated_quota_minutes": 20,
+      "node": "woot",
+      "yolo": true,
+      "estimated_minutes": 20,
+      "command_template": "ssh woot 'cd /Users/woot/Dev/Fori && codex exec \"$(cat {prompt_file})\" --model gpt-5.5 --yolo < /dev/null 2>&1'"
+    },
+    "review_uncommitted": {
+      "description": "Codex 只读代码评审（非设计评审）",
+      "model": "gpt-5.4-mini",
+      "estimated_quota_minutes": 5,
+      "node": "woot",
+      "sandbox_mode": "read-only",
+      "yolo": false,
+      "estimated_minutes": 5,
+      "command_template": "ssh woot 'cd /Users/woot/Dev/Fori && codex exec review --uncommitted < /dev/null 2>&1'"
+    },
+    "prototype_batch": {
+      "description": "批量页面原型（历史 FORI-021 模式）",
+      "model": "gpt-5.5",
+      "estimated_quota_minutes": 25,
+      "node": "woot",
+      "yolo": true,
+      "batch_size": 3,
+      "estimated_minutes_per_batch": 25,
+      "command_template": "ssh woot 'cd /Users/woot/Dev/Fori && codex exec \"$(cat {prompt_file})\" --model gpt-5.5 --yolo < /dev/null 2>&1'"
+    }
+  },
+  "routing_decision": {
+    "woot_primary_when": [
+      "quota-check.sh codex 返回 0",
+      "实现/测试/重构任务",
+      "与 epix Claude 并行"
+    ],
+    "epix_fallback_when": [
+      "woot 不可达",
+      "woot Codex paused_quota 且 epix 有余量",
+      "轻量 <10min 且 woot busy"
+    ],
+    "forbidden": [
+      "省略 < /dev/null",
+      "pkill -f 'codex exec'",
+      "Codex 自验标 done",
+      "Codex 限额耗尽时用 Claude 替代编码",
+      "探测性 codex exec 测配额"
+    ]
+  },
+  "woot_setup_pending": [
+    "git pull 同步 .ai/orchestration/",
+    "在 ~/.codex/config.toml 添加 [projects.\"/Users/woot/Dev/Fori\"] trust_level = \"trusted\"",
+    "验证: ssh woot 'cd /Users/woot/Dev/Fori && codex exec \"Reply: CODEX_WOOT_OK\" < /dev/null'"
+  ]
+}

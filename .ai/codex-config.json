@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "updated": "2026-07-02T00:00:00-07:00",
+  "product": "Fori",
+  "routing": ".ai/orchestration/codex-routing.json",
+  "nodes": {
+    "primary": {
+      "device": "woot",
+      "workdir": "/Users/woot/Dev/Fori",
+      "codex_bin": "/Users/woot/.local/bin/codex",
+      "auth_status": "logged_in_chatgpt"
+    },
+    "fallback": {
+      "device": "epix",
+      "workdir": "/Users/epix/Dev/Fori",
+      "trust_configured": true
+    }
+  },
+  "defaults": {
+    "model_complex": "gpt-5.5",
+    "model_simple": "gpt-5.4-mini",
+    "yolo": true,
+    "stdin_redirect": "< /dev/null",
+    "sandbox_mode": "workspace-write",
+    "approval_policy": "on-request"
+  },
+  "invoke_patterns": {
+    "implement": {
+      "model": "gpt-5.5",
+      "yolo": true,
+      "prompt_template": ".ai/prompts/implement-task.md",
+      "ssh_template": "ssh woot 'cd /Users/woot/Dev/Fori && codex exec \"{prompt}\" --model gpt-5.5 --yolo < /dev/null 2>&1'"
+    },
+    "implement_simple": {
+      "model": "gpt-5.4-mini",
+      "yolo": true,
+      "ssh_template": "ssh woot 'cd /Users/woot/Dev/Fori && codex exec \"{prompt}\" --model gpt-5.4-mini --yolo < /dev/null 2>&1'"
+    },
+    "review": {
+      "command": "codex exec review --uncommitted",
+      "sandbox_mode": "read-only",
+      "yolo": false
+    }
+  },
+  "verification": {
+    "required": "hermes_git_diff",
+    "self_report_trusted": false
+  },
+  "branch": {
+    "prefix": "codex/",
+    "worktree_from_task": "FORI-040",
+    "merge_policy": "cursor_only_to_main"
+  },
+  "woot_manual_setup": [
+    "grep -q '/Users/woot/Dev/Fori' ~/.codex/config.toml || append trust block",
+    "cd /Users/woot/Dev/Fori && git pull",
+    "codex exec \"Reply: CODEX_WOOT_OK\" < /dev/null"
+  ]
+}

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BadgeCheck, Building2, Crown, History, Home, LineChart, Pencil, ShieldCheck, Trophy } from "lucide-react";
+import { AlertCircle, BadgeCheck, Building2, Crown, History, Home, LineChart, Pencil, ShieldCheck, Trophy } from "lucide-react";
 
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
@@ -95,16 +95,25 @@ export default function CommunityDetailPage({ params }: { params: { communityId:
       </Card>
 
       <div className="mt-4 grid grid-cols-2 gap-3">
-        <Link href="/explore/dict/community-001/edit">
+        <Link href={`/explore/dict/${params.communityId}/edit`}>
           <Button variant="secondary" className="w-full">
             <Pencil className="mr-1 size-4" />
             维护字典
           </Button>
         </Link>
-        <Link href="/price/community-001">
+        <Link href={`/price/${params.communityId}`}>
           <Button className="w-full">查看价格图谱</Button>
         </Link>
       </div>
+
+      <Link
+        href={`/explore/dict/${params.communityId}/edit?intent=correction`}
+        className="mt-3 flex items-center justify-center gap-2 rounded-xl border border-dashed border-neutral-300 bg-white px-4 py-3 text-body-s font-semibold text-neutral-700 shadow-card transition hover:border-primary-300 hover:text-primary-700"
+      >
+        <AlertCircle className="size-4 shrink-0 text-semantic-warning" />
+        发现信息有误？提交纠错
+      </Link>
+      <p className="mt-2 text-center text-caption text-neutral-500">业主/买家可提交字段纠错，平台审核后计入贡献积分（M1-12 Mock）</p>
     </main>
   );
 }

@@ -1,7 +1,7 @@
 {
   "$schema": "./quota-ledger.schema.json",
   "version": 2,
-  "updatedAt": "2026-07-02T20:15:00-07:00",
+  "updatedAt": "2026-07-02T20:35:00-07:00",
   "timezone": "America/Los_Angeles",
   "description": "Fori 双层配额账本 — Layer A 5h 滚动为主，Layer B 日重置为辅",
   "agents": {
@@ -12,7 +12,7 @@
       "layer_a": {
         "window_hours": 5,
         "budget_msgs_per_window": 45,
-        "msgs_used_in_window": 2,
+        "msgs_used_in_window": 3,
         "window_started_at": "2026-07-02T19:40:00-07:00",
         "window_resets_at": "2026-07-03T00:40:00-07:00",
         "status": "auth_error"
@@ -24,7 +24,7 @@
         "next_daily_reset_at": "2026-07-02T22:30:00-07:00"
       },
       "last_exhausted_at": null,
-      "last_error_snippet": "401 Invalid authentication credentials (not quota)"
+      "last_error_snippet": "2026-07-02 smoke: Not logged in; jq no oauthAccount; Human claude auth login required once"
     },
     "codex": {
       "plan": "codex_plus",
@@ -62,6 +62,24 @@
       "agent": "codex",
       "event": "task_complete",
       "detail": "R1 review + R2 implement"
+    },
+    {
+      "at": "2026-07-02T20:20:00-07:00",
+      "agent": "claude",
+      "event": "auth_diagnosis",
+      "detail": "epix: no access/refresh token; human claude auth login required"
+    },
+    {
+      "at": "2026-07-02T20:29:00-07:00",
+      "agent": "claude",
+      "event": "auth_smoke_once",
+      "detail": "Single smoke per AUTH_PERSISTENCE: Not logged in; STOP probing"
+    },
+    {
+      "at": "2026-07-02T20:35:00-07:00",
+      "agent": "cursor",
+      "event": "r3_complete",
+      "detail": "R3 PASS; integration branch ready"
     }
   ]
 }

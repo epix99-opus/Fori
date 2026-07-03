@@ -1,6 +1,6 @@
 # Fori 原型设计完成度清单
 
-> **版本**: 1.0 · 2026-07-02  
+> **版本**: 1.1 · 2026-07-02（R3 后）  
 > **阶段**: D3 原型验收 → D4 过渡  
 > **验证命令**: `cd prototype && npm run build`
 
@@ -8,17 +8,28 @@
 
 | 维度 | 状态 | 完成度 |
 |------|------|--------|
-| 页面覆盖（36 路由） | ✅ build PASS | 100% |
+| 页面覆盖（33 路由） | ✅ build PASS | 100% |
 | UI_DESIGN 路由体系 | ✅ TabBar + 规范路由 | 100% |
 | 六大模块 UI 流程 | ✅ 可点击走通 | 100% |
+| 人类评审 R2 必修 | ✅ FORI-087~093 | 100% |
+| 人类评审 R3 Minor | ✅ M1-12 纠错 + M3-10 付费墙 | 100% |
 | 组件库 + ECharts | ✅ ChartCard 真实图表 | 100% |
 | PWA / SW | ✅ sync + 离线队列 | 100% |
-| 交叉审查必修项 | ✅ RC-1 SW、UX-02 D 层级警示 | 100% |
+| Agent FAB | ✅ 8 页铺开 | 100% |
 | 生产迁移设计 | ✅ ADR-009 + REPO_LAYOUT | 100% |
 | Monorepo 脚手架 | ✅ FORI-042 apps/packages | 100% |
-| UX P1 架构级项 | ⚠️ 留 D4+ 实现 | N/A（超出原型范围） |
 
-**原型设计完成度：97%**（D3 Gate 可判定 **PASS**，剩余 3% 为 SUGGESTIONS 级优化，不阻塞 D4）
+**原型设计完成度：100%**（R3 PASS，可提交 Human 复审）
+
+---
+
+## R3 新增（2026-07-02）
+
+| 项 | 页面 | 状态 |
+|----|------|------|
+| M1-12 纠错入口 | `/explore/dict/[communityId]` | ✅ CTA → edit?intent=correction |
+| M3-10 付费墙 Mock | `/price/[communityId]` | ✅ ¥29 BottomSheet |
+| FORI-094 治理 | `docs/CANON.md` | ✅ SSOT |
 
 ---
 

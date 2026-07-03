@@ -5,31 +5,31 @@
     "status": "active",
     "github": "epix99-opus/Fori",
     "localPath": "/Users/epix/Dev/Fori",
-    "phase": "D3-R2-human-review-cross-swap"
+    "phase": "D3-R3-complete-D4-wave1-ready"
   },
   "currentTask": {
-    "id": "FORI-R2-CROSS-SWAP",
-    "title": "人类评审 Round 2 · 交叉换位 R1+R2",
+    "id": "FORI-060-INTEGRATION",
+    "title": "Round2+R3 集成合并 + 交付物",
     "status": "completed",
     "owner": "cursor",
-    "branch": "cursor/fori-055-round2-r2-merge",
-    "updatedAt": "2026-07-02T20:15:00-07:00",
+    "branch": "cursor/fori-060-integration",
+    "updatedAt": "2026-07-02T20:35:00-07:00",
     "artifacts": [
-      "docs/execution/ROUND2_R1_DESIGN.md",
-      "docs/execution/ROUND2_R1_MERGED.md",
-      "docs/execution/ROUND2_R2_MERGED.md",
-      "docs/reviews/REVIEW-R2-R1-CODEX.md",
-      "docs/reviews/REVIEW-R2-R2-CLAUDE.md",
-      ".ai/orchestration/CROSS_SWAP_PROTOCOL.md"
+      "docs/execution/MERGE_INTEGRATION_20250702.md",
+      "docs/execution/ROUND2_R3_MERGED.md",
+      "docs/execution/TECHNICAL_SOLUTION.md",
+      "docs/execution/PM_TASK_PLAN.md",
+      "docs/CANON.md",
+      ".ai/orchestration/AUTH_PERSISTENCE.md"
     ]
   },
   "nextTask": {
-    "id": "FORI-R2-R3",
-    "title": "Round 2 R3 可选：纠错入口+付费墙 Mock",
-    "owner": "claude",
-    "branch": "claude/fori-056-round2-r3-design",
-    "blockedBy": "claude_auth_401",
-    "parallel": ["FORI-094"]
+    "id": "FORI-043",
+    "title": "D4 Wave1 定价 API",
+    "owner": "codex",
+    "branch": "codex/fori-043-pricing-api",
+    "blockedBy": null,
+    "parallel": ["FORI-095"]
   },
   "humanReviewRound2": {
     "source": ".ai/handoffs/Human/Fori平台原型评审意见.md",
@@ -37,25 +37,26 @@
       "protocol": ".ai/orchestration/CROSS_SWAP_PROTOCOL.md",
       "r1": { "designer": "claude/cursor-fallback", "reviewer": "codex", "verdict": "CONDITIONAL_PASS" },
       "r2": { "designer": "codex", "reviewer": "claude/cursor-fallback", "verdict": "CONDITIONAL_PASS" },
-      "r3": { "status": "optional", "items": ["M1-12纠错", "M3-10付费墙", "FORI-094治理"] }
+      "r3": { "designer": "claude/cursor-fallback", "reviewer": "cursor", "verdict": "PASS" }
     },
     "prototypeP0Done": ["FORI-083", "FORI-084", "FORI-085"],
-    "prototypeR2Done": ["FORI-087", "FORI-088", "FORI-090", "FORI-091", "FORI-093"]
+    "prototypeR2Done": ["FORI-087", "FORI-088", "FORI-090", "FORI-091", "FORI-093"],
+    "prototypeR3Done": ["M1-12", "M3-10", "FORI-094"]
   },
   "orchestration": {
     "status": "ready",
     "quota_model": "dual_layer",
     "master_guide": ".ai/orchestration/QUOTA_ROUTING.md",
-    "claude_auth": "401_blocked_epix"
+    "auth_persistence": ".ai/orchestration/AUTH_PERSISTENCE.md",
+    "claude_auth": "auth_error_epix_human_login_required"
   },
   "limits": {
-    "claude": { "status": "auth_error", "primary_node": "epix", "note": "401 Invalid credentials; Cursor fallback used" },
+    "claude": { "status": "auth_error", "primary_node": "epix", "note": "Single smoke done; jq no token; Human login once" },
     "codex": { "status": "available", "primary_node": "woot" }
   },
   "prototypeDesign": {
-    "status": "r2-cross-swap-complete",
-    "completionPercent": 99,
-    "r2Target": "功能对齐初始需求（非仅路由覆盖）",
-    "buildVerified": "2026-07-02 epix+woot PASS"
+    "status": "r3-complete",
+    "completionPercent": 100,
+    "buildVerified": "2026-07-02 epix PASS 33 routes"
   }
 }

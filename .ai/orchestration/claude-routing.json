@@ -1,0 +1,151 @@
+{
+  "version": 2,
+  "updated": "2026-07-02T12:00:00-07:00",
+  "description": "Fori Claude Code 任务路由 — 双层配额（Layer A 5h 主，Layer B 日重置辅）",
+  "ecc_profile": ".ai/orchestration/ECC_SETUP.md",
+  "prompt_templates": {
+    "design": ".ai/prompts/design-task.md",
+    "review": ".ai/prompts/review-task.md"
+  },
+  "quota": {
+    "model": "dual_layer",
+    "plan": "claude_pro",
+    "ledger": ".ai/orchestration/quota-ledger.json",
+    "gate_script": ".ai/orchestration/scripts/quota-check.sh",
+    "layer_a": {
+      "name": "rolling_5h_window",
+      "window_hours": 5,
+      "budget_msgs_per_window": 45,
+      "primary_for": ["scheduling", "pause_resume", "burst_allocation"],
+      "detection": [
+        "429_rate_limit_from_stderr",
+        "quota_ledger_msgs_used",
+        "no_probe_cli_calls"
+      ],
+      "on_exhausted": {
+        "task_status": "paused_quota",
+        "resume_when": "window_resets_at_from_error_or_now_plus_5h"
+      }
+    },
+    "layer_b": {
+      "name": "daily_reset_floor",
+      "reset_pdt": "22:30",
+      "reset_cst": "次日 13:30",
+      "primary_for": ["hard_floor_when_daily_cap_hit"],
+      "on_exhausted": {
+        "task_status": "scheduled_daily_reset",
+        "resume_when": "next_daily_reset_at"
+      }
+    },
+    "conservation_rules": [
+      "派发前运行 quota-check.sh claude",
+      "短只读评审 <15min：Cursor 直调 claude -p 并登记 ledger",
+      "长设计/多轮：Hermes 编排（API 路径，不耗 -p）",
+      "Layer A 耗尽：paused_quota，等 window_resets_at",
+      "Layer B 耗尽：scheduled_daily_reset，等 22:30 PDT",
+      "401 是 OAuth 过期，非配额"
+    ]
+  },
+  "nodes": {
+    "primary": {
+      "device": "epix",
+      "workdir": "/Users/epix/Dev/Fori",
+      "branch_prefix": "claude/"
+    },
+    "fallback": {
+      "device": "woot",
+      "workdir": "/Users/woot/Dev/Fori",
+      "trigger": "epix_claude_layer_a_or_b_exhausted"
+    }
+  },
+  "defaults": {
+    "stdin_redirect": "< /dev/null",
+    "dangerously_skip_permissions": false,
+    "output_mode": "-p"
+  },
+  "task_types": {
+    "design": {
+      "description": "PRD/架构/UI/ADR 撰写与修订",
+      "max_turns": 30,
+      "estimated_quota_msgs": 30,
+      "allowed_tools": "Read,Write,Bash",
+      "disallowed_tools": null,
+      "dangerously_skip_permissions": true,
+      "node": "epix",
+      "fallback_node": "woot",
+      "route": "hermes_if_multiround_else_cursor",
+      "estimated_minutes": 20,
+      "command_template": "cd {workdir} && claude -p \"$(cat {prompt_file})\" --max-turns 30 --allowedTools Read,Write,Bash --dangerously-skip-permissions < /dev/null"
+    },
+    "review": {
+      "description": "对抗性评审（必须新会话，禁止 --continue 自审）",
+      "max_turns": 15,
+      "estimated_quota_msgs": 15,
+      "allowed_tools": "Read,Write",
+      "disallowed_tools": "Bash,Edit",
+      "dangerously_skip_permissions": false,
+      "node": "epix",
+      "fallback_node": "woot",
+      "route": "cursor_direct_if_readonly_under_15min",
+      "estimated_minutes": 10,
+      "output_format": "VERDICT + FINDINGS + REQUIRED_CHANGES + SUGGESTIONS",
+      "command_template": "cd {workdir} && claude -p \"$(cat {prompt_file})\" --max-turns 15 --allowedTools Read,Write < /dev/null"
+    },
+    "readonly_audit": {
+      "description": "短只读深审、冒烟、状态确认",
+      "max_turns": 10,
+      "estimated_quota_msgs": 10,
+      "allowed_tools": "Read,Grep,Glob",
+      "disallowed_tools": "Write,Edit,Bash",
+      "dangerously_skip_permissions": false,
+      "node": "epix",
+      "fallback_node": "woot",
+      "route": "cursor_direct",
+      "estimated_minutes": 3,
+      "bare_recommended": true,
+      "command_template": "cd {workdir} && claude -p \"$(cat {prompt_file})\" --max-turns 10 --allowedTools Read,Grep,Glob --disallowedTools Write,Edit,Bash < /dev/null"
+    },
+    "adr": {
+      "description": "架构决策记录",
+      "max_turns": 25,
+      "estimated_quota_msgs": 25,
+      "allowed_tools": "Read,Write,Bash",
+      "dangerously_skip_permissions": true,
+      "node": "epix",
+      "fallback_node": "woot",
+      "route": "hermes_or_cursor",
+      "estimated_minutes": 25,
+      "command_template": "cd {workdir} && claude -p \"$(cat {prompt_file})\" --max-turns 25 --allowedTools Read,Write,Bash --dangerously-skip-permissions < /dev/null"
+    },
+    "security_review": {
+      "description": "安全/合规深审（L4 门禁）",
+      "max_turns": 20,
+      "estimated_quota_msgs": 20,
+      "allowed_tools": "Read,Write",
+      "node": "epix",
+      "fallback_node": "woot",
+      "route": "cursor_direct",
+      "estimated_minutes": 15,
+      "command_template": "cd {workdir} && claude -p \"$(cat {prompt_file})\" --max-turns 20 --allowedTools Read,Write < /dev/null"
+    }
+  },
+  "routing_decision": {
+    "cursor_direct_when": [
+      "quota-check.sh claude 返回 0",
+      "只读评审且预计 <15 分钟",
+      "ledger layer_a 余量 >20%"
+    ],
+    "hermes_when": [
+      "预计 >30 分钟或多轮",
+      "需要 paused_quota 续跑",
+      "与 woot Codex 并行编排"
+    ],
+    "forbidden": [
+      "设计者用 --continue 自审",
+      "Claude 限额耗尽时用 Codex 替代设计/评审",
+      "省略 < /dev/null",
+      "探测性 claude -p 测配额"
+    ]
+  },
+  "fallback_ssh_template": "ssh woot 'cd /Users/woot/Dev/Fori && claude -p \"{prompt}\" --max-turns {max_turns} --allowedTools {tools} < /dev/null 2>&1'"
+}

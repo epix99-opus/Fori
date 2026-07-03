@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "updated": "2026-07-02T00:00:00-07:00",
+  "product": "Fori",
+  "ecc": {
+    "description": "Enhanced Claude Configuration — CAMA config-hub 模式，非独立 CLI",
+    "setup_doc": ".ai/orchestration/ECC_SETUP.md",
+    "template_source": "/Users/epix/Dev/CAMA/BestCfg/claude-code/config/settings.json.template"
+  },
+  "project_files": {
+    "claude_md": "CLAUDE.md",
+    "settings": ".claude/settings.json",
+    "routing": ".ai/orchestration/claude-routing.json",
+    "agents_md": "AGENTS.md"
+  },
+  "auth": {
+    "channel": "claude_pro_oauth",
+    "config_dir": "~/.claude",
+    "node": "epix",
+    "recovery": "claude auth login",
+    "smoke_test": "claude -p \"Reply: CLAUDE_OFFICIAL_OK\" < /dev/null"
+  },
+  "invoke_patterns": {
+    "design": {
+      "max_turns": 30,
+      "allowed_tools": "Read,Write,Bash",
+      "skip_permissions": true,
+      "prompt_template": ".ai/prompts/design-task.md"
+    },
+    "review": {
+      "max_turns": 15,
+      "allowed_tools": "Read,Write",
+      "skip_permissions": false,
+      "new_session_required": true,
+      "prompt_template": ".ai/prompts/review-task.md"
+    },
+    "readonly": {
+      "max_turns": 10,
+      "allowed_tools": "Read,Grep,Glob",
+      "disallowed_tools": "Write,Edit,Bash"
+    }
+  },
+  "startup_protocol": [
+    "CLAUDE.md",
+    ".ai/manifest.json",
+    ".ai/plan/current.md",
+    ".ai/startup/STARTUP_BRIEF.md"
+  ],
+  "branch": {
+    "prefix": "claude/",
+    "merge_policy": "cursor_only_to_main"
+  }
+}
