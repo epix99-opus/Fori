@@ -1,0 +1,56 @@
+# FORI-046 Wave 3 — Prototype Implement (Codex woot)
+
+You are Codex on woot in `/Users/woot/Dev/Fori` on branch `codex/fori-046-prototype`.
+
+## Mission
+Implement ALL THREE core product gaps in `prototype/` per design + handoff. Visually complete, not blank pages. `npm run build` MUST PASS.
+
+## Required Reading (follow exactly)
+1. `.ai/handoffs/FORI-046-implement.md` — SSOT for every file/component
+2. `docs/execution/FORI-046_CORE_GAPS_DESIGN.md` — UI specs
+3. `docs/reviews/REVIEW-046-DESIGN-CODEX.md` — VERDICT PASS (price units, district, 高德)
+
+## Implement ALL of:
+
+### Gap 1 — Map-centric dictionary
+- Install: `leaflet react-leaflet @types/leaflet` in `prototype/`
+- Create `prototype/lib/mock-map.ts` with ≥50 community pins across 8 cities, including `avgAreaSqm`, `district`, unit prices
+- Rewrite `prototype/app/explore/map/page.tsx` as client component with real Leaflet+OSM map
+- Pins show name, tier, price range, listing count; click → community card → `/explore/dict/[id]`
+- Filter panel: city, district (resets on city change), tier, total price (via avgAreaSqm formula)
+- Update `/explore/dict` so 地图 is default/primary entry linking to map
+- UI note: 「原型使用 OpenStreetMap + Mock 坐标；生产接入高德地图 JS API 2.0 + 开源底图业务数据层」
+- Import leaflet CSS
+
+### Gap 2 — Short video + social outreach
+- Routes: `/marketing/video`, `/marketing/publish`, `/marketing/reach`
+- Flow: select listing → generate storyboard/script mock → choose channels (抖音/视频号/小红书) → publish status → reach metrics
+- Mock data for materials, publish jobs, reach stats
+- Reuse existing Card/Button/AgentAssistFab patterns
+- Optional workspace re-exports if handoff specifies
+
+### Gap 3 — Lead tracking & conversion
+- Routes per handoff (e.g. `/crm/leads`, `/crm/leads/[id]`, landlord leads — OR `/workspace/agent/leads` etc. as design specifies)
+- Funnel: 新线索 → 跟进中 → 已约看 → 转化/流失
+- Track BOTH 潜在客户 AND 房东
+- List + detail + funnel visualization
+- Mock data for both lead types
+
+## Navigation
+Add entry points from home/workspace so users can reach map, marketing, CRM flows.
+
+## Constraints
+- ONLY modify `prototype/` (and package.json/lock inside prototype)
+- Do NOT modify docs/
+- `cd prototype && npm run build` MUST PASS (0 TS errors)
+- No blank pages
+- Client components where needed for Leaflet (`"use client"`)
+- Handle Next.js SSR: dynamic import map with `ssr: false` if needed
+
+## Git
+```bash
+git add prototype/
+git commit -m "feat: FORI-046 map dictionary media CRM prototype [codex]"
+```
+
+Report: routes created, build result, key files.

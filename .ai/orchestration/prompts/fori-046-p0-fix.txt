@@ -1,0 +1,39 @@
+# FORI-046 P0 Fix (Codex woot)
+
+You are Codex on woot in `/Users/woot/Dev/Fori` on branch `codex/fori-046-prototype`.
+
+## Mission
+Fix P0-1 from `docs/reviews/REVIEW-046-IMPL-CLAUDE.md`. Optionally fix P1 if trivial.
+
+## P0-1 (MUST)
+File: `prototype/components/MapView.tsx`
+
+`CityFlyTo` currently calls `map.flyTo()` in render body. Wrap in `useEffect([city, map])`:
+
+```tsx
+import { useEffect } from "react";
+
+function CityFlyTo({ city }: { city: City }) {
+  const map = useMap();
+  useEffect(() => {
+    map.flyTo(CITY_CENTERS[city], city === "重庆" ? 11 : 12, { duration: 0.6 });
+  }, [city, map]);
+  return null;
+}
+```
+
+Ensure `useEffect` is imported.
+
+## P1 (if quick)
+- P1-3: `marketing/video/page.tsx` — change initial state from `"ready"` to `"idle"`
+- P1-1: `workspace/agent/leads/page.tsx` — stage filter chips switch with buyer/landlord tab
+
+## Constraints
+- ONLY `prototype/`
+- `cd prototype && npm run build` MUST PASS
+
+## Git
+```bash
+git add prototype/
+git commit -m "fix: FORI-046 P0 CityFlyTo useEffect [codex]"
+```

@@ -1,39 +1,54 @@
 # Fori 原型设计完成度清单
 
-> **版本**: 1.4 · 2026-07-03（FORI-044 P0 修复 PASS）  
-> **阶段**: D4 Wave 3 实现完成 → P0 修复验证 PASS → 人类演示就绪  
+> **版本**: 1.5 · 2026-07-03（FORI-046 三大核心 GAP 补齐）  
+> **阶段**: FORI-044 演示就绪 → FORI-046 地图/媒体/CRM 交叉换位交付  
 > **验证命令**: `cd prototype && npm run build`  
-> **设计 SSOT**: `docs/execution/FORI-044_FULL_DESIGN.md`
+> **设计 SSOT**: `docs/execution/FORI-044_FULL_DESIGN.md` + `docs/execution/FORI-046_CORE_GAPS_DESIGN.md`
 
 ## 总体完成度
 
 | 维度 | 状态 | 完成度 | 说明 |
 |------|------|--------|------|
-| 页面覆盖（36 路由） | ✅ build PASS | 100% | `npm run build` PASS |
+| 页面覆盖（41+ 路由） | ✅ build PASS | 100% | FORI-046 新增 map/media/CRM |
 | UI_DESIGN 路由体系 | ✅ TabBar + 规范路由 | 100% | |
-| 六大模块 UI 流程 | ✅ 可点击走通，P0 已修复 | 98% | SUUMO 六 Tab + 分成瀑布图对齐规格 |
-| 人类评审 R2 必修 | ✅ P0/P1 UI 已铺开；FORI-095 GAP | 98% | REVIEW-044-P0-FIXES PASS |
+| 六大模块 UI 流程 | ✅ 可点击走通 | 99% | 含地图字典/短视频/CRM |
+| 人类评审 R2 必修 | ✅ P0/P1 UI 已铺开 | 98% | REVIEW-044-P0-FIXES PASS |
+| **核心产品 GAP（FORI-046）** | ✅ 三 Gap 视觉完整 | **100%** | 设计 PASS + 实现 CONDITIONAL_PASS→P0 修 |
 | 人类评审 R3 Minor | ✅ M1-12 纠错 + M3-10 付费墙 | 100% | |
 | 组件库 + ECharts | ✅ ChartCard 真实图表 | 100% | |
 | PWA / SW | ✅ sync + 离线队列 | 100% | |
-| Agent FAB suggestedPrompts | ⚠️ 存在但部分页面通用 | 80% | 主要路由已部署，字典页 prompts 待精调 |
+| Agent FAB suggestedPrompts | ⚠️ 存在但部分页面通用 | 80% | 主要路由已部署 |
 | 生产迁移设计 | ✅ ADR-009 + REPO_LAYOUT | 100% | |
 | Monorepo 脚手架 | ✅ FORI-042 apps/packages | 100% | |
 
-**当前诚实完成度：约 98%**。
+**当前诚实完成度：约 99%**（原型层；生产 API/真实地图 Key 不在范围内）。
 
-**已完成（不过度声称）**：路由体系、SUUMO 六 Tab 字典、三角色定价、撮合 P1 pulse/边框、登录分级、贡献账本、¥60K 分成瀑布图（80/15/5）、Agent FAB 壳子。
+**已完成（不过度声称）**：路由体系、SUUMO 六 Tab 字典、**Leaflet+OSM 地图字典（50 Pin/8 城）**、短视频制作→发布→触达、CRM 买家/房东漏斗、三角色定价、撮合、登录分级、贡献账本、分成瀑布图、Agent FAB。
 
-**真实 GAP（非阻塞）**：
-- 地图页 `/explore/map` 可能仅有占位 div（待确认）
+**真实 GAP（非阻塞 / P1）**：
+- 总价筛选为预设 Chips（设计要求双端滑块）
 - Agent FAB suggestedPrompts 部分页面未按规格精调
 - 低置信度 Badge `animate-pulse`（RC-7，P2）
 - Login Per-tier 升级 CTA（RC-8，P2）
 
 **非 UI GAP（不在原型范围内）**：
-- 真实高德地图 JS API 2.0（FORI-052+）
+- 真实高德地图 JS API 2.0 + ~80 万小区业务层（FORI-052+）
 - 真实支付/公证接口（Wave 4+）
+- 真实短视频渲染 / 渠道 API（Wave 5+）
 - Hermes 真实调度日志复盘（FORI-095）
+
+## FORI-046 核心 GAP（2026-07-03）
+
+| Gap | 路由 | 状态 |
+|-----|------|------|
+| 地图核心房源字典 | `/explore/map`, `/explore/dict`（默认地图） | ✅ Leaflet+OSM · 50 Pin · 筛选 |
+| 短视频 + 自媒体触达 | `/marketing/video`, `/publish`, `/reach` | ✅ 分镜→渠道→触达 |
+| 线索跟踪与转化 | `/workspace/agent/leads`, `/leads/[id]`, `/landlords` | ✅ 买家+房东漏斗 |
+
+| 评审 | VERDICT |
+|------|---------|
+| REVIEW-046-DESIGN-CODEX | PASS（修订后） |
+| REVIEW-046-IMPL-CLAUDE | CONDITIONAL_PASS → P0 CityFlyTo 已修 |
 
 ## FORI-044 Wave 1 新增（2026-07-03）— 设计文档
 

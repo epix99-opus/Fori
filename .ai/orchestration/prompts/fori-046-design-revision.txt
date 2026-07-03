@@ -1,0 +1,41 @@
+# FORI-046 Design Revision (Claude epix) — ONE ROUND after Codex FAIL
+
+You are Claude Code on branch `claude/fori-046-core-gaps-design` in `/Users/epix/Dev/Fori`.
+
+## Mission
+Codex design review returned **VERDICT: FAIL**. Fix ALL REQUIRED_CHANGES in one revision. Do NOT implement prototype code.
+
+## Review to fix
+Read `docs/reviews/REVIEW-046-DESIGN-CODEX.md` completely.
+
+## REQUIRED_CHANGES (must fix all)
+
+1. **District filter**: Add district as a first-class map filter and define its interaction with city, tier, and price in both the UI spec (`FORI-046_CORE_GAPS_DESIGN.md`) and API contract (`TECHNICAL_SOLUTION.md`).
+
+2. **Price unit mismatch**: Data model has `priceMin/priceMax` as 元/㎡, but UI filter uses total-price slider with `maxPriceWan`. Choose ONE model end-to-end:
+   - Recommended: keep unit price on pins (`priceMin/priceMax` 元/㎡) AND add derived total-price filter using `avgAreaSqm` (or explicit `priceWanMin/priceWanMax` on pins). Document the formula: e.g. `totalPriceWan = (priceMin + priceMax) / 2 * avgAreaSqm / 10000`.
+   - Update filter state, UI labels, mock data fields, and implement handoff consistently.
+
+3. **Production map stack**: Make explicit choice. Recommended for Fori China market:
+   - **Primary production vendor: 高德地图 JS API 2.0** (Amap)
+   - Fallback: 腾讯地图
+   - Business data layer: platform-owned GeoJSON/PostGIS on open-source base (not vendor POI)
+   - Mark vendor ADR as **DECIDED: 高德 primary** (not 待定). Minor follow-ups (key provisioning) can be non-blocking.
+
+## Files to update
+1. `docs/execution/FORI-046_CORE_GAPS_DESIGN.md` — filter panel, data model, production stack
+2. `docs/execution/TECHNICAL_SOLUTION.md` — map API contract, filter params
+3. `.ai/handoffs/FORI-046-implement.md` — mock data fields, filter implementation notes
+
+## Constraints
+- Design only — no `prototype/` changes
+- No TBD on the three REQUIRED_CHANGES
+- Chinese for user-facing text
+
+## Git
+```bash
+git add docs/execution/FORI-046_CORE_GAPS_DESIGN.md docs/execution/TECHNICAL_SOLUTION.md .ai/handoffs/FORI-046-implement.md docs/reviews/REVIEW-046-DESIGN-CODEX.md
+git commit -m "design: FORI-046 revise map filter units district stack [claude]"
+```
+
+Report what you changed for each REQUIRED_CHANGE.

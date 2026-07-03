@@ -5,27 +5,24 @@
     "status": "active",
     "github": "epix99-opus/Fori",
     "localPath": "/Users/epix/Dev/Fori",
-    "phase": "D4-fori-044-p0-fixes-pass"
+    "phase": "D4-fori-046-core-gaps-delivered"
   },
   "currentTask": {
-    "id": "FORI-044",
-    "title": "全量原型设计+实现（人类评审 Round2 完整交付）",
-    "status": "p0_fixes_pass_human_demo_ready",
+    "id": "FORI-046",
+    "title": "核心产品 GAP：地图字典 / 短视频自媒体 / CRM 线索",
+    "status": "delivered_merged_main",
     "owner": "multi-agent",
     "branch": "main",
-    "updatedAt": "2026-07-03T03:35:00-07:00",
+    "updatedAt": "2026-07-03T10:45:00-07:00",
     "artifacts": [
-      "docs/execution/FORI-044_FULL_DESIGN.md",
+      "docs/execution/FORI-046_CORE_GAPS_DESIGN.md",
       "docs/execution/TECHNICAL_SOLUTION.md",
       "docs/execution/PM_TASK_PLAN.md",
-      ".ai/handoffs/FORI-044-full-implement.md",
-      "docs/reviews/REVIEW-044-DESIGN-CODEX.md",
-      "docs/reviews/REVIEW-044-DESIGN-R2-CODEX.md",
-      "docs/reviews/REVIEW-044-IMPL-CLAUDE.md",
-      "docs/reviews/REVIEW-044-P0-FIXES-CLAUDE.md",
+      ".ai/handoffs/FORI-046-implement.md",
+      "docs/reviews/REVIEW-046-DESIGN-CODEX.md",
+      "docs/reviews/REVIEW-046-IMPL-CLAUDE.md",
       "docs/execution/PROTOTYPE_COMPLETION.md",
-      "docs/execution/REVIEW_HUMAN_ROUND2_TASKS.md",
-      ".ai/orchestration/scripts/auto-resume-cron.sh",
+      "docs/execution/CONVERSATION_GOAL_AUDIT.md",
       ".ai/orchestration/dispatch-log.jsonl"
     ],
     "verdicts": {
@@ -33,20 +30,18 @@
       "designReview": "FAIL",
       "designRevision": "DONE",
       "designReviewR2": "PASS",
-      "wave3PrototypeImplR2": "DONE",
+      "wave3PrototypeImpl": "DONE",
       "implReview": "CONDITIONAL_PASS",
-      "p0FixesReview": "PASS"
+      "p0Fixes": "DONE"
     },
     "commits": {
-      "wave1Design": "caa83da",
-      "designRevision": "b3fdb3a",
-      "wave2DesignReview": "ee16b87",
-      "wave2DesignReviewR2": "45b0425",
-      "wave3PrototypeImpl": "8fca35e",
-      "wave3PrototypeImplR2": "72cdabc",
-      "wave4ImplReview": "b2ea9e3",
-      "p0Fixes": "84725e1",
-      "p0FixesReview": "c3ca96f"
+      "wave1Design": "871db97",
+      "designRevision": "26ba7a6",
+      "wave2DesignReviewFail": "893ad38",
+      "wave2DesignReviewPass": "53504c0",
+      "wave3PrototypeImpl": "2ef4072",
+      "wave4ImplReview": "071d361",
+      "p0Fixes": "9800acc"
     }
   },
   "nextTask": {
@@ -68,6 +63,16 @@
         "designer": "codex/woot",
         "reviewer": "claude/epix",
         "verdict": "CONDITIONAL_PASS"
+      },
+      "fori046_design": {
+        "designer": "claude/epix",
+        "reviewer": "codex/woot",
+        "verdict": "PASS"
+      },
+      "fori046_impl": {
+        "designer": "codex/woot",
+        "reviewer": "claude/epix",
+        "verdict": "CONDITIONAL_PASS"
       }
     }
   },
@@ -82,17 +87,17 @@
     "auth_persistence": ".ai/orchestration/AUTH_PERSISTENCE.md",
     "claude_auth": "keychain_ok_headless_verified",
     "lastAutoResume": {
-      "ts": "2026-07-03T10:35:00Z",
-      "result": "cursor_pipeline_complete",
-      "trigger": "FORI-044-044-pipeline-auto",
+      "ts": "2026-07-03T17:45:00Z",
+      "result": "fori_046_pipeline_complete",
+      "trigger": "FORI-046-core-gaps-human-mandate",
       "waves": {
-        "designRevision": "b3fdb3a",
+        "design": "871db97",
+        "designRevision": "26ba7a6",
         "designReviewR2": "PASS",
-        "prototypeImplR2": "72cdabc",
-        "implReview": "CONDITIONAL_PASS"
-      },
-      "cronRegistered": "2026-07-03T03:35:00-07:00",
-      "claudeAuthVerifiedAt": "2026-07-03T08:23:31-07:00"
+        "prototypeImpl": "2ef4072",
+        "implReview": "CONDITIONAL_PASS",
+        "p0Fixes": "9800acc"
+      }
     }
   },
   "pendingResume": [],
@@ -101,24 +106,26 @@
       "status": "available",
       "primary_node": "epix",
       "usage": "15/45",
-      "session_reset": "2:10am America/Los_Angeles",
-      "session_reset_at": "2026-07-03T02:10:00-07:00"
+      "session_reset": "2:10am America/Los_Angeles"
     },
     "codex": {
       "status": "available",
       "primary_node": "woot",
-      "usage": "12/300"
+      "usage": "45/300"
     }
   },
   "prototypeDesign": {
-    "status": "fori-044-design-v1",
-    "buildVerified": "2026-07-02 epix PASS 36 routes",
+    "status": "fori-046-core-gaps-delivered",
+    "buildVerified": "2026-07-03 epix PASS 41 routes",
     "previewUrls": [
-      "http://localhost:3000/explore/dict/community-001",
-      "http://localhost:3000/transaction/tx-001",
-      "http://localhost:3000/match",
-      "http://localhost:3000/price/community-001",
-      "http://localhost:3000/auth/login",
+      "http://localhost:3000/explore/map",
+      "http://localhost:3000/explore/dict",
+      "http://localhost:3000/marketing/video",
+      "http://localhost:3000/marketing/publish",
+      "http://localhost:3000/marketing/reach",
+      "http://localhost:3000/workspace/agent/leads",
+      "http://localhost:3000/workspace/agent/leads/lead-001",
+      "http://localhost:3000/workspace/agent/landlords",
       "http://localhost:3000/home"
     ]
   }

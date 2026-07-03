@@ -1,0 +1,43 @@
+# FORI-046 Wave 2 Re-Review (Codex woot)
+
+You are Codex on woot in `/Users/woot/Dev/Fori` on branch `codex/fori-046-design-review`.
+
+## Mission
+Re-review AFTER Claude revision of FAIL findings. Adversarial but fair. Do NOT implement prototype.
+
+## Required Reading
+1. `docs/reviews/REVIEW-046-DESIGN-CODEX.md` — original FAIL
+2. `docs/execution/FORI-046_CORE_GAPS_DESIGN.md` — revised
+3. `docs/execution/TECHNICAL_SOLUTION.md` — revised map sections
+4. `.ai/handoffs/FORI-046-implement.md` — revised handoff
+
+## Check REQUIRED_CHANGES are fixed
+1. District is first-class filter with city/tier/price interaction defined in UI + API
+2. Price units consistent end-to-end (unit price on pins + total price filter via avgAreaSqm formula, or equivalent coherent model)
+3. Production map vendor DECIDED (高德 primary expected)
+
+## Output
+Overwrite/update `docs/reviews/REVIEW-046-DESIGN-CODEX.md` with:
+
+```markdown
+## VERDICT: [PASS | CONDITIONAL_PASS | FAIL]
+
+## RE-REVIEW NOTES
+- RC1 district: RESOLVED / NOT RESOLVED — evidence
+- RC2 price units: RESOLVED / NOT RESOLVED — evidence
+- RC3 production stack: RESOLVED / NOT RESOLVED — evidence
+
+## FINDINGS
+(any remaining)
+
+## REQUIRED_CHANGES
+(only if not PASS)
+```
+
+## Git
+```bash
+git add docs/reviews/REVIEW-046-DESIGN-CODEX.md
+git commit -m "review: FORI-046 design re-review after revision [codex]"
+```
+
+Report VERDICT only.

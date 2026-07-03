@@ -516,3 +516,55 @@ cd prototype && npm run build  # ✅ 2026-07-03 审计日 PASS，37 路由
 
 **裁决**: 冒烟 **>** Keychain **>** jq；headless `-p` 可用，审计缺口 A（Claude auth）**✅**。
 
+## 附录 D — FORI-046 三大核心产品 GAP（2026-07-03 · 最重要产品目标）
+
+> **背景**: Human 审阅新原型 + 技术方案后发现，先前对话审计**遗漏**了初始需求中最核心的三项产品目标。本附录记录补齐过程与证据。
+
+### D.1 遗漏的三大 GAP（相对初始需求 / 人类评审）
+
+| Gap | 产品目标 | 审计前状态 | 严重度 |
+|-----|----------|------------|--------|
+| **1** | **地图核心房源字典** — 地图为字典主入口；全国 ~80 万小区叠加；高德/腾讯/百度 + 开源业务层 | CSS 渐变 + 3 个北京 Pin，非真实地图库 | 🔴 P0 |
+| **2** | **短视频素材 + 自媒体触达** — 制作 → 渠道发布 → 触达分析 | `/marketing/generate` 有素材框架，无短视频分镜/发布/触达闭环 | 🟡 P1 |
+| **3** | **潜在客户与房东线索跟踪转化** — 买家/租客 + 房东漏斗 CRM | `/workspace/agent/buyers` 仅 3 条卡片，无漏斗/房东/详情 | 🟡 P1 |
+
+**为何先前审计漏掉**：FORI-043/044 聚焦人类评审 Round2 的 8 条 UI 项与定价页空白修复，将「地图」记为「Mock 气泡可接受」，未对照初始需求模块四（自媒体）与「地图式呈现为字典核心」的产品定位做 P0 升级。
+
+### D.2 FORI-046 交叉换位交付证据
+
+| Wave | Agent | 分支 | Commit | VERDICT / 结果 |
+|------|-------|------|--------|----------------|
+| 1 设计 | Claude epix | `claude/fori-046-core-gaps-design` | `871db97` | 设计产出 |
+| 1b 修订 | Claude epix | 同上 | `26ba7a6` | 修价格单位/区域/高德主选 |
+| 2 设计评审 | Codex woot | `codex/fori-046-design-review` | `893ad38` → `53504c0` | **FAIL → PASS** |
+| 3 实现 | Codex woot | `codex/fori-046-prototype` | `2ef4072` | build PASS（41 路由） |
+| 4 实现评审 | Claude epix | `claude/fori-046-impl-review` | `071d361` | **CONDITIONAL_PASS** |
+| 4b P0 修复 | Codex woot | `codex/fori-046-prototype` | `9800acc` | CityFlyTo useEffect + P1 |
+| 合并 | Cursor | `main` | （本附录合入后 SHA） | — |
+
+### D.3 原型新路由（预览）
+
+| 路由 | Gap | 说明 |
+|------|-----|------|
+| `/explore/map` | 1 | Leaflet + OSM，50 Pin / 8 城，筛选（城市/区域/层级/总价） |
+| `/explore/dict` | 1 | 默认地图 Tab |
+| `/marketing/video` | 2 | 短视频分镜制作 |
+| `/marketing/publish` | 2 | 抖音/视频号/小红书发布 |
+| `/marketing/reach` | 2 | 触达分析 + 线索归因 |
+| `/workspace/agent/leads` | 3 | CRM 漏斗（买家+房东） |
+| `/workspace/agent/leads/[id]` | 3 | 线索详情 + 跟进 |
+| `/workspace/agent/landlords` | 3 | 房东线索列表 |
+
+**生产地图决策**: 高德地图 JS API 2.0（主选）+ 腾讯 fallback；业务层平台自维护 GeoJSON/PostGIS。原型使用 OSM + Mock。
+
+### D.4 诚实剩余
+
+| 项 | 状态 |
+|----|------|
+| 真实高德 Key / 80 万小区数据 | 生产 FORI-052+，非原型范围 |
+| 总价双端滑块（现为预设 Chips） | P1，非阻塞 |
+| 真实短视频渲染 / 渠道 API | 生产 Wave 5+ |
+| 真实 CRM 后端 | D4 API 阶段 |
+
+**裁决**: 三大核心产品 GAP 在原型层**已视觉完整交付**；交叉换位协议全程真实 Claude/Codex，Cursor 仅编排合并。
+

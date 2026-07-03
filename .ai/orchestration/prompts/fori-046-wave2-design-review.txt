@@ -1,0 +1,72 @@
+# FORI-046 Wave 2 — Design Review (Codex woot)
+
+You are Codex on woot in `/Users/woot/Dev/Fori` on branch `codex/fori-046-design-review`.
+
+## Mission
+Adversarial design review of FORI-046 core product gaps design. You are the REVIEWER — do NOT implement prototype code. Produce a structured review with VERDICT.
+
+## Required Reading
+1. `docs/execution/FORI-046_CORE_GAPS_DESIGN.md` — primary design under review
+2. `.ai/handoffs/FORI-046-implement.md` — Codex implement handoff (check completeness)
+3. `docs/execution/TECHNICAL_SOLUTION.md` — map/media/CRM sections (v3.0)
+4. `docs/execution/PM_TASK_PLAN.md` — FORI-046 tasks
+5. `.ai/handoffs/Human/Fori房地产智能中介交易平台初始需求.md` — initial requirements (modules on 自媒体, dictionary, leads)
+6. `.ai/handoffs/Human/Fori平台原型评审意见.md` — item 3 map/card/list
+7. `docs/PRD.md` relevant sections if needed
+
+## Review Checklist (adversarial)
+
+### Gap 1 — Map-centric Dictionary
+- [ ] Map is CORE entry (not side page) — routes/IA clear?
+- [ ] Prototype stack (leaflet/OSM) vs production (高德/腾讯/百度 + open-source business layer) decided?
+- [ ] ≥20–50 mock pins across cities specified with concrete data shape?
+- [ ] Filter panel (city/district/price/tier) fully specified?
+- [ ] Drill-down to community detail specified?
+- [ ] UI note about mock vs production present?
+- [ ] Implementable without API keys in prototype?
+
+### Gap 2 — Short Video + Social Outreach
+- [ ] Full flow: create material → publish channels → track reach?
+- [ ] Routes consistent and non-blank?
+- [ ] Channels (抖音/视频号/小红书) covered?
+- [ ] Mock data shapes complete?
+
+### Gap 3 — Lead Tracking & Conversion
+- [ ] Both buyer/tenant AND landlord leads?
+- [ ] Funnel stages: 新线索 → 跟进中 → 已约看 → 转化/流失?
+- [ ] List + detail + funnel UI specified?
+- [ ] Mock data complete?
+
+### Handoff Quality
+- [ ] Every file path listed for Codex implement?
+- [ ] Acceptance criteria verifiable?
+- [ ] `npm run build` constraints clear?
+- [ ] No TBD blockers?
+
+## Output
+Write `docs/reviews/REVIEW-046-DESIGN-CODEX.md` with EXACT format:
+
+```markdown
+## VERDICT: [PASS | CONDITIONAL_PASS | FAIL]
+
+## FINDINGS
+### F1: ...
+- **严重级别**: Critical | Major | Minor | Info
+- **证据**: path:section
+
+## REQUIRED_CHANGES
+（VERDICT 非 PASS 时必填，可操作、可验证）
+```
+
+Verdict rules:
+- PASS: implementable as-is, no Critical/Major gaps
+- CONDITIONAL_PASS: Minor issues only; Codex can implement with notes
+- FAIL: Critical/Major missing — must revise design before implement
+
+## Git
+```bash
+git add docs/reviews/REVIEW-046-DESIGN-CODEX.md
+git commit -m "review: FORI-046 design adversarial review [codex]"
+```
+
+Report VERDICT and top findings.

@@ -1,0 +1,117 @@
+# FORI-046 Wave 1 — Core Product Gaps Design (Claude epix)
+
+You are Claude Code on branch `claude/fori-046-core-gaps-design` in `/Users/epix/Dev/Fori`.
+
+## Mission (P0 — MOST IMPORTANT product goals)
+
+Human reviewed the new prototype + technical solution and found CRITICAL gaps vs initial requirements. Previous conversation audit MISSED these. You MUST design a complete, implementable solution for ALL THREE gaps so Codex can build a visually complete prototype.
+
+### Gap 1: Map-centric 房源字典 (Property Dictionary)
+- Map is the CORE of the dictionary (not a side page)
+- Production: Tencent / Amap (高德) / Baidu Map API for nationwide ~800k communities/listings overlay
+- Maintain business data layer on open-source map data
+- Full prototype: map browse, community pins, listing overlay, filter, drill-down to community detail
+
+### Gap 2: 短视频素材制作 + 自媒体客户触达
+- Generate/produce short video materials for listings
+- Social media (自媒体) outreach flow for customer acquisition
+- Full flow: create material → publish channels → track reach
+
+### Gap 3: 潜在客户与房东信息跟踪与转化
+- Lead tracking for potential buyers/tenants AND landlords
+- Conversion funnel (线索 → 跟进 → 转化)
+- CRM-style tracking UI in prototype
+
+## Required Reading (read ALL before writing)
+1. `.ai/handoffs/Human/Fori房地产智能中介交易平台初始需求.md` — especially 模块四 自媒体、房源字典、客户/房东跟踪
+2. `.ai/handoffs/Human/Fori平台原型评审意见.md` — item 3 房源字典地图/卡片/列表
+3. `docs/PRD.md` — sections on 楼盘字典/地图、自媒体营销、客源/线索
+4. `docs/UI_DESIGN.md` — `/explore/map`, media routes, CRM-related pages
+5. `docs/execution/FORI-044_FULL_DESIGN.md` — current design (extend, do not ignore gaps)
+6. `docs/execution/TECHNICAL_SOLUTION.md` — update map/media/CRM modules
+7. `docs/execution/PM_TASK_PLAN.md` — add FORI-046 tasks
+8. `docs/execution/CONVERSATION_GOAL_AUDIT.md` — note what was missed
+9. `docs/execution/PROTOTYPE_COMPLETION.md` — current honest state
+10. Scan current prototype:
+    - `prototype/app/explore/map/page.tsx` (CSS mock, only 3 pins — insufficient)
+    - `prototype/app/explore/dict/`
+    - `prototype/app/marketing/` if any
+    - `prototype/app/crm/` or leads routes if any
+    - `prototype/package.json` (deps: leaflet/maplibre?)
+
+## Deliverables (MUST create/update ALL)
+
+### 1. `docs/execution/FORI-046_CORE_GAPS_DESIGN.md` (PRIMARY)
+Complete design covering all 3 gaps:
+
+#### Gap 1 — Map-centric Dictionary
+- Information architecture: map as primary entry for 房源字典
+- Page routes (elevate `/explore/map` or `/explore/dict` map mode as CORE)
+- User flows: browse map → filter → pin click → community card → detail
+- Map stack decision:
+  - **Prototype**: leaflet or maplibre-gl + OSM tiles + mock business markers (NO API key required)
+  - **Production**: 高德/腾讯/百度 JS API + open-source base for business data layer (~800k communities)
+  - Explicit note in UI: "原型使用 Mock 坐标；生产接入高德/腾讯/百度 + 开源底图业务层"
+- Mock data: ≥20–50 community pins across multiple cities (Beijing, Shanghai, Guangzhou, Shenzhen, Chengdu, Hangzhou, etc.)
+- Filter panel: city/district/price/tier
+- Overlay: listing counts, price tiers
+- Drill-down to existing `/explore/dict/[communityId]`
+
+#### Gap 2 — Short Video + Social Outreach
+- Routes e.g. `/marketing/materials`, `/marketing/publish`, `/marketing/reach` (or align with UI_DESIGN `/workspace/media/*` — pick one consistent set and document)
+- Flow screens & states:
+  1. Select listing
+  2. Generate short-video script/storyboard (mock AI generation)
+  3. Choose channels (抖音/视频号/小红书)
+  4. Publish status
+  5. Reach metrics
+- Mock data shapes for materials, publish jobs, reach stats
+
+#### Gap 3 — Lead Tracking & Conversion
+- Routes e.g. `/crm/leads`, `/crm/leads/[id]`, landlord leads
+- Funnel stages: 新线索 → 跟进中 → 已约看 → 转化/流失
+- Track BOTH 潜在客户 (buyers/tenants) AND 房东 (landlords)
+- CRM-style list + detail + funnel visualization
+- Mock data for both lead types
+
+Also include:
+- Component inventory (reuse existing Card/Button/AgentAssistFab)
+- Acceptance criteria per route (visually complete, not blank)
+- Navigation entry points (home, tab bar, workspace)
+
+### 2. Update `docs/execution/TECHNICAL_SOLUTION.md`
+- Map API section: prototype stack vs production (高德/腾讯/百度 + open-source business layer)
+- Media pipeline module (short video generation, multi-channel publish, reach analytics)
+- CRM modules (leads, funnel, buyer + landlord)
+- Bump version header appropriately (e.g. v2.1 or v3.0)
+
+### 3. Update `docs/execution/PM_TASK_PLAN.md`
+- Add FORI-046 tasks with owners (Claude design, Codex review, Codex implement, Claude impl review, Cursor merge)
+- Cross-swap Wave 1–4 schedule for FORI-046
+- Dependencies on FORI-044
+
+### 4. Create `.ai/handoffs/FORI-046-implement.md`
+Codex implementation handoff — EVERY page/component to build:
+- Exact file paths under `prototype/`
+- Exact UI elements per route
+- Mock data files to create
+- Dependencies to add (e.g. `leaflet` + `@types/leaflet` or `maplibre-gl`)
+- Build must pass: `cd prototype && npm run build`
+- Do NOT leave blank pages
+- Visually complete for all 3 flows
+
+## Constraints
+- Design phase ONLY — do NOT modify `prototype/` code
+- No TBD placeholders in specs — every screen must be implementable
+- Chinese primary language for user-facing spec text
+- Follow existing doc conventions in `docs/execution/`
+- Be honest: current map is CSS mock with 3 pins; marketing/CRM may be partial or missing
+
+## Git
+When done:
+```bash
+git add docs/execution/FORI-046_CORE_GAPS_DESIGN.md docs/execution/TECHNICAL_SOLUTION.md docs/execution/PM_TASK_PLAN.md .ai/handoffs/FORI-046-implement.md
+git commit -m "design: FORI-046 core gaps map/media/CRM [claude]"
+```
+
+Report: list of files created/updated and key design decisions summary (map stack, routes, funnel stages).

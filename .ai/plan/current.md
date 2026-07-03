@@ -3,38 +3,41 @@
 ## Meta
 | Field | Value |
 |-------|-------|
-| Task ID | FORI-044 |
-| Title | 全量原型设计+实现（人类评审 8 项完整交付） |
-| Status | W1 done · design review FAIL · W4 max-turns |
+| Task ID | FORI-046 |
+| Title | 核心产品 GAP：地图字典 / 短视频自媒体 / CRM 线索 |
+| Status | **DELIVERED** · merged main |
 | Owner | multi-agent |
 | Branch | `main` |
 
 ## Checklist
-- [x] Wave 1 Claude design → FORI-044_FULL_DESIGN.md + TECH v2 + PM v2 **DONE** (caa83da)
-- [x] Wave 2 Codex design review R1 → **FAIL** (ee16b87)
-- [x] Wave 2 Codex design review R2 → **FAIL** (7ac94d3) — 缺路由规格
-- [x] Wave 3 Codex prototype impl → **PASS build** (8fca35e)
-- [ ] Wave 4 Claude impl review → **MAX_TURNS** (15 turns, no REVIEW file)
-- [x] Cursor merge codex branches → main
-- [x] Key routes HTTP 200 verified
+- [x] Wave 1 Claude design → FORI-046_CORE_GAPS_DESIGN.md + TECH v3 + PM v3 **DONE** (871db97)
+- [x] Wave 2 Codex design review R1 → **FAIL** (893ad38) — 价格单位/区域/地图厂商
+- [x] Wave 1b Claude revision → **DONE** (26ba7a6)
+- [x] Wave 2 Codex design review R2 → **PASS** (53504c0)
+- [x] Wave 3 Codex prototype impl → **PASS build** (2ef4072)
+- [x] Wave 4 Claude impl review → **CONDITIONAL_PASS** (071d361)
+- [x] Codex P0 fix CityFlyTo → **DONE** (9800acc)
+- [x] Cursor merge → main
+- [x] Key routes HTTP 200 verified (all 200 + content)
 
 ## Breakpoint
-- **02:10 PDT cron 未触发** — Human 02:39 催促后 Cursor 手动 resume
-- **Wave 1 完成** `caa83da` — 设计包已交付
-- **Codex R2 设计评审 FAIL** — 需补 `/profile`、`/workspace/agent/*` 等路由规格
-- **Wave 4 max-turns** — `REVIEW-044-IMPL-CLAUDE.md` 未产出，需新 session 重试
-- **auto-resume-cron.sh** 已添加，待 Hermes 注册 cron
+- FORI-046 三大核心 GAP 已交付并合入 main
+- 下一任务：FORI-045 价格 API（apps/api）
+- 生产地图：高德 JS API 2.0（FORI-052+）
 
-## Cross-Swap Trace (FORI-044)
+## Cross-Swap Trace (FORI-046)
 | Wave | Agent | Node | VERDICT / Status |
 |------|-------|------|------------------|
-| W1 设计 | Claude | epix | DONE (caa83da) |
-| W2 设计评审 R2 | Codex | woot | FAIL (7ac94d3) |
-| W3 实现 | Codex | woot | build PASS (8fca35e) |
-| W4 实现评审 | Claude | epix | MAX_TURNS (no file) |
+| W1 设计 | Claude | epix | DONE (871db97) |
+| W2 设计评审 R1 | Codex | woot | FAIL (893ad38) |
+| W1b 修订 | Claude | epix | DONE (26ba7a6) |
+| W2 设计评审 R2 | Codex | woot | PASS (53504c0) |
+| W3 实现 | Codex | woot | build PASS (2ef4072) |
+| W4 实现评审 | Claude | epix | CONDITIONAL_PASS (071d361) |
+| P0 修复 | Codex | woot | DONE (9800acc) |
 
 ## Branches
-- `codex/fori-044-design-review` (ee16b87) — merged
-- `codex/fori-044-full-prototype` (8fca35e) — merged
-- `claude/fori-044-full-design` (caa83da) — Wave 1 设计包
-- `codex/fori-044-design-review` (7ac94d3) — R2 评审 FAIL
+- `claude/fori-046-core-gaps-design` — design + revision
+- `codex/fori-046-design-review` — design review PASS
+- `codex/fori-046-prototype` — implement + P0
+- `claude/fori-046-impl-review` — impl review

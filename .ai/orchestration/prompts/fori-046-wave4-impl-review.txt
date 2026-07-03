@@ -1,0 +1,69 @@
+# FORI-046 Wave 4 — Implementation Review (Claude epix)
+
+You are Claude Code on branch `claude/fori-046-impl-review` in `/Users/epix/Dev/Fori`.
+
+## Mission
+Adversarial review of Codex FORI-046 prototype implementation. Read-only on prototype code; write ONLY the review file. Do NOT fix code.
+
+## Required Reading
+1. `docs/execution/FORI-046_CORE_GAPS_DESIGN.md`
+2. `.ai/handoffs/FORI-046-implement.md`
+3. `docs/reviews/REVIEW-046-DESIGN-CODEX.md` (design PASS)
+4. Implementation files:
+   - `prototype/app/explore/map/page.tsx`
+   - `prototype/components/MapView.tsx`
+   - `prototype/lib/mock-map.ts`
+   - `prototype/app/explore/dict/page.tsx`
+   - `prototype/app/marketing/video/page.tsx`
+   - `prototype/app/marketing/publish/page.tsx`
+   - `prototype/app/marketing/reach/page.tsx`
+   - `prototype/app/workspace/agent/leads/page.tsx`
+   - `prototype/app/workspace/agent/leads/[id]/page.tsx`
+   - `prototype/app/workspace/agent/landlords/page.tsx`
+   - Navigation entries in home/workspace
+
+## Checklist
+### Gap 1 Map
+- [ ] Real leaflet/maplibre (not CSS-only mock)
+- [ ] ≥20–50 pins across cities
+- [ ] Filter: city, district, tier, total price (avgAreaSqm formula)
+- [ ] Drill-down to community detail
+- [ ] Production note about 高德/OSM mock
+
+### Gap 2 Media
+- [ ] Full flow: material → publish → reach
+- [ ] Channels 抖音/视频号/小红书
+- [ ] Visually complete pages
+
+### Gap 3 CRM
+- [ ] Buyer/tenant AND landlord leads
+- [ ] Funnel stages present
+- [ ] List + detail pages
+
+## Output
+Write `docs/reviews/REVIEW-046-IMPL-CLAUDE.md`:
+
+```markdown
+## VERDICT: [PASS | CONDITIONAL_PASS | FAIL]
+
+## FINDINGS
+### F1: ...
+- **严重级别**: Critical | Major | Minor | Info
+- **证据**: path
+
+## REQUIRED_CHANGES
+（非 PASS 时必填）
+```
+
+Verdict:
+- PASS: all 3 gaps visually complete and match design
+- CONDITIONAL_PASS: Minor only; P0 fixes listed if any
+- FAIL: Critical/Major missing gap
+
+## Git
+```bash
+git add docs/reviews/REVIEW-046-IMPL-CLAUDE.md
+git commit -m "review: FORI-046 implementation review [claude]"
+```
+
+Report VERDICT and top findings.
