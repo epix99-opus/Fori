@@ -1,7 +1,7 @@
 # Fori 产品开发 PM + 任务分配计划
 
-> **版本**: 2.0 · 2026-07-03  
-> **变更**: FORI-044 全量设计包发布；Wave 1-4 任务分配更新；诚实标注 GAP；Agent attribution 扩展
+> **版本**: 3.0 · 2026-07-03  
+> **变更**: FORI-046 核心 GAP 任务（地图/短视频/CRM）新增；任务看板更新；FORI-045+ 重新编号；Wave 日程调整
 
 ---
 
@@ -19,7 +19,7 @@
 
 ---
 
-## 2. 任务看板 FORI-080~095
+## 2. 任务看板 FORI-080~095 + FORI-046
 
 | ID | 标题 | Owner | P | 状态 | 备注 |
 |----|------|-------|---|------|------|
@@ -39,6 +39,31 @@
 | FORI-093 | Agent FAB | Cursor/Codex | P1 | ✅ done | 8+ 关键页 |
 | FORI-094 | 文档治理 CANON | Cursor | P2 | ✅ done | `docs/CANON.md` |
 | FORI-095 | R2 协作复盘 | Hermes | P2 | **done** | `docs/execution/FORI-095_COLLABORATION_RETROSPECTIVE.md` |
+
+### FORI-046 核心 GAP 任务（本轮新增）
+
+| ID | 标题 | Owner | P | 状态 | 备注 |
+|----|------|-------|---|------|------|
+| FORI-046-D1 | GAP 设计文档 | Claude epix | P0 | ✅ done | `docs/execution/FORI-046_CORE_GAPS_DESIGN.md` |
+| FORI-046-D2 | 技术方案 v3.0 | Claude epix | P0 | ✅ done | `docs/execution/TECHNICAL_SOLUTION.md` §14-16 |
+| FORI-046-D3 | PM 计划 v3.0 | Claude epix | P0 | ✅ done | 本文件 |
+| FORI-046-D4 | Codex 实现 handoff | Claude epix | P0 | ✅ done | `.ai/handoffs/FORI-046-implement.md` |
+| FORI-046-R1 | 设计包评审 | Codex woot | P1 | 待派发 | Wave 2.5（依赖 D1-D4 完成）|
+| FORI-046-I1 | 地图原型实现 | Codex woot | P0 | 待派发 | leaflet + 50 个 Pin + 筛选 |
+| FORI-046-I2 | 短视频流程实现 | Codex woot | P0 | 待派发 | /marketing/video + publish + reach |
+| FORI-046-I3 | CRM 线索实现 | Codex woot | P0 | 待派发 | /workspace/agent/leads + landlords |
+| FORI-046-I4 | 实现 Claude 评审 | Claude epix | P1 | 待 | 依赖 I1-I3 完成 |
+| FORI-046-I5 | Cursor 合并 | Cursor | P1 | 待 | 评审 PASS 后合并到 main |
+
+### FORI-046 实现排期
+
+| Wave | 内容 | Owner | 依赖 | 预计 |
+|------|------|-------|------|------|
+| D1（设计）| FORI-046-D1~D4 全部设计文档 | Claude epix | — | 07-03 ✅ |
+| R1（评审）| Codex 评审设计包 | Codex woot | D1 done | 07-04 |
+| I1（实现）| 三个 Gap 原型实现 | Codex woot | R1 PASS | 07-05~07 |
+| I2（Claude 评审）| 实现质量评审 | Claude epix | I1 done | 07-07~08 |
+| I3（合并）| Cursor 合并到 main | Cursor | I2 PASS | 07-08 |
 
 ---
 
@@ -107,12 +132,17 @@
 | ID | 任务 | Agent | 模型 | 依赖 | 预计 |
 |----|------|-------|------|------|------|
 | FORI-045 | 价格 API 端点（FastAPI） | Codex | gpt-5.5 | FORI-044 W1 PASS | 07-04+ |
-| FORI-046 | 价格 Agent 单测 | Hermes + Codex | mini | FORI-045 | 07-05+ |
-| FORI-047 | 字典 API Wave 2 设计 | Claude | blade | Human Gate | 07-09+ |
-| FORI-048 | 字典 API 实现 | Codex | gpt-5.5 | FORI-047 | 07-10+ |
-| FORI-049 | 字典 Playwright E2E | Hermes + Codex | mini | FORI-048 | 07-12+ |
-| FORI-050 | 匹配 API 设计 | Claude | blade | FORI-047+ | 07-14+ |
-| FORI-060 | KYC + 公证 API 设计 | Claude | blade | FORI-050+ | 07-21+ |
+| FORI-046 | **核心 GAP 设计（地图/媒体/CRM）** | Claude epix | blade | FORI-044 done | **07-03 ✅** |
+| FORI-047 | 价格 Agent 单测 | Hermes + Codex | mini | FORI-045 | 07-06+ |
+| FORI-048 | 字典 API Wave 2 设计 | Claude | blade | Human Gate | 07-09+ |
+| FORI-049 | 字典 API 实现 | Codex | gpt-5.5 | FORI-048 | 07-10+ |
+| FORI-050 | 字典 Playwright E2E | Hermes + Codex | mini | FORI-049 | 07-12+ |
+| FORI-051 | 地图 API 设计（Wave 2）| Claude | blade | FORI-046 done | 07-09+ |
+| FORI-052 | 地图 API 实现 + 高德接入 | Codex | gpt-5.5 | FORI-051 | 07-10+ |
+| FORI-060 | 匹配 API 设计 | Claude | blade | FORI-048+ | 07-14+ |
+| FORI-070 | KYC + 公证 API 设计 | Claude | blade | FORI-060+ | 07-21+ |
+| FORI-080 | 媒体 Pipeline API 设计（Wave 5）| Claude | blade | FORI-060+ | 07-28+ |
+| FORI-081 | CRM API 实现（Wave 3）| Codex | gpt-5.5 | FORI-060 | 07-21+ |
 
 ---
 
