@@ -59,18 +59,39 @@
     }
   },
   "orchestration": {
-    "status": "ready",
-    "quota_model": "dual_layer",
+    "status": "pending_resume",
+    "quota_model": "triple_layer",
     "master_guide": ".ai/orchestration/QUOTA_ROUTING.md",
+    "resume_playbook": ".ai/orchestration/RESUME_ORCHESTRATION.md",
+    "model_matrix": ".ai/orchestration/MODEL_ROUTING_MATRIX.json",
     "auth_persistence": ".ai/orchestration/AUTH_PERSISTENCE.md",
-    "claude_auth": "auth_local_keychain_ok"
+    "claude_auth": "keychain_ok_no_jq_token"
   },
+  "pendingResume": [
+    {
+      "task": "FORI-044-wave1",
+      "wave": 1,
+      "after": "2026-07-03T02:10:00-07:00",
+      "branch": "claude/fori-044-full-design",
+      "handoff": ".ai/handoffs/PENDING_CLAUDE_RESUME.md",
+      "script": ".ai/orchestration/scripts/resume-pending.sh --wave 1"
+    },
+    {
+      "task": "FORI-044-wave4",
+      "wave": 4,
+      "after": "2026-07-03T02:30:00-07:00",
+      "dependsOn": "FORI-044-wave1",
+      "branch": "claude/fori-044-impl-review",
+      "script": ".ai/orchestration/scripts/resume-pending.sh --wave 4"
+    }
+  ],
   "limits": {
     "claude": {
       "status": "session_limited",
       "primary_node": "epix",
       "usage": "3/45",
-      "session_reset": "2:10am America/Los_Angeles"
+      "session_reset": "2:10am America/Los_Angeles",
+      "session_reset_at": "2026-07-03T02:10:00-07:00"
     },
     "codex": {
       "status": "available",

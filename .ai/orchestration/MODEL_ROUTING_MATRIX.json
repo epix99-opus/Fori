@@ -1,0 +1,180 @@
+{
+  "$schema": "./model-routing-matrix.schema.json",
+  "version": 1,
+  "updatedAt": "2026-07-03T02:15:00-07:00",
+  "description": "Fori 任务类型 → Agent → 模型 → 优先级（科学路由，最大化质量/Token）",
+  "tiers": {
+    "blade": "最强模型：设计、对抗评审、复杂实现",
+    "standard": "默认生产力",
+    "lite": "文档、简单修复、只读评审"
+  },
+  "agents": {
+    "claude": { "plan": "claude_pro", "node": "epix", "routing": "claude-routing.json" },
+    "codex": { "plan": "codex_plus", "node": "woot", "routing": "codex-routing.json" },
+    "cursor": { "plan": "cursor_pro_plus", "node": "epix", "role": "orchestration_only" },
+    "hermes": { "plan": "api", "node": "epix", "role": "verify_schedule" }
+  },
+  "matrix": [
+    {
+      "task_type": "design",
+      "tier": "blade",
+      "agent": "claude",
+      "model": "default",
+      "max_turns": 30,
+      "estimated_msgs": 30,
+      "priority": "P0",
+      "cursor_substitute": false,
+      "notes": "PRD/架构/UI/ADR；禁止 Cursor 替代"
+    },
+    {
+      "task_type": "adr",
+      "tier": "blade",
+      "agent": "claude",
+      "model": "default",
+      "max_turns": 25,
+      "estimated_msgs": 25,
+      "priority": "P0",
+      "cursor_substitute": false
+    },
+    {
+      "task_type": "review",
+      "tier": "blade",
+      "agent": "claude",
+      "model": "default",
+      "max_turns": 15,
+      "estimated_msgs": 15,
+      "priority": "P0",
+      "cursor_substitute": false,
+      "notes": "新会话；禁止 --continue 自审"
+    },
+    {
+      "task_type": "security_review",
+      "tier": "blade",
+      "agent": "claude",
+      "model": "default",
+      "max_turns": 20,
+      "estimated_msgs": 20,
+      "priority": "P0",
+      "cursor_substitute": false
+    },
+    {
+      "task_type": "readonly_audit",
+      "tier": "lite",
+      "agent": "claude",
+      "model": "default",
+      "max_turns": 10,
+      "estimated_msgs": 10,
+      "priority": "P1",
+      "cursor_substitute": false
+    },
+    {
+      "task_type": "implement",
+      "tier": "blade",
+      "agent": "codex",
+      "model": "gpt-5.5",
+      "estimated_minutes": 30,
+      "priority": "P0",
+      "cursor_substitute": false
+    },
+    {
+      "task_type": "refactor",
+      "tier": "blade",
+      "agent": "codex",
+      "model": "gpt-5.5",
+      "estimated_minutes": 30,
+      "priority": "P0",
+      "cursor_substitute": false
+    },
+    {
+      "task_type": "prototype_batch",
+      "tier": "blade",
+      "agent": "codex",
+      "model": "gpt-5.5",
+      "estimated_minutes": 25,
+      "priority": "P0",
+      "cursor_substitute": false
+    },
+    {
+      "task_type": "implement_simple",
+      "tier": "lite",
+      "agent": "codex",
+      "model": "gpt-5.4-mini",
+      "estimated_minutes": 15,
+      "priority": "P1",
+      "cursor_substitute": false
+    },
+    {
+      "task_type": "test",
+      "tier": "lite",
+      "agent": "codex",
+      "model": "gpt-5.4-mini",
+      "estimated_minutes": 20,
+      "priority": "P1",
+      "cursor_substitute": false
+    },
+    {
+      "task_type": "design_review_codex",
+      "tier": "lite",
+      "agent": "codex",
+      "model": "gpt-5.4-mini",
+      "estimated_minutes": 10,
+      "priority": "P1",
+      "cursor_substitute": false,
+      "notes": "交叉换位：Codex 评 Claude 设计"
+    },
+    {
+      "task_type": "verify_fix",
+      "tier": "standard",
+      "agent": "codex",
+      "model": "gpt-5.5",
+      "estimated_minutes": 20,
+      "priority": "P1",
+      "cursor_substitute": false
+    },
+    {
+      "task_type": "orchestration",
+      "tier": "lite",
+      "agent": "cursor",
+      "model": "composer",
+      "priority": "P2",
+      "cursor_substitute": true,
+      "notes": "manifest/handoff/配额账本"
+    },
+    {
+      "task_type": "merge_gate",
+      "tier": "lite",
+      "agent": "cursor",
+      "model": "composer",
+      "priority": "P2",
+      "cursor_substitute": true
+    },
+    {
+      "task_type": "pm_docs",
+      "tier": "lite",
+      "agent": "cursor",
+      "model": "composer",
+      "priority": "P2",
+      "cursor_substitute": true
+    },
+    {
+      "task_type": "verify_l0_l1",
+      "tier": "lite",
+      "agent": "hermes",
+      "model": "scripts",
+      "priority": "P1",
+      "cursor_substitute": false
+    }
+  ],
+  "burst_pairs": [
+    {
+      "name": "design_parallel_impl",
+      "claude_task": "design",
+      "codex_task": "implement",
+      "when": "claude layer_s_a available AND codex layer_a available"
+    }
+  ],
+  "forbidden_substitutions": [
+    { "when": "claude session_limited|paused_quota|auth_error", "do_not": "cursor design/review", "do": "pendingResume" },
+    { "when": "codex exhausted", "do_not": "claude implement", "do": "paused_quota" }
+  ]
+}

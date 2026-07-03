@@ -18,9 +18,10 @@
 - [x] Key routes HTTP 200 verified
 
 ## Breakpoint
-- **阻塞**: Claude session limit，重置 **2:10 AM PDT**（约 13:30 CST）
-- **待 Claude 恢复**: Wave 1 全量设计包 + Wave 4 实现评审
-- **已交付**: Codex Wave 2 FAIL 审查 + Wave 3 原型补全（home/dict/price/login）
+- **阻塞**: Claude **session_limited**，重置 **2026-07-03 02:10 AM PDT**
+- **自动续跑**: `resume-pending.sh --wave 1`（manifest `pendingResume`）
+- **待 Claude**: Wave 1 全量设计包 + Wave 4 实现评审
+- **已交付**: Codex Wave 2 FAIL + Wave 3 原型补全（8fca35e）
 
 ## Cross-Swap Trace (FORI-044)
 | Wave | Agent | Node | VERDICT / Status |

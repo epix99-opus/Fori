@@ -14,3 +14,4 @@
 {"ts":"2026-07-03T05:41:39Z","agent":"codex","task":"FORI-044-wave3-implement","node":"woot","exit_code":0,"branch":"codex/fori-044-full-prototype","commit":"8fca35e","build":"PASS","command":"codex exec --model gpt-5.5 --yolo"}
 {"ts":"2026-07-03T05:41:39Z","agent":"claude","task":"FORI-044-wave4-impl-review","node":"epix","exit_code":429,"status":"PENDING_CLAUDE","reason":"session limit resets 2:10am PDT","command":"claude -p --max-turns 15"}
 {"ts":"2026-07-03T05:43:49Z","agent":"claude","task":"FORI-044-wave1-design","node":"epix","exit_code":429,"status":"PENDING_CLAUDE","reason":"session limit resets 2:10am America/Los_Angeles","command":"claude -p fori-044-wave1-design.txt --max-turns 30","log":"/tmp/claude-w1.log"}
+{"ts":"2026-07-03T06:15:00Z","agent":"cursor","task":"quota-optimization","node":"epix","exit_code":0,"status":"session_limited_probe","detail":"quota-check exit 1; resume scheduled 02:10 PDT; resume-pending.sh created"}

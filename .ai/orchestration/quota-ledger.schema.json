@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "fori-quota-ledger.schema.json",
+  "title": "Fori Quota Ledger",
+  "type": "object",
+  "required": ["version", "agents"],
+  "properties": {
+    "version": { "type": "integer" },
+    "updatedAt": { "type": "string" },
+    "timezone": { "type": "string" },
+    "agents": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "layer_a": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "enum": [
+                  "available",
+                  "warning",
+                  "exhausted",
+                  "paused_quota",
+                  "session_limited",
+                  "auth_error"
+                ]
+              }
+            }
+          },
+          "layer_s": {
+            "type": "object",
+            "description": "Claude session limit (interactive 5h pool)",
+            "properties": {
+              "session_resets_at": { "type": "string" }
+            }
+          },
+          "layer_b": { "type": "object" }
+        }
+      }
+    },
+    "task_queue": { "type": "array" },
+    "entries": { "type": "array" }
+  }
+}

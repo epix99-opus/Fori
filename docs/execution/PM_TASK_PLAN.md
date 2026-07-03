@@ -56,17 +56,39 @@
 
 ## 4. 配额感知派发日历
 
-**Layer A 窗口**: 5h 滚动 · Claude 45 msg · Codex 300 min
+> **v3 三层模型** · 详见 `docs/execution/QUOTA_OPTIMIZATION_STUDY.md` · `MODEL_ROUTING_MATRIX.json`
 
-| 时段 (PDT) | Agent | 任务类型 | 备注 |
-|------------|-------|----------|------|
-| 09:00–14:00 | Codex woot | 实现/测试 | 主节点 |
-| 14:00–19:00 | Claude epix | 设计/ADR | ✅ Keychain auth |
-| 19:00–22:30 | Cursor | 合并/评审后备 | 不限额 |
-| 22:30 重置 | Claude | 日配额刷新 | |
-| 00:29 重置 | Codex | 日配额刷新 | |
+**Layer S/A/B**: Session 5h · 消息/分钟 5h 滚动 · 日硬地板
 
-**门控**: 每次派发前 `quota-check.sh`；Claude auth 见 AUTH_PERSISTENCE.md。
+| 时段 (PDT) | Agent | 任务类型 | 模型 tier | 备注 |
+|------------|-------|----------|-----------|------|
+| 02:10+ | Claude epix | FORI-044 W1 设计 | blade | `resume-pending.sh --wave 1` |
+| 09:00–14:00 | Codex woot | 实现/测试 | blade/mini | 主节点 |
+| 14:00–19:00 | Claude epix | 设计/ADR | blade | burst ∥ Codex |
+| 19:00–22:30 | Cursor | 合并/编排 | lite | 不替代 Claude 设计 |
+| 22:30 重置 | Claude | Layer B 刷新 | — | |
+| 00:29 重置 | Codex | Layer B 刷新 | — | |
+
+**门控**: `quota-check.sh`；续跑 `resume-pending.sh`；Claude auth 见 `AUTH_PERSISTENCE.md`。
+
+---
+
+## 4b. FORI-044 余量任务分配
+
+| Wave | 任务 | Agent | 模型 | 状态 | 续跑 |
+|------|------|-------|------|------|------|
+| W1 | 全量设计包 | Claude | blade · max_turns 30 | **session_limited** | 2026-07-03 02:10 PDT |
+| W2 | 设计评审 | Codex | gpt-5.4-mini | FAIL (ee16b87) | W1 后可选重做 |
+| W3 | 原型补全 | Codex | gpt-5.5 | ✅ merged (8fca35e) | — |
+| W4 | 实现评审 | Claude | blade · max_turns 15 | queued | W1 后 `resume-pending --wave 4` |
+
+## 4c. FORI-045+ 预告
+
+| ID | 任务 | Agent | 模型 tier | 依赖 |
+|----|------|-------|-----------|------|
+| FORI-045 | Agent 契约 API 端点 | Codex | gpt-5.5 | FORI-044 W1 |
+| FORI-046 | 单测验证 | Hermes + Codex | mini | FORI-045 |
+| FORI-047 | 字典 API Wave2 设计 | Claude | blade | Human Gate |
 
 ---
 
@@ -103,11 +125,11 @@
 
 ## 6. 下一步行动
 
-1. **Human**: 预览 `prototype` → `/price`、`/price/community-001`、`/price/community-004`（D-tier）
-2. **Codex**: FORI-044 定价 Agent 契约 + FORI-043 API 端点（woot）
-3. **Claude**: FORI-044 设计（epix）
+1. **自动续跑**: `resume-pending.sh --wave 1` @ 2026-07-03 02:10 PDT（Cursor/Hermes cron）
+2. **Human**: 预览 `prototype` 关键路由
+3. **Codex**: FORI-045 API 端点（woot，gpt-5.5）— 待 W1 设计包
 4. **Hermes**: FORI-046 单测验证
 
 ---
 
-*PM 计划 · 2026-07-02*
+*PM 计划 · 2026-07-03 · 配额优化 v3*
