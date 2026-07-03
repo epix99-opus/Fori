@@ -61,12 +61,38 @@
 |--------|-------|------|------|
 | FORI-044-R1 设计包评审 | Codex | gpt-5.4-mini | 待派发（Wave 1 PASS 后）|
 
+### Wave 2.5 — Wave 3 启动门控（HARD GATE）
+
+**以下条件须全部满足，方可派发 Wave 3：**
+
+| 验收条件 | Owner | 状态 |
+|---------|-------|------|
+| 设计包路由覆盖：全部 36+ 条原型路由均有 §3 UI 规格（含 §3.26–§3.30 新增 5 条）| Claude | ✅ 本次修订完成 |
+| 每条规格页面须包含：可见内容 / 空状态 / 错误状态 / 角色门控 / Agent FAB（yes/no）| Claude | ✅ 本次修订完成 |
+| §8.4 收益结算 IA 决策明确（无 TBD，无歧义）| Claude | ✅ 本次修订完成（内嵌卡片方案）|
+| `/profile/transactions/[txId]` 与 `/transaction/[id]` 别名关系已在设计包中显式说明 | Claude | ✅ 本次修订完成 |
+| `cd prototype && npm run build` PASS，0 TypeScript 错误 | Cursor/Codex | 待确认 |
+| Human 预览关键路由通过：`/home` `/explore/dict/community-001` `/price/community-001` `/match` `/transaction/tx-001` `/auth/login` | Human | 待 |
+
+**门控当前状态**：🔒 BLOCKED — 等待 prototype build 确认 + Human 预览
+
+**未覆盖路由明确任务**（Wave 3 必须实现，不得遗漏）：
+
+| 路由 | 任务描述 | Owner | 设计规格 |
+|------|---------|-------|---------|
+| `/` | 启动页 + 三步引导 onboarding | Codex | §3.26 |
+| `/profile` | 个人中心（含收益结算内嵌卡）| Codex | §3.27 + §8.4 |
+| `/profile/settings` | 设置（通知/隐私/账号/外观）| Codex | §3.28 |
+| `/workspace/agent/listings` | 经纪人房源管理 | Codex | §3.29 |
+| `/workspace/agent/stats` | 成交统计与转化漏斗 | Codex | §3.30 |
+
 ### Wave 3 — 原型补全实现（Codex woot）
 
 | 子任务 | Owner | 依赖 | 状态 |
 |--------|-------|------|------|
-| 落实 FORI-044 handoff 指定 UI | Codex | FORI-044 W1 | 待派发 |
-| 目标：build PASS + 关键路由内容完整 | Codex | — | 待 |
+| 落实 FORI-044 handoff 指定 UI（含 §3.26–§3.30 新增路由）| Codex | Wave 2.5 Gate ✅ | 待派发 |
+| 目标：build PASS + 全部路由内容完整（包含空/错误状态）| Codex | — | 待 |
+| 收益结算内嵌卡片实现（BottomSheet，§8.4）| Codex | §3.27 | 待 |
 
 ### Wave 4 — 实现评审（Claude epix）
 
