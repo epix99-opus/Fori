@@ -2,8 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import type { EChartsOption } from "echarts";
 import {
+  AlertTriangle,
   ArrowLeft,
   Building2,
   ChevronDown,
@@ -22,65 +24,31 @@ import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
 import { Skeleton } from "@/components/Skeleton";
 import { Toast } from "@/components/Toast";
-import { mockListings } from "@/lib/mock";
 import { cn } from "@/lib/utils";
+import {
+  evaluatePrice,
+  getCommunities,
+  getTrend,
+  type AgentRoleView,
+  type BuyerRoleView,
+  type CommunityListItem,
+  type ConfidenceLevel,
+  type PriceAssessmentResponse,
+  type PriceFactor,
+  type PriceMode,
+  type PriceViewerRole,
+  type SellerRoleView,
+} from "@/lib/price-data";
 
 type PageState = "loading" | "ready" | "empty" | "error";
-type QualityTier = "A" | "B" | "C" | "D";
-type PriceViewerRole = "buyer" | "seller" | "agent";
+type FactorDisplay = PriceFactor & { amount: number };
 
-type CommunityOption = {
-  id: string;
-  name: string;
-  district: string;
-  zone: string;
-  tier: QualityTier;
-  referenceRange: [number, number];
-};
-
-type PriceFactor = {
-  label: string;
-  percent: number;
-  amount: number;
-  reason: string;
-};
-
-type TrendPoint = {
-  month: string;
-  currentTier: number;
-  compareTier: number;
-};
-
-const communities: CommunityOption[] = [
-  { id: "community-001", name: "中关村小区", district: "海淀", zone: "中关村北区", tier: "B", referenceRange: [32000, 38000] },
-  { id: "community-002", name: "知春里", district: "海淀", zone: "知春路", tier: "C", referenceRange: [28500, 33000] },
-  { id: "community-003", name: "万柳书院", district: "海淀", zone: "万柳", tier: "A", referenceRange: [61000, 72000] },
-  { id: "community-004", name: "学院南路 32 号院", district: "海淀", zone: "学院路", tier: "D", referenceRange: [23000, 27000] },
-];
-
-const tierCopy: Record<QualityTier, { title: string; description: string; tone: string }> = {
+const tierCopy: Record<CommunityListItem["tier"], { title: string; description: string; tone: string }> = {
   A: { title: "A 高品质圈层", description: "高流动性、稀缺学区或改善盘，议价空间较小。", tone: "bg-primary-900 text-white" },
   B: { title: "B 中端圈层", description: "成交样本稳定，价格锚点清晰，适合科学定价。", tone: "bg-primary-500 text-white" },
   C: { title: "C 刚需圈层", description: "关注总价和通勤，价格对户型与楼层更敏感。", tone: "bg-secondary-200 text-secondary-600" },
   D: { title: "D 基础圈层", description: "样本较少，需扩大周期并提高风险提示权重。", tone: "bg-neutral-200 text-neutral-700" },
 };
-
-const factors: PriceFactor[] = [
-  { label: "楼层修正", percent: 3, amount: 1050, reason: "8/18 层位于小高层舒适区，采光与噪音条件优于低楼层。" },
-  { label: "朝向修正", percent: 2, amount: 700, reason: "南北通透在当前小区近 90 天成交样本中溢价明显。" },
-  { label: "装修修正", percent: 8, amount: 2800, reason: "精装可直接入住，降低买方短期装修成本和空置周期。" },
-  { label: "税费修正", percent: -3, amount: -1050, reason: "税费承担方式偏向买家，测算价需回调以匹配真实支付意愿。" },
-  { label: "稀缺度修正", percent: 2, amount: 700, reason: "同户型当前在售少于 5 套，近 30 天咨询热度上升。" },
-];
-
-const trendPoints: TrendPoint[] = [
-  { month: "07", currentTier: 34200, compareTier: 30800 },
-  { month: "09", currentTier: 34800, compareTier: 31100 },
-  { month: "11", currentTier: 35100, compareTier: 31600 },
-  { month: "01", currentTier: 36000, compareTier: 32100 },
-  { month: "03", currentTier: 37100, compareTier: 32600 },
-  { month: "05", currentTier: 38600, compareTier: 33200 },
-];
 
 const marketStats = [
   { label: "近 30 天成交", value: "12 套", note: "同比 +20%" },
@@ -110,29 +78,67 @@ function formatUnitPrice(value: number) {
   return value.toLocaleString("zh-CN");
 }
 
+function formatWan(value: number) {
+  return `${Math.round(value / 10000)} 万`;
+}
+
+function formatDateTime(value: string) {
+  return new Date(value).toLocaleString("zh-CN", {
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function normalizeRole(value: string | null): PriceViewerRole {
+  return value === "seller" || value === "agent" ? value : "buyer";
+}
+
+function normalizeMode(value: string | null): PriceMode {
+  return value === "unit" || value === "manual" ? value : "community";
+}
+
 export default function PriceEvaluationPage({ params }: { params: { communityId: string } }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [status, setStatus] = useState<PageState>("loading");
   const [selectedCommunityId, setSelectedCommunityId] = useState(params.communityId);
   const [communitySheetOpen, setCommunitySheetOpen] = useState(false);
-  const [selectedFactor, setSelectedFactor] = useState<PriceFactor | null>(null);
-  const [priceRole, setPriceRole] = useState<PriceViewerRole>("buyer");
+  const [selectedFactor, setSelectedFactor] = useState<FactorDisplay | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [reportUnlocked, setReportUnlocked] = useState(false);
 
+  const priceRole = normalizeRole(searchParams.get("role"));
+  const mode = normalizeMode(searchParams.get("mode"));
+  const communities = useMemo(() => getCommunities(), []);
+  const community = communities.find((item) => item.id === selectedCommunityId) ?? communities[0];
+  const assessmentData = useMemo(
+    () => evaluatePrice(selectedCommunityId, priceRole, mode),
+    [selectedCommunityId, priceRole, mode],
+  );
+  const trendPoints = useMemo(() => getTrend(selectedCommunityId), [selectedCommunityId]);
+  const factorDisplay = useMemo<FactorDisplay[]>(
+    () =>
+      assessmentData.factors.map((factor) => ({
+        ...factor,
+        amount: Math.round((assessmentData.basePricePerSqm * factor.impactPercent) / 100),
+      })),
+    [assessmentData],
+  );
+
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      setStatus(communities.some((community) => community.id === selectedCommunityId) ? "ready" : "empty");
-    }, 650);
+      setStatus(communities.some((item) => item.id === selectedCommunityId) ? "ready" : "empty");
+    }, 450);
     return () => window.clearTimeout(timer);
-  }, [selectedCommunityId]);
+  }, [communities, selectedCommunityId]);
 
-  const community = communities.find((item) => item.id === selectedCommunityId) ?? communities[0];
-  const listing = mockListings[0];
-  const baseline = community.referenceRange[1] - 3000;
-  const calculated = baseline + factors.reduce((sum, factor) => sum + factor.amount, 0);
-  const unitPrice = Math.round((listing.priceWan * 10000) / listing.areaSqm);
-  const conclusion = calculated > unitPrice ? "该房源挂牌价合理，低于测算价约 3%" : "该房源挂牌价接近测算价，可继续观察议价空间";
+  const conclusion =
+    assessmentData.adjustedPricePerSqm >= assessmentData.basePricePerSqm
+      ? "修正后价格高于基准，需重点解释溢价因子"
+      : "修正后价格低于基准，可继续观察议价空间";
 
   const gaugeOption = useMemo<EChartsOption>(
     () => ({
@@ -145,16 +151,16 @@ export default function PriceEvaluationPage({ params }: { params: { communityId:
           axisLine: { lineStyle: { width: 14, color: [[0.35, "#86EFAC"], [0.75, "#93C5FD"], [1, "#FCA5A5"]] } },
           pointer: { width: 4 },
           detail: { formatter: (value: number) => `¥${formatUnitPrice(Math.round(value))}/㎡`, fontSize: 18, color: "#111827" },
-          data: [{ value: unitPrice, name: "当前挂牌均价" }],
+          data: [{ value: assessmentData.adjustedPricePerSqm, name: "当前测算均价" }],
         },
       ],
     }),
-    [community.referenceRange, unitPrice],
+    [assessmentData.adjustedPricePerSqm, community.referenceRange],
   );
 
   const waterfallOption = useMemo<EChartsOption>(() => {
-    const labels = ["基准价", ...factors.map((factor) => factor.label), "测算价"];
-    const values = [baseline, ...factors.map((factor) => factor.amount), calculated];
+    const labels = ["基准价", ...factorDisplay.map((factor) => factor.name), "测算价"];
+    const values = [assessmentData.basePricePerSqm, ...factorDisplay.map((factor) => factor.amount), assessmentData.adjustedPricePerSqm];
     const helpers = values.reduce<number[]>((acc, value, index) => {
       if (index === 0 || index === values.length - 1) return [...acc, 0];
       const previous = acc[index - 1] + values[index - 1];
@@ -172,25 +178,25 @@ export default function PriceEvaluationPage({ params }: { params: { communityId:
           type: "bar",
           stack: "total",
           data: values,
-          itemStyle: { color: (params) => (Number(params.value) < 0 ? "#EF4444" : "#2563EB") },
+          itemStyle: { color: (chartParams) => (Number(chartParams.value) < 0 ? "#EF4444" : "#2563EB") },
         },
       ],
     };
-  }, [baseline, calculated]);
+  }, [assessmentData.adjustedPricePerSqm, assessmentData.basePricePerSqm, factorDisplay]);
 
   const trendOption = useMemo<EChartsOption>(
     () => ({
       tooltip: { trigger: "axis" },
-      legend: { bottom: 0, data: [`${community.tier} 层级`, "C 层级参考"] },
+      legend: { bottom: 0, data: [`${community.tier} 层级`, "参考层级"] },
       grid: { left: 8, right: 12, top: 18, bottom: 48, containLabel: true },
-      xAxis: { type: "category", boundaryGap: false, data: trendPoints.map((point) => point.month) },
+      xAxis: { type: "category", boundaryGap: false, data: trendPoints.map((point) => point.month.slice(5)) },
       yAxis: { type: "value", axisLabel: { formatter: (value: number) => `${Math.round(value / 1000)}k` } },
       series: [
         { name: `${community.tier} 层级`, type: "line", smooth: true, data: trendPoints.map((point) => point.currentTier), areaStyle: { opacity: 0.08 }, color: "#2563EB" },
-        { name: "C 层级参考", type: "line", smooth: true, data: trendPoints.map((point) => point.compareTier), color: "#D97706" },
+        { name: "参考层级", type: "line", smooth: true, data: trendPoints.map((point) => point.compareTier), color: "#D97706" },
       ],
     }),
-    [community.tier],
+    [community.tier, trendPoints],
   );
 
   function showToast(message: string) {
@@ -203,16 +209,27 @@ export default function PriceEvaluationPage({ params }: { params: { communityId:
     window.setTimeout(() => setStatus("ready"), 500);
   }
 
+  function updateRole(nextRole: PriceViewerRole) {
+    router.replace(`/price/${selectedCommunityId}?mode=${mode}&role=${nextRole}`);
+  }
+
+  function selectCommunity(nextCommunityId: string) {
+    setStatus("loading");
+    setSelectedCommunityId(nextCommunityId);
+    setCommunitySheetOpen(false);
+    router.push(`/price/${nextCommunityId}?mode=${mode}&role=${priceRole}`);
+  }
+
   return (
-    <main className="mobile-shell pb-24">
+    <main className="mobile-shell pb-36">
       <header className="sticky top-0 z-30 border-b border-neutral-200 bg-white/95 px-4 pb-3 pt-3 backdrop-blur">
         <div className="flex items-center justify-between gap-3">
-          <Link href="/home" className="flex size-10 items-center justify-center rounded-xl bg-neutral-100" aria-label="返回">
+          <Link href="/price" className="flex size-10 items-center justify-center rounded-xl bg-neutral-100" aria-label="返回">
             <ArrowLeft className="size-5" />
           </Link>
           <div className="min-w-0 flex-1 text-center">
-            <p className="text-caption text-neutral-500">价格图谱</p>
-            <h1 className="truncate text-h3">{listing.title}</h1>
+            <p className="text-caption text-neutral-500">价格图谱 · {modeLabel(mode)}</p>
+            <h1 className="truncate text-h3">{community.name}</h1>
           </div>
           <button type="button" className="flex size-10 items-center justify-center rounded-xl bg-neutral-100" onClick={() => showToast("分享卡片已生成")}>
             <Share2 className="size-5" />
@@ -270,17 +287,17 @@ export default function PriceEvaluationPage({ params }: { params: { communityId:
                       "rounded-lg px-3 py-2 text-caption font-semibold",
                       priceRole === tab.key ? "bg-primary-700 text-white shadow-sm" : "text-neutral-700",
                     )}
-                    onClick={() => setPriceRole(tab.key)}
+                    onClick={() => updateRole(tab.key)}
                   >
                     {tab.label}
                   </button>
                 ))}
               </div>
-              <RoleInsightBlock role={priceRole} calculated={calculated} unitPrice={unitPrice} community={community} />
+              <RoleInsightBlock assessmentData={assessmentData} />
             </section>
 
             <section className="grid grid-cols-4 gap-2">
-              {(["A", "B", "C", "D"] as QualityTier[]).map((tier) => (
+              {(["A", "B", "C", "D"] as CommunityListItem["tier"][]).map((tier) => (
                 <div key={tier} className={cn("rounded-xl p-3 text-center shadow-card", community.tier === tier ? tierCopy[tier].tone : "bg-white text-neutral-700")}>
                   <p className="text-h3">{tier}</p>
                   <p className="mt-1 text-[11px] leading-4">{tierCopy[tier].title.slice(2)}</p>
@@ -288,17 +305,43 @@ export default function PriceEvaluationPage({ params }: { params: { communityId:
               ))}
             </section>
 
+            <section className="rounded-xl bg-white p-4 shadow-card">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="rounded-full bg-neutral-100 px-3 py-1 text-caption font-semibold text-neutral-700">
+                  {tierCopy[community.tier].title}
+                </span>
+                <ConfidenceBadge confidence={assessmentData.confidence} />
+              </div>
+              <p className="mt-2 text-body-s text-neutral-600">{tierCopy[community.tier].description}</p>
+              <SampleCountNotice sampleCount={assessmentData.sampleCount} />
+            </section>
+
             {community.tier === "D" ? (
               <div className="rounded-xl border border-semantic-warning/40 bg-semantic-warning/10 px-4 py-3 text-body-s text-semantic-warning" role="alert">
-                <p className="font-semibold">样本数量不足，仅作参考</p>
-                <p className="mt-1 text-neutral-700">D 层级成交样本较少，测算结果不建议直接用于出价决策，请扩大周期或结合实地勘察。</p>
+                <div className="flex gap-2">
+                  <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+                  <div>
+                    <p className="font-semibold">样本不足，测算结果仅作参考</p>
+                    <p className="mt-1 text-neutral-700">
+                      D 层级成交样本 {assessmentData.sampleCount} 套，测算结果不建议直接用于出价决策，请扩大成交周期至 12 个月或结合实地勘察。
+                    </p>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="mt-2 px-0 text-semantic-warning"
+                      onClick={() => router.push(`/price?district=${community.district}&tier=C`)}
+                    >
+                      扩大搜索范围
+                    </Button>
+                  </div>
+                </div>
               </div>
             ) : null}
 
-            <ChartCard title="动态价格测算仪表盘" eyebrow={`测算价 ¥${formatUnitPrice(calculated)} 元/㎡ · ${conclusion}`} option={gaugeOption} height={260} />
+            <ChartCard title="动态价格测算仪表盘" eyebrow={`测算价 ¥${formatUnitPrice(assessmentData.adjustedPricePerSqm)} 元/㎡ · ${conclusion}`} option={gaugeOption} height={260} />
 
             <ChartCard title="价格因素拆解瀑布图" eyebrow="基准价、楼层、朝向、装修、税费、稀缺度逐项归因" option={waterfallOption} />
-            <ChartCard title="片区历史价格走势" eyebrow="近 24 个月同层级与参考层级对比" option={trendOption} />
+            <ChartCard title="片区历史价格走势" eyebrow="来自 getTrend() 的近 24 个月同层级与参考层级对比" option={trendOption} />
 
             <section className="grid grid-cols-3 gap-2">
               {marketStats.map((stat) => (
@@ -342,6 +385,9 @@ export default function PriceEvaluationPage({ params }: { params: { communityId:
 
       {status === "ready" ? (
         <div className="safe-bottom fixed inset-x-0 bottom-0 z-30 mx-auto max-w-[430px] border-t border-neutral-200 bg-white p-3">
+          <p className="mb-2 text-center text-caption text-neutral-500">
+            估价有效期至 {formatDateTime(assessmentData.expiresAt)}，超期自动重算
+          </p>
           <div className="flex gap-3">
             <Button variant="secondary" className="flex-1" onClick={() => showToast("已设为挂牌建议价")}>
               <Home className="mr-1 size-4" />
@@ -385,15 +431,13 @@ export default function PriceEvaluationPage({ params }: { params: { communityId:
               key={option.id}
               type="button"
               className="flex w-full items-center justify-between rounded-xl border border-neutral-200 p-3 text-left"
-              onClick={() => {
-                setStatus("loading");
-                setSelectedCommunityId(option.id);
-                setCommunitySheetOpen(false);
-              }}
+              onClick={() => selectCommunity(option.id)}
             >
               <span>
                 <span className="block font-semibold">{option.name}</span>
-                <span className="text-body-s text-neutral-500">{option.zone} · {option.tier} 级 · {formatUnitPrice(option.referenceRange[0])}-{formatUnitPrice(option.referenceRange[1])} 元/㎡</span>
+                <span className="text-body-s text-neutral-500">
+                  {option.zone} · {option.tier} 级 · 样本 {option.sampleCount} 套 · {formatUnitPrice(option.referenceRange[0])}-{formatUnitPrice(option.referenceRange[1])} 元/㎡
+                </span>
               </span>
               <Building2 className="size-5 text-primary-700" />
             </button>
@@ -405,10 +449,10 @@ export default function PriceEvaluationPage({ params }: { params: { communityId:
         </div>
       </BottomSheet>
 
-      <BottomSheet open={Boolean(selectedFactor)} title={selectedFactor?.label} onClose={() => setSelectedFactor(null)}>
+      <BottomSheet open={Boolean(selectedFactor)} title={selectedFactor?.name} onClose={() => setSelectedFactor(null)}>
         {selectedFactor ? (
           <div className="space-y-3">
-            <p className="text-body-s text-neutral-700">{selectedFactor.reason}</p>
+            <p className="text-body-s text-neutral-700">{selectedFactor.explanation}</p>
             <div className="rounded-xl bg-neutral-100 p-3 text-body-s">
               影响权重：<span className={selectedFactor.amount >= 0 ? "text-semantic-success" : "text-semantic-danger"}>
                 {selectedFactor.amount >= 0 ? "+" : ""}{formatUnitPrice(selectedFactor.amount)} 元/㎡
@@ -420,52 +464,65 @@ export default function PriceEvaluationPage({ params }: { params: { communityId:
 
       {toast ? <Toast title={toast} /> : null}
       <AgentAssistFab
-        pageContext="价格图谱三角色评估"
-        suggestedPrompts={["用当前角色解释价格区间", "生成一段议价话术", "列出这个小区的价格风险"]}
+        pageContext={`价格图谱三角色评估 · ${roleLabel(priceRole)}`}
+        suggestedPrompts={getSuggestedPrompts(priceRole, assessmentData)}
       />
     </main>
   );
 }
 
-function RoleInsightBlock({
-  role,
-  calculated,
-  unitPrice,
-  community,
-}: {
-  role: PriceViewerRole;
-  calculated: number;
-  unitPrice: number;
-  community: CommunityOption;
-}) {
-  const fairMin = Math.round(calculated * 0.92);
-  const fairMax = Math.round(calculated * 1.04);
+function ConfidenceBadge({ confidence }: { confidence: ConfidenceLevel }) {
+  const copy: Record<ConfidenceLevel, { label: string; className: string }> = {
+    high: { label: "高置信", className: "bg-semantic-success/10 text-semantic-success" },
+    medium: { label: "中置信", className: "bg-secondary-200 text-secondary-600" },
+    low: { label: "低置信 · 仅参考", className: "bg-semantic-warning/10 text-semantic-warning" },
+  };
 
-  if (role === "buyer") {
+  return <span className={cn("rounded-full px-3 py-1 text-caption font-semibold", copy[confidence].className)}>{copy[confidence].label}</span>;
+}
+
+function SampleCountNotice({ sampleCount }: { sampleCount: number }) {
+  if (sampleCount >= 30) return null;
+
+  if (sampleCount < 15) {
+    return <p className="mt-2 text-body-s text-semantic-warning">仅 {sampleCount} 套成交样本，建议扩大周期</p>;
+  }
+
+  return <p className="mt-2 text-body-s text-neutral-500">样本 {sampleCount} 套，参考性中等</p>;
+}
+
+function RoleInsightBlock({ assessmentData }: { assessmentData: PriceAssessmentResponse }) {
+  if (assessmentData.viewerRole === "buyer") {
+    const roleView = assessmentData.roleView as BuyerRoleView;
+
     return (
       <div className="mt-4 space-y-3">
-        <InsightItem label="公允区间" value={`¥${formatUnitPrice(fairMin)}-${formatUnitPrice(fairMax)} 元/㎡`} note="仅展示可用于出价的安全锚点，隐藏卖家底价。" />
-        <InsightItem label="性价比指数" value="82 / 100" note={`当前挂牌均价 ¥${formatUnitPrice(unitPrice)} 元/㎡，低于测算中位。`} />
-        <InsightItem label="议价建议" value="建议出价 295 万 ±5%" note="先用成交周期和税费承担方式作为谈判入口。" />
+        <InsightItem label="公允区间" value={`${formatWan(roleView.fairRangeLow)}-${formatWan(roleView.fairRangeHigh)}`} note="仅展示可用于出价的安全锚点，隐藏卖家底价。" />
+        <InsightItem label="性价比指数" value={`${roleView.valueIndex} / 100`} note={`买家最高预算 ${formatWan(roleView.buyerMaxBudget)} 仅对当前买家可见。`} />
+        <InsightItem label="议价建议" value={roleView.negotiationSuggestion} note="由 roleView 白名单返回，不依赖前端遮罩。" />
       </div>
     );
   }
 
-  if (role === "seller") {
+  if (assessmentData.viewerRole === "seller") {
+    const roleView = assessmentData.roleView as SellerRoleView;
+
     return (
       <div className="mt-4 space-y-3">
-        <InsightItem label="挂牌建议" value="建议挂牌 310-330 万" note="覆盖首轮议价空间，同时避免高于同层级样本过多。" />
-        <InsightItem label="竞品对比" value="同小区在售 3 套" note="两套高楼层报价偏高，一套急售拉低均价。" />
-        <InsightItem label="成交周期预测" value="预计 45-60 天" note="隐藏买家最高预算，仅展示市场侧预期管理。" />
+        <InsightItem label="挂牌建议" value={`${formatWan(roleView.listingAdviceLow)}-${formatWan(roleView.listingAdviceHigh)}`} note={`卖家底价 ${formatWan(roleView.sellerFloorPrice)} 仅对当前卖家可见。`} />
+        <InsightItem label="竞品对比" value={`同小区在售 ${roleView.competitorCount} 套`} note="隐藏买家最高预算，仅展示市场侧预期管理。" />
+        <InsightItem label="成交周期预测" value={`预计 ${roleView.estimatedDaysMin}-${roleView.estimatedDaysMax} 天`} note="用于判断是否需要调整挂牌节奏。" />
       </div>
     );
   }
+
+  const roleView = assessmentData.roleView as AgentRoleView;
 
   return (
     <div className="mt-4 space-y-3">
-      <InsightItem label="完整因子拆解" value="楼层 +3% · 朝向 +2% · 装修 +8% · 税费 -3%" note="可展开下方瀑布图向双方解释价格形成过程。" />
-      <InsightItem label="买卖双方区间" value={`买家 ${formatUnitPrice(fairMin)}-${formatUnitPrice(fairMax)} / 卖家 ${formatUnitPrice(community.referenceRange[0])}-${formatUnitPrice(community.referenceRange[1] + 2000)}`} note="用于判断撮合空间，不直接暴露给单方。" />
-      <InsightItem label="佣金预估" value="约 2.4 万 · 维护链另计" note="按 80% 经纪人服务池和分成模型估算。" />
+      <InsightItem label="买卖双方区间" value={`买家 ${formatWan(roleView.buyerFairRangeLow)}-${formatWan(roleView.buyerFairRangeHigh)} / 卖家 ${formatWan(roleView.sellerListingLow)}-${formatWan(roleView.sellerListingHigh)}`} note="用于判断撮合空间，不返回买家预算或卖家底价。" />
+      <InsightItem label="撮合空间" value={formatWan(roleView.matchingSpread)} note={roleView.matchingSpread >= 0 ? "卖家挂牌低值仍高于买家高值，需要引导预期。" : "双方区间已有重叠，可推进带看和谈判。"} />
+      <InsightItem label="佣金预估" value={`约 ${formatWan(roleView.commissionEstimate)}`} note={roleView.commissionBasis} />
     </div>
   );
 }
@@ -478,4 +535,38 @@ function InsightItem({ label, value, note }: { label: string; value: string; not
       <p className="mt-1 text-caption text-neutral-500">{note}</p>
     </div>
   );
+}
+
+function getSuggestedPrompts(role: PriceViewerRole, assessmentData: PriceAssessmentResponse) {
+  if (role === "seller") {
+    return [
+      "基于当前样本生成挂牌策略",
+      "如果 30 天无带看应该如何调价",
+      "把竞品对比整理成卖家沟通话术",
+    ];
+  }
+
+  if (role === "agent") {
+    return [
+      "计算买卖双方撮合空间",
+      "生成经纪人议价推进步骤",
+      `解释 ${assessmentData.tier} 层级置信度风险`,
+    ];
+  }
+
+  return [
+    "生成一段买家议价话术",
+    "解释这个小区的价格风险",
+    "我应该以哪个价格作为首轮出价",
+  ];
+}
+
+function roleLabel(role: PriceViewerRole) {
+  return role === "seller" ? "卖家" : role === "agent" ? "经纪人" : "买家";
+}
+
+function modeLabel(mode: PriceMode) {
+  if (mode === "unit") return "单套估价";
+  if (mode === "manual") return "手动参数";
+  return "小区均价";
 }
