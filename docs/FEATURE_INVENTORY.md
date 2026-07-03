@@ -26,13 +26,13 @@
 | M1-03 | 卡片/列表清单式呈现 | P0 | 评审项3 | `/explore/dict` + ViewModeToggle | ✅ |
 | M1-04 | 角色差异化字段展示 | P0 | §1.4, 评审项3 | `viewer-role.ts` | ✅ |
 | M1-05 | 保密隔离（单元号/业主/成交史） | P0 | 评审项3 | maskValue | ✅ |
-| M1-06 | SUUMO 式字段分组模板 | P0 | 评审项3 | UI_DESIGN §六 | 📋 spec |
+| M1-06 | SUUMO 式字段分组模板 | P0 | 评审项3 | UI_DESIGN §六 | ✅ spec 已定稿 |
 | M1-07 | 经纪人/门店共建新增修正 | P0 | §1.2.1 | `/explore/dict/*/edit` | ✅ |
-| M1-08 | 多人协同编辑、版本留存 | P1 | §1.2.2 | edit 页版本入口 | ⚠️ UI only |
-| M1-09 | 权责匹配（谁维护谁受益） | P1 | §1.2.3 | CO_CREATION_FISSION | 📋 spec |
+| M1-08 | 多人协同编辑、版本留存 | P1 | §1.2.2 | edit 页版本入口 | ✅ UI mock；API → D4 |
+| M1-09 | 权责匹配（谁维护谁受益） | P1 | §1.2.3 | CO_CREATION_FISSION | ✅ 积分规则已定稿 |
 | M1-10 | 数据公开透明共享 | P0 | §1.3 | dict 浏览 | ✅ |
-| M1-11 | 贡献积分与首建者标签 | P1 | 评审项4 | FORI-087 | queued |
-| M1-12 | 业主/买家纠错维护入口 | P1 | 评审项4 | dict detail | queued |
+| M1-11 | 贡献积分与首建者标签 | P1 | 评审项4 | FORI-087 | R2 实现 |
+| M1-12 | 业主/买家纠错维护入口 | P1 | 评审项4 | dict detail | R2 实现 |
 
 ---
 
@@ -43,11 +43,11 @@
 | M2-01 | 房源信息智能甄别 | P0 | `/publish/listing` | ✅ |
 | M2-02 | 卖方信息甄别 | P0 | `/auth/kyc` | ✅ |
 | M2-03 | 买家需求甄别 | P0 | `/publish/buyer-need` | ✅ |
-| M2-04 | 合规脱敏永久流存 | P1 | backend | D4 |
-| M2-05 | 优先推荐给维护经纪人 | P1 | `/match`, `/workspace/agent/matches` | ⚠️ |
-| M2-06 | 4 小时响应窗口 | P1 | PRICING_MATCHING | FORI-091 |
-| M2-07 | 撮合状态机（意向→带看→签约） | P1 | `/match` | FORI-091 |
-| M2-08 | 客源 P1/P2/P3 分级推送 | P1 | workspace | ⚠️ |
+| M2-04 | 合规脱敏永久流存 | P1 | backend | out-of-scope 原型；D4 API |
+| M2-05 | 优先推荐给维护经纪人 | P1 | `/match`, `/workspace/agent/matches` | ✅ UI mock |
+| M2-06 | 4 小时响应窗口 | P1 | PRICING_MATCHING | R2 FORI-091 |
+| M2-07 | 撮合状态机（意向→带看→签约） | P1 | `/match` | R2 FORI-091 |
+| M2-08 | 客源 P1/P2/P3 分级推送 | P1 | workspace | ✅ UI mock |
 
 ---
 
@@ -62,9 +62,9 @@
 | M3-05 | 交易合同公证存证 | P1 | `/profile/transactions/*/evidence` | ✅ |
 | M3-06 | 争议兜底数据留存 | P2 | evidence | ✅ |
 | M3-07 | 官方网签/过户对接 | P2 | transaction flow | UI mock |
-| M3-08 | 四方共赢分成模型 | P1 | CO_CREATION + transaction | FORI-088 |
+| M3-08 | 四方共赢分成模型 | P1 | CO_CREATION + transaction | R2 FORI-088 |
 | M3-09 | 登录分级可见矩阵 | P0 | `/auth/login` | ✅ |
-| M3-10 | 付费增值服务 | P1 | UI_DESIGN §七 | queued |
+| M3-10 | 付费增值服务 | P1 | UI_DESIGN §七 | R2 付费墙 UI |
 
 ---
 
@@ -77,7 +77,7 @@
 | M4-03 | 图文素材自动生成 | P1 | media/generate | ✅ |
 | M4-04 | 文案素材自动生成 | P1 | media/generate | ✅ |
 | M4-05 | 房东/经纪人个性化推广 | P1 | media/manage | ✅ |
-| M4-06 | 推广数据跟踪 | P2 | stats | ⚠️ |
+| M4-06 | 推广数据跟踪 | P2 | stats | out-of-scope 原型 |
 
 ---
 
@@ -91,10 +91,10 @@
 | M5-04 | 个体变量修正（楼层/朝向/装修） | P1 | price detail | ✅ |
 | M5-05 | 可视化价格图谱 | P0 | ChartCard | ✅ |
 | M5-06 | D 层级置信度警示 | P0 | price warning bar | ✅ |
-| M5-07 | 买家视角输出块 | P1 | FORI-090 | queued |
-| M5-08 | 卖家视角输出块 | P1 | FORI-090 | queued |
-| M5-09 | 经纪人视角输出块 | P1 | FORI-090 | queued |
-| M5-10 | 撮合定价建议 | P1 | PRICING_MATCHING | queued |
+| M5-07 | 买家视角输出块 | P1 | FORI-090 | R2 实现 |
+| M5-08 | 卖家视角输出块 | P1 | FORI-090 | R2 实现 |
+| M5-09 | 经纪人视角输出块 | P1 | FORI-090 | R2 实现 |
+| M5-10 | 撮合定价建议 | P1 | PRICING_MATCHING | R2 FORI-091 |
 
 ---
 
@@ -104,14 +104,14 @@
 |----|--------|------|----------|------|
 | M6-01 | OpenClaw 主框架 | P0 | ARCHITECTURE | ✅ doc |
 | M6-02 | 三层解耦架构 | P0 | ADR | ✅ |
-| M6-03 | 楼盘字典共建 Agent | P1 | AGENT_PAGE_CONTRACTS | 📋 |
-| M6-04 | 甄别流存匹配 Agent | P1 | AGENT_PAGE_CONTRACTS | 📋 |
-| M6-05 | 信用公证 Agent | P1 | AGENT_PAGE_CONTRACTS | 📋 |
-| M6-06 | 合规交易分成 Agent | P1 | AGENT_PAGE_CONTRACTS | 📋 |
-| M6-07 | 自媒体素材 Agent | P1 | AGENT_PAGE_CONTRACTS | 📋 |
-| M6-08 | 价格评估 Agent | P1 | AGENT_PAGE_CONTRACTS | 📋 |
-| M6-09 | 全站 Agent 助手入口 | P1 | AgentAssistFab | partial |
-| M6-10 | 语音/文字/拍摄三模态 | P1 | FORI-093 | queued |
+| M6-03 | 楼盘字典共建 Agent | P1 | AGENT_PAGE_CONTRACTS | ✅ 契约已定稿 |
+| M6-04 | 甄别流存匹配 Agent | P1 | AGENT_PAGE_CONTRACTS | ✅ 契约已定稿 |
+| M6-05 | 信用公证 Agent | P1 | AGENT_PAGE_CONTRACTS | ✅ 契约已定稿 |
+| M6-06 | 合规交易分成 Agent | P1 | AGENT_PAGE_CONTRACTS | ✅ 契约已定稿 |
+| M6-07 | 自媒体素材 Agent | P1 | AGENT_PAGE_CONTRACTS | ✅ 契约已定稿 |
+| M6-08 | 价格评估 Agent | P1 | AGENT_PAGE_CONTRACTS | ✅ 契约已定稿 |
+| M6-09 | 全站 Agent 助手入口 | P1 | AgentAssistFab | R2 FORI-093 铺开 |
+| M6-10 | 语音/文字/拍摄三模态 | P1 | FORI-093 | R2 UI mock |
 | M6-11 | Hermes 兜底切换 | P2 | ARCHITECTURE | ✅ doc |
 | M6-12 | 高并发运维方案 | P2 | PRD §4 | ✅ doc |
 

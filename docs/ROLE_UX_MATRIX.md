@@ -94,6 +94,22 @@
 
 ---
 
+## 公证合规第三方机构（notary）— API-only，无独立 UI
+
+> PRD §2.5：公证机构为外部服务对象，不提供 C 端页面；通过标准化 API 对接。
+
+| # | API 端点（草案） | 输入 | 输出 | 权限 | 错误回退 |
+|---|-----------------|------|------|------|---------|
+| N01 | `POST /api/v1/notary/verify-request` | 交易ID、三方关系、房源摘要 | `requestId`、受理状态 | 平台签名 + 公证机构证书 | 400 参数缺失；503 机构不可用→排队 |
+| N02 | `GET /api/v1/notary/verify-result/{requestId}` | requestId | 通过/驳回、背书编号、时间戳 | 交易参与方只读 | 404 未找到；202 处理中 |
+| N03 | `POST /api/v1/notary/deposit` | 合同哈希、签署方、交易ID | 存证编号、区块链锚点（可选） | 平台 + 公证机构双签 | 409 重复存证 |
+| N04 | `GET /api/v1/notary/evidence/{txId}/export` | 交易ID、格式(pdf/json) | 公证书文件流 | 交易双方 + 经纪人 + 公证机构 | 403 无权；451 涉敏拒绝 |
+| N05 | `POST /api/v1/notary/webhook` | 机构异步回调 | 200 ACK | IP 白名单 + HMAC | 重试 3 次指数退避 |
+
+**UI 映射**：用户通过 `/profile/transactions/*/evidence` 查看存证结果；后台调用 N02/N04，不暴露 API 给终端用户。
+
+---
+
 ## 交叉角色：改善型用户（buyer + seller）
 
 - 首页展示「先卖后买」联动卡片
