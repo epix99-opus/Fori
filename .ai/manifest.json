@@ -8,26 +8,31 @@
     "phase": "D3-R3-complete-D4-wave1-ready"
   },
   "currentTask": {
+    "id": "FORI-043-design-in-progress",
+    "title": "D4 Wave1 在地分层定价模块完整设计",
+    "status": "design_complete_pending_review",
+    "owner": "claude",
+    "branch": "claude/fori-043-pricing-design",
+    "updatedAt": "2026-07-02T21:00:00-07:00",
+    "artifacts": [
+      "docs/execution/FORI-043_DESIGN.md",
+      "docs/execution/TECHNICAL_SOLUTION.md",
+      "docs/execution/PM_TASK_PLAN.md"
+    ],
+    "nextStep": "FORI-043 Review — 换会话，Hermes 或 Cursor 评审 FORI-043_DESIGN.md"
+  },
+  "previousTask": {
     "id": "FORI-060-INTEGRATION",
     "title": "Round2+R3 集成合并 + 交付物",
     "status": "completed",
     "owner": "cursor",
     "branch": "cursor/fori-060-integration",
-    "updatedAt": "2026-07-02T20:35:00-07:00",
-    "artifacts": [
-      "docs/execution/MERGE_INTEGRATION_20250702.md",
-      "docs/execution/ROUND2_R3_MERGED.md",
-      "docs/execution/TECHNICAL_SOLUTION.md",
-      "docs/execution/PM_TASK_PLAN.md",
-      "docs/CANON.md",
-      ".ai/orchestration/AUTH_PERSISTENCE.md"
-    ]
+    "updatedAt": "2026-07-02T20:35:00-07:00"
   },
   "nextTask": {
-    "id": "FORI-043",
-    "title": "D4 Wave1 定价 API",
-    "owner": "codex",
-    "branch": "codex/fori-043-pricing-api",
+    "id": "FORI-043-review",
+    "title": "D4 Wave1 定价设计评审",
+    "owner": "hermes",
     "blockedBy": null,
     "parallel": ["FORI-095"]
   },

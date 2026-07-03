@@ -12,7 +12,7 @@
 | 人类评审 R2 交叉换位 | ✅ | ROUND2_R1/R2_MERGED |
 | R3 Minor 清零 | ✅ PASS | ROUND2_R3_MERGED |
 | 集成合并 | ✅ | `cursor/fori-060-integration` |
-| D4 Wave1 定价 API | ⏳ | FORI-043~045 |
+| D4 Wave1 定价 API | 🔄 **进行中** | FORI-043 设计完成，待评审 |
 | Human 原型复审 | 待 | `/home` 演示 |
 
 ---
@@ -47,7 +47,8 @@
 | 07-02 ✅ | R1 | Claude/Cursor | Codex | 设计包 |
 | 07-02 ✅ | R2 | Codex | Claude/Cursor | 实现 |
 | 07-02 ✅ | R3 | Claude/Cursor | Cursor | 纠错+付费墙 |
-| 07-03~05 | D4-W1a | Claude | Codex | FORI-043 定价 API 设计 |
+| 07-02~03 | D4-W1 FORI-043 | Claude | Hermes/Cursor | 定价 API 设计（本文档）→ 待评审 |
+| 07-03~05 | D4-W1a | Hermes/Cursor | Claude | FORI-043 设计评审 |
 | 07-06~08 | D4-W1b | Codex | Claude | FORI-044/045 实现 |
 | 07-09~12 | D4-W2 | Claude | Codex | 字典 API Wave2 |
 
@@ -69,7 +70,23 @@
 
 ---
 
-## 5. 协作 vs 单 Agent 证明
+## 5. D4 Wave 1 Agent Attribution（FORI-043~046）
+
+| 任务 | 阶段 | Claude (epix) | Codex (woot) | SHA |
+|------|------|:-------------:|:------------:|-----|
+| FORI-043 | Design | ✅ 设计者 | — | 待填（commit SHA） |
+| FORI-043 | Review | — | ✅ 评审者 | 待填 |
+| FORI-044 | Design | ✅ 设计者 | — | 待填 |
+| FORI-044 | Review | — | ✅ 评审者 | 待填 |
+| FORI-045 | Execute | — | ✅ 实现者 | 待填 |
+| FORI-045 | Review | ✅ 评审者 | — | 待填 |
+| FORI-046 | Verify | Hermes | Hermes | 待填 |
+
+> SHA 列在对应任务 commit 后由 Hermes 回填，格式：`git log --oneline -1 <branch>`
+
+---
+
+## 5b. 协作 vs 单 Agent 证明（历史）
 
 | 维度 | 多 Agent（本 Sprint） | 单 Cursor |
 |------|----------------------|-----------|
