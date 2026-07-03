@@ -78,7 +78,7 @@
 | 设计评审 | **Codex** | woot | `codex exec review --model gpt-5.4-mini --yolo` | `codex/fori-043-design-review` | `5cc4411` | CONDITIONAL_PASS | 0 |
 | 原型实现 | **Codex** | woot | `codex exec impl --model gpt-5.5 --yolo` | `codex/fori-043-prototype-impl` | `c7415a5` | — | 0 |
 | 实现评审 | **Claude** | epix | `claude -p FORI-043-impl-review --max-turns 15` | `claude/fori-043-impl-review` | `8f1133b` | CONDITIONAL_PASS | 0 |
-| 集成合并 | **Cursor** | epix | merge 4 branches + build | `cursor/fori-043-integration` | 待填 | build PASS | 0 |
+| 集成合并 | **Cursor** | epix | merge 4 branches + build | `cursor/fori-043-integration` | `723db79` | build PASS | 0 |
 
 **派发日志**: `.ai/orchestration/dispatch-log.jsonl`（4 条 claude/codex 真实 invocation）
 
