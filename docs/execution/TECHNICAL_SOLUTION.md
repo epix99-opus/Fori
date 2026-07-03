@@ -1,6 +1,7 @@
 # Fori 技术方案（执行摘要）
 
-> **版本**: 1.0 · 2026-07-02  
+> **版本**: 1.1 · 2026-07-02  
+> **变更**: §4 定价 API 契约对齐 FORI-043_DESIGN；§5 补充 price-eval Agent 细节  
 > **受众**: 开发、编排、Human 审阅  
 > **详细架构**: 见 [ADR-009](../adr/ADR-009-prototype-to-production-migration.md)（不重复全文）
 
@@ -69,35 +70,76 @@ Turbo + npm workspaces；详见 `docs/execution/REPO_LAYOUT.md`。
 
 ## 4. Wave 1 API 契约 — 定价模块
 
+> **SSOT**: `docs/execution/FORI-043_DESIGN.md §3`（完整 schema 在此，本节仅摘要）
+
 ### 4.1 `GET /api/v1/price/evaluate`
 
-**Query**: `community_id`, `area_sqm`, `floor`, `orientation`
+**Query 必填**: `community_id: string`, `viewer_role: "buyer"|"seller"|"agent"`  
+**Query 可选**: `area_sqm`, `floor`, `total_floors`, `orientation`, `renovation`, `ownership_years`, `tax_bearer`
 
-**Response 200**:
+**Response 200 摘要**:
 ```json
 {
-  "community_id": "community-001",
-  "tier": "B",
-  "unit_price_cny": 68500,
-  "calculated_total_cny": 2950000,
-  "factors": [{"label": "楼层", "percent": 3, "amount_cny": 12000}],
-  "confidence": "high",
-  "viewer_role": "buyer"
+  "success": true,
+  "data": {
+    "communityId": "community-001",
+    "unitId": null,
+    "tier": "B",
+    "basePricePerSqm": 35000,
+    "adjustedPricePerSqm": 38500,
+    "totalRange": { "low": 3311000, "mid": 3580500, "high": 3773200 },
+    "factors": [
+      { "name": "楼层修正", "impactPercent": 3.0, "explanation": "8/18 层位于舒适区" }
+    ],
+    "confidence": "medium",
+    "sampleCount": 23,
+    "generatedAt": "2026-07-02T10:00:00Z",
+    "expiresAt": "2026-07-03T10:00:00Z",
+    "viewerRole": "buyer",
+    "roleView": { "fairRangeLow": 3152000, "fairRangeHigh": 3723200, "valueIndex": 82,
+                  "negotiationSuggestion": "建议出价 295 万 ±5%", "hiddenFields": ["sellerFloorPrice"] }
+  }
 }
 ```
 
+字段名遵循 `camelCase`，与 `PRICING_MATCHING.md PriceAssessment` interface 对齐。  
+缓存：Redis key `price:eval:{community_id}:{hash(params)}`, TTL 24h，按 `viewer_role` 独立缓存。
+
 ### 4.2 `GET /api/v1/price/communities/{id}/trend`
 
-**Response**: 24 个月 `{month, tier_price, compare_price}[]`
+**Query 可选**: `months: integer`（默认 24，最大 60），`compare_tier: "A"|"B"|"C"|"D"`
+
+**Response 200 摘要**:
+```json
+{
+  "success": true,
+  "data": {
+    "communityId": "community-001",
+    "tier": "B",
+    "trendDirection": "up",
+    "changePercent3m": 4.1,
+    "changePercent12m": 11.8,
+    "points": [{ "month": "2024-07", "tierPrice": 34200, "comparePrice": 30800 }]
+  }
+}
+```
 
 ### 4.3 `POST /api/v1/price/reports`
 
-**Body**: `{community_id, viewer_role, payment_ref?}`  
-**Response**: `{report_id, pdf_url, unlocked: true}` — 付费墙 ¥29 对接点
+**Body**: `{ communityId, viewerRole, areaSqm?, unitId?, paymentRef }` — paymentRef Wave 1 可传 `"mock-payment"`  
+**Response 200**: `{ success: true, data: { reportId, pdfUrl, unlocked: true, generatedAt, expiresAt, priceWan: 29 } }`  
+**Error 402**: `{ success: false, error: "payment required", data: { amountFen: 2900 } }`
 
-### 4.4 Agent 契约
+### 4.4 `GET /api/v1/price/communities`
 
-`services/agents/price-eval/` 实现 `PriceEvalAgent.evaluate(context) → PriceResult`；OpenClaw adapter 见 `apps/api/adapters/openclaw.py`。
+**Query 可选**: `city`, `district`, `tier`, `keyword`, `page`（默认 1），`limit`（默认 20，最大 100）
+
+**Response 200**: 分页小区列表，每条含 `id, name, district, zone, tier, tierConfidence, refPriceLow, refPriceHigh, sampleCount`
+
+### 4.5 统一错误格式
+
+所有端点遵循 `{ "success": false, "error": "<message>", "data": null }` 格式。  
+HTTP 状态码：400 参数错误、402 付费墙、404 资源不存在、422 验证失败、500 内部错误。
 
 ---
 
@@ -106,12 +148,37 @@ Turbo + npm workspaces；详见 `docs/execution/REPO_LAYOUT.md`。
 | 页面 | Agent 能力 | 契约 |
 |------|-----------|------|
 | 全站 FAB | 语音/文字/拍摄三模态 | `docs/AGENT_PAGE_CONTRACTS.md` |
-| `/price/*` | 估价解释、报告生成 | price-eval |
+| `/price/*` | 估价解释、报告生成 | price-eval（见下方详情） |
 | `/match` | 撮合建议、4h 窗口 | listing-match |
 | `/explore/dict/*` | 字典共建、纠错审核 | property-dict |
 | `/transaction/*` | 分成核算 | trade-settlement |
 
-原型阶段：`AgentAssistFab` UI Mock；Wave 1 起接 OpenClaw SSE。
+### 5.1 price-eval Agent 详情（Wave 1 核心）
+
+> **SSOT**: `docs/execution/FORI-043_DESIGN.md §6`
+
+**位置**: `services/agents/price-eval/`  
+**框架**: OpenClaw（主）+ Hermes（兜底）
+
+**输入**: `PriceEvalContext`（`community_id`, `viewer_role`, 可选个体参数）  
+**输出**: `PriceResult`（含 `adjusted_price_per_sqm`, `factors[]`, `confidence`, `role_view`）  
+**适配层**: `apps/api/adapters/openclaw.py` — 将 Agent 输出转为 SSE 流 + REST 响应
+
+**SSE 端点**: `GET /api/v1/price/evaluate/stream`（Content-Type: text/event-stream）
+
+**五个 SSE 事件**:
+
+| 事件 | 触发时机 |
+|------|---------|
+| `price:eval:start` | Agent 开始计算 |
+| `price:eval:data_fetched` | 成交样本获取完成（含 sampleCount） |
+| `price:eval:factor` | 单个因子计算完成（实时进度） |
+| `price:eval:complete` | 估价完成（推送完整 PriceResult） |
+| `price:eval:error` | 计算失败（含错误码和建议） |
+
+**缓存层**: Redis `price:eval:{community_id}:{hash(params)}` TTL 24h，命中时跳过 Agent 调用直接返回
+
+**原型阶段**: `AgentAssistFab` UI Mock；Wave 1 接 OpenClaw SSE，`suggestedPrompts` 按 `viewer_role` 动态生成（见 FORI-043_DESIGN §7.2 E13）。
 
 ---
 
