@@ -137,6 +137,21 @@ export default function AgentWorkspacePage() {
               ))}
             </div>
 
+            <Card header={<SectionTitle icon={Award} title="信用评分与 P1 权益" action="L2 认证" />}>
+              <div className="grid grid-cols-[1fr_auto] gap-3">
+                <div className="rounded-xl bg-primary-100 p-3">
+                  <p className="text-caption font-semibold text-primary-700">经纪人信用评分</p>
+                  <p className="price-nums mt-1 text-h1 text-primary-900">92</p>
+                  <p className="mt-1 text-caption text-neutral-600">L2 审核通过 · 维护楼盘 3 个</p>
+                </div>
+                <Link href="/match" className="flex w-28 flex-col justify-center rounded-xl bg-red-50 p-3 text-center text-red-700">
+                  <span className="text-caption font-semibold">今日 P1</span>
+                  <span className="price-nums text-h2">2</span>
+                  <span className="text-[11px] leading-4">需响应</span>
+                </Link>
+              </div>
+            </Card>
+
             <Card header={<SectionTitle icon={Briefcase} title="快捷入口" action="全部功能" />}>
               <div className="grid grid-cols-4 gap-3">
                 <QuickEntry icon={Users} label="客源" badge="5" href="/workspace/agent/buyers" />
@@ -217,7 +232,7 @@ export default function AgentWorkspacePage() {
       {toast ? <Toast title={toast} /> : null}
       <AgentAssistFab
         pageContext="经纪人工作台"
-        suggestedPrompts={["按优先级整理今天待办", "帮我准备 P1 客源响应话术", "总结本月业绩和下一步动作"]}
+        suggestedPrompts={["今天哪个P1客源最紧急？", "如何提高信用分？"]}
       />
     </main>
   );

@@ -12,30 +12,35 @@ const loginTiers = [
     scope: "小区名、片区、公开图片、建筑年代",
     blocked: "挂牌价、房号、楼层、业主联系方式、成交价",
     action: "浏览公开字典",
+    cta: { label: "立即浏览", href: "/explore/dict" },
   },
   {
     tier: "手机验证",
     scope: "挂牌价、户型面积、小区配套标签",
     blocked: "精确楼层房号、历史成交明细、业主联系方式",
     action: "一般性查询、收藏、预约看房",
+    cta: { label: "立即升级", href: "#phone-login" },
   },
   {
     tier: "实名认证",
     scope: "楼层朝向、估价参考、交易进度（己方）",
     blocked: "其他用户联系方式、经纪人内部分成",
     action: "发布房源/购房需求、确认购买意向",
+    cta: { label: "立即升级", href: "/auth/kyc" },
   },
   {
     tier: "经纪人认证",
     scope: "成交价、维护记录、客源匹配、分成预览",
     blocked: "平台审核后台、原始证件影像",
     action: "共建字典、带看、撮合交易",
+    cta: { label: "立即升级", href: "/profile/agent-cert" },
   },
   {
     tier: "平台工作人员",
     scope: "审核队列、异常交易、字段变更、风控日志",
     blocked: "非任务相关原始证件影像、无授权私聊内容",
     action: "处理审核、纠纷、分成复核",
+    cta: { label: "请联系平台管理员", href: "/messages" },
   },
 ];
 
@@ -53,7 +58,7 @@ export default function LoginPage() {
       <section className="mt-5 space-y-4">
         <Card>
           <div className="space-y-4">
-            <Input label="手机号" placeholder="请输入手机号" defaultValue="138****8201" />
+            <Input id="phone-login" label="手机号" placeholder="请输入手机号" defaultValue="138****8201" />
             <Input label="验证码" placeholder="6 位短信验证码" />
             <Button className="w-full">
               登录 / 注册
@@ -80,6 +85,9 @@ export default function LoginPage() {
                   {item.blocked}
                 </p>
                 <p className="mt-1 text-caption text-primary-700">可执行：{item.action}</p>
+                <Link href={item.cta.href} className="mt-3 inline-flex rounded-lg px-3 py-2 text-caption font-semibold text-primary-700 hover:bg-primary-50">
+                  {item.cta.label}
+                </Link>
               </div>
             ))}
           </div>

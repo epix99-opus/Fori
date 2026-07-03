@@ -180,7 +180,7 @@ export default function MatchPage() {
         ) : null}
 
         {state === "empty" ? (
-          <EmptyState title="暂无匹配客源" description="维护楼盘标签并开启 Push 后，系统会推送高匹配买家需求。" actionLabel="模拟刷新客源" onAction={() => setState("ready")} />
+          <EmptyState title="暂无匹配客源" description="维护更多楼盘字典可获得 P1 客源优先推送" actionLabel="去维护楼盘 →" onAction={() => setState("ready")} />
         ) : null}
 
         {state === "ready" ? (
@@ -228,7 +228,7 @@ export default function MatchPage() {
                 })}
               </div>
               <div className="mt-4 rounded-xl bg-amber-50 p-3 text-body-s text-amber-900">
-                P1 客源响应窗口：剩余 <span className="price-nums font-semibold">{p1Countdown}</span>。低于 30 分钟进入红色提醒，超时自动转分配并扣信用分 5 分。
+                P1 客源响应窗口：剩余 <span className={cn("price-nums font-semibold", isCountdownUrgent(p1Countdown) ? "animate-pulse text-red-600" : "text-neutral-900")}>{p1Countdown}</span>。低于 30 分钟进入红色提醒，超时自动转分配并扣信用分 5 分。
               </div>
             </Card>
 
@@ -313,10 +313,21 @@ function MatchCard({
   const isP1 = lead.demand.priority === "P1";
   const priorityLabel = lead.demand.priority === "normal" ? "P3" : lead.demand.priority;
   const isExpired = lead.status === "expired";
+  const priorityStyle = isP1
+    ? "border-l-4 border-l-red-500 bg-red-50"
+    : lead.demand.priority === "P2"
+      ? "border-l-4 border-l-amber-400 bg-amber-50"
+      : "border-l-4 border-l-neutral-300 bg-neutral-50";
+  const countdownUrgent = isP1 && isCountdownUrgent(p1Countdown);
 
   return (
-    <Card className={cn(isP1 && "border-l-4 border-l-secondary-500", isExpired && "opacity-70 grayscale")}>
+    <Card className={cn(priorityStyle, isExpired && "opacity-70 grayscale")}>
       <div className="space-y-4">
+        {isP1 ? (
+          <p className="text-caption font-semibold text-primary-700">
+            因您维护「{lead.listing.communityName}」获得优先推送
+          </p>
+        ) : null}
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
@@ -348,7 +359,7 @@ function MatchCard({
         </div>
 
         <div className="grid grid-cols-2 gap-2">
-          <InfoPill icon={Clock3} label="剩余响应" value={isExpired ? "已转分配" : p1Countdown} warning={isP1} />
+          <InfoPill icon={Clock3} label="剩余响应" value={isExpired ? "已转分配" : p1Countdown} warning={isP1} urgent={countdownUrgent} />
           <InfoPill icon={ShieldCheck} label="来源" value={lead.source} />
           <InfoPill icon={Home} label="关联房源" value={lead.listing.communityName} />
           <InfoPill icon={UserRoundCheck} label="买家联系" value={lead.status === "accepted" ? lead.buyerPhoneMasked : "接受后解锁"} />
@@ -366,10 +377,10 @@ function MatchCard({
         ) : (
           <div className="grid grid-cols-[1fr_1fr_1.3fr] gap-2">
             <Button variant="ghost" size="sm" onClick={onReject}>拒绝</Button>
-            <Button variant="secondary" size="sm" onClick={onDefer}>暂不处理</Button>
+            <Button variant="secondary" size="sm" onClick={onDefer}>暂缓</Button>
             <Button size="sm" onClick={onAccept}>
               <Sparkles className="size-4" />
-              立即响应
+              接受
             </Button>
           </div>
         )}
@@ -383,11 +394,13 @@ function InfoPill({
   label,
   value,
   warning = false,
+  urgent = false,
 }: {
   icon: typeof Loader2;
   label: string;
   value: string;
   warning?: boolean;
+  urgent?: boolean;
 }) {
   return (
     <div className="rounded-xl bg-neutral-100 p-3">
@@ -395,7 +408,14 @@ function InfoPill({
         <Icon className={cn("size-3.5", warning && "text-semantic-warning")} />
         {label}
       </div>
-      <p className="mt-1 truncate text-body-s font-semibold text-neutral-900">{value}</p>
+      <p className={cn("mt-1 truncate text-body-s font-semibold", urgent ? "animate-pulse text-red-600" : "text-neutral-900")}>{value}</p>
     </div>
   );
+}
+
+function isCountdownUrgent(value: string) {
+  const parts = value.split(":").map(Number);
+  if (parts.length !== 3 || parts.some(Number.isNaN)) return false;
+  const [hours, minutes] = parts;
+  return hours === 0 && minutes < 30;
 }
