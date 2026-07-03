@@ -5,12 +5,12 @@
     "status": "active",
     "github": "epix99-opus/Fori",
     "localPath": "/Users/epix/Dev/Fori",
-    "phase": "D4-fori-044-r2-pipeline-complete-conditional"
+    "phase": "D4-fori-044-p0-fixes-pass"
   },
   "currentTask": {
     "id": "FORI-044",
     "title": "全量原型设计+实现（人类评审 Round2 完整交付）",
-    "status": "impl_review_conditional_pass_p0_gaps",
+    "status": "p0_fixes_pass_human_demo_ready",
     "owner": "multi-agent",
     "branch": "main",
     "updatedAt": "2026-07-03T03:35:00-07:00",
@@ -22,6 +22,7 @@
       "docs/reviews/REVIEW-044-DESIGN-CODEX.md",
       "docs/reviews/REVIEW-044-DESIGN-R2-CODEX.md",
       "docs/reviews/REVIEW-044-IMPL-CLAUDE.md",
+      "docs/reviews/REVIEW-044-P0-FIXES-CLAUDE.md",
       "docs/execution/PROTOTYPE_COMPLETION.md",
       "docs/execution/REVIEW_HUMAN_ROUND2_TASKS.md",
       ".ai/orchestration/scripts/auto-resume-cron.sh",
@@ -33,7 +34,8 @@
       "designRevision": "DONE",
       "designReviewR2": "PASS",
       "wave3PrototypeImplR2": "DONE",
-      "implReview": "CONDITIONAL_PASS"
+      "implReview": "CONDITIONAL_PASS",
+      "p0FixesReview": "PASS"
     },
     "commits": {
       "wave1Design": "caa83da",
@@ -42,15 +44,16 @@
       "wave2DesignReviewR2": "45b0425",
       "wave3PrototypeImpl": "8fca35e",
       "wave3PrototypeImplR2": "72cdabc",
-      "wave4ImplReview": "b2ea9e3"
+      "wave4ImplReview": "b2ea9e3",
+      "p0Fixes": "84725e1",
+      "p0FixesReview": "c3ca96f"
     }
   },
   "nextTask": {
-    "id": "FORI-044-p0-fixes",
-    "title": "Codex 修复 P0：SUUMO 6-Tab + 分成数字 (REVIEW-044-IMPL-CLAUDE RC-1/RC-2)",
+    "id": "FORI-045",
+    "title": "价格 API 真实端点（apps/api）",
     "owner": "codex",
-    "branch": "codex/fori-044-p0-fixes",
-    "blockedBy": "impl_review_conditional_pass"
+    "branch": "codex/fori-045-price-api"
   },
   "humanReviewRound2": {
     "source": ".ai/handoffs/Human/Fori平台原型评审意见.md",
@@ -110,9 +113,12 @@
     "status": "fori-044-design-v1",
     "buildVerified": "2026-07-02 epix PASS 36 routes",
     "previewUrls": [
-      "http://localhost:3000/price",
+      "http://localhost:3000/explore/dict/community-001",
+      "http://localhost:3000/transaction/tx-001",
+      "http://localhost:3000/match",
       "http://localhost:3000/price/community-001",
-      "http://localhost:3000/price/community-004"
+      "http://localhost:3000/auth/login",
+      "http://localhost:3000/home"
     ]
   }
 }

@@ -1,7 +1,7 @@
 # Fori 原型设计完成度清单
 
-> **版本**: 1.3 · 2026-07-03（FORI-044 全量设计包）  
-> **阶段**: D4 Wave 1 设计完成 → Wave 3 实现待派发  
+> **版本**: 1.4 · 2026-07-03（FORI-044 P0 修复 PASS）  
+> **阶段**: D4 Wave 3 实现完成 → P0 修复验证 PASS → 人类演示就绪  
 > **验证命令**: `cd prototype && npm run build`  
 > **设计 SSOT**: `docs/execution/FORI-044_FULL_DESIGN.md`
 
@@ -11,25 +11,24 @@
 |------|------|--------|------|
 | 页面覆盖（36 路由） | ✅ build PASS | 100% | `npm run build` PASS |
 | UI_DESIGN 路由体系 | ✅ TabBar + 规范路由 | 100% | |
-| 六大模块 UI 流程 | ⚠️ 可点击走通，部分细节待补 | 90% | 字典 SUUMO 六 Tab 尚未分区 |
-| 人类评审 R2 必修 | ✅ P0/P1 UI 已铺开；FORI-095 GAP | 96% | |
+| 六大模块 UI 流程 | ✅ 可点击走通，P0 已修复 | 98% | SUUMO 六 Tab + 分成瀑布图对齐规格 |
+| 人类评审 R2 必修 | ✅ P0/P1 UI 已铺开；FORI-095 GAP | 98% | REVIEW-044-P0-FIXES PASS |
 | 人类评审 R3 Minor | ✅ M1-12 纠错 + M3-10 付费墙 | 100% | |
 | 组件库 + ECharts | ✅ ChartCard 真实图表 | 100% | |
 | PWA / SW | ✅ sync + 离线队列 | 100% | |
-| Agent FAB suggestedPrompts | ⚠️ 存在但通用（非页面特定）| 70% | FORI-044 handoff 要求按角色/页面动态 |
+| Agent FAB suggestedPrompts | ⚠️ 存在但部分页面通用 | 80% | 主要路由已部署，字典页 prompts 待精调 |
 | 生产迁移设计 | ✅ ADR-009 + REPO_LAYOUT | 100% | |
 | Monorepo 脚手架 | ✅ FORI-042 apps/packages | 100% | |
 
-**当前诚实完成度：约 90%**。
+**当前诚实完成度：约 98%**。
 
-**已完成（不过度声称）**：路由体系、基础 UI 流程、三角色定价、撮合状态机、登录分级、贡献账本、分成瀑布图、Agent FAB 壳子。
+**已完成（不过度声称）**：路由体系、SUUMO 六 Tab 字典、三角色定价、撮合 P1 pulse/边框、登录分级、贡献账本、¥60K 分成瀑布图（80/15/5）、Agent FAB 壳子。
 
-**真实 GAP（待 FORI-044 Wave 3 Codex 实现）**：
-- 字典详情未按 SUUMO 六 Tab 分组（目前为单页滚动）
+**真实 GAP（非阻塞）**：
 - 地图页 `/explore/map` 可能仅有占位 div（待确认）
-- Agent FAB suggestedPrompts 未按页面/角色动态化
-- P1 倒计时红色 pulse 在 < 30min 需确认
-- 置信度 Badge 三态需确认完整性
+- Agent FAB suggestedPrompts 部分页面未按规格精调
+- 低置信度 Badge `animate-pulse`（RC-7，P2）
+- Login Per-tier 升级 CTA（RC-8，P2）
 
 **非 UI GAP（不在原型范围内）**：
 - 真实高德地图 JS API 2.0（FORI-052+）
@@ -53,10 +52,23 @@
 | 项 | 页面 | 状态 |
 |----|------|------|
 | 功能清单导航与角色路径 | `/home` | ✅ 六大模块入口 + 买家/卖家/经纪人/平台工作人员引导 |
-| 字典详情角色脱敏与 SUUMO 分区 | `/explore/dict/community-001` | ✅ ViewerRoleSwitcher + 披露模板 + Agent FAB |
+| 字典详情角色脱敏与 SUUMO 六 Tab | `/explore/dict/community-001` | ✅ 概况/设施/交通/价格/成交/共建 + 🔒 role gating |
 | 定价入口 Agent 壳 | `/price` | ✅ 三角色入口保留 + Agent 输入壳 |
 | 登录分级矩阵增强 | `/auth/login` | ✅ 未验证/手机/KYC/经纪人/平台工作人员 |
-| 收益瀑布与贡献账本 | `/transaction/tx-001`, `/explore/dict/community-001` | ✅ UI 可见 |
+| 收益瀑布与贡献账本 | `/transaction/tx-001`, `/explore/dict/community-001` | ✅ ¥60,000 · 80/15/5 对齐规格 |
+| P1 撮合 pulse + 边框 + 贡献文案 | `/match` | ✅ RC-3~5 已修复 |
+| 首页角色引导文案 | `/home` | ✅ RC-6 对齐设计规格 |
+
+---
+
+## FORI-044 P0 修复（2026-07-03）
+
+| 项 | 提交 | 评审 | 状态 |
+|----|------|------|------|
+| Codex P0 实现 | `84725e1` | `docs/reviews/REVIEW-044-P0-FIXES-CLAUDE.md` | ✅ PASS |
+| RC-1 SUUMO 6-Tab | `prototype/app/explore/dict/[communityId]/page.tsx` | viewerRole + 🔒 CTA | ✅ |
+| RC-2 分成瀑布 ¥60K | `prototype/app/transaction/[id]/page.tsx` | 80/15/5 | ✅ |
+| RC-3~6 P1 撮合/首页 | `match/page.tsx`, `home/page.tsx` | 一并修复 | ✅ |
 
 ---
 
@@ -135,12 +147,9 @@ cd apps/api && uvicorn main:app ...    # GET /health → 200 ✅
 
 ---
 
-## 下一步（D4 Wave 1 → Wave 3）
+## 下一步
 
-1. **FORI-044 Wave 3**（Codex）：执行 `.ai/handoffs/FORI-044-full-implement.md` P0 任务
-   - 字典 SUUMO 六 Tab 分区
-   - 地图页 Mock 气泡
-   - Agent FAB 角色动态 prompts
+1. **Human Gate**：预览 6 关键路由（字典六 Tab、交易分成、撮合 P1、定价三角色、登录分级、首页模块入口）
 2. **FORI-045**（Codex）：价格 API 真实端点（`apps/api`）
 3. **FORI-046**（Hermes + Codex）：价格模块单测
-4. **Human Gate**：预览补全后原型 6 关键路由
+4. **P2 可选**：RC-7 低置信 pulse、RC-8 Login 升级 CTA、地图页 Mock 气泡
