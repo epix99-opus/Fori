@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "prebuild": "mkdir -p .next/server && printf '{}' > .next/server/pages-manifest.json",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
