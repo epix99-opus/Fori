@@ -5,35 +5,41 @@
     "status": "active",
     "github": "epix99-opus/Fori",
     "localPath": "/Users/epix/Dev/Fori",
-    "phase": "D4-wave1-fori-043-complete"
+    "phase": "D4-fori-044-partial"
   },
   "currentTask": {
-    "id": "FORI-043",
-    "title": "D4 Wave1 在地分层定价设计+原型",
-    "status": "completed_conditional_pass",
+    "id": "FORI-044",
+    "title": "全量原型设计+实现（人类评审 Round2 完整交付）",
+    "status": "partial_pending_claude",
     "owner": "multi-agent",
-    "branch": "cursor/fori-043-integration",
-    "updatedAt": "2026-07-02T22:00:00-07:00",
+    "branch": "main",
+    "updatedAt": "2026-07-03T05:45:00-07:00",
     "artifacts": [
-      "docs/execution/FORI-043_DESIGN.md",
-      "docs/reviews/REVIEW-043-DESIGN-CODEX.md",
-      "docs/reviews/REVIEW-043-IMPL-CLAUDE.md",
-      "prototype/lib/price-data.ts",
+      "docs/reviews/REVIEW-044-DESIGN-CODEX.md",
+      "docs/execution/PROTOTYPE_COMPLETION.md",
+      "docs/execution/REVIEW_HUMAN_ROUND2_TASKS.md",
+      "prototype/app/home/page.tsx",
+      "prototype/app/explore/dict/[communityId]/page.tsx",
       "prototype/app/price/page.tsx",
-      "prototype/app/price/[communityId]/page.tsx",
+      "prototype/app/auth/login/page.tsx",
       ".ai/orchestration/dispatch-log.jsonl"
     ],
     "verdicts": {
-      "designReview": "CONDITIONAL_PASS",
-      "implReview": "CONDITIONAL_PASS"
+      "wave1Design": "PENDING_CLAUDE",
+      "designReview": "FAIL",
+      "implReview": "PENDING_CLAUDE"
+    },
+    "commits": {
+      "wave2DesignReview": "ee16b87",
+      "wave3PrototypeImpl": "8fca35e"
     }
   },
   "nextTask": {
-    "id": "FORI-044",
-    "title": "定价 Agent 任务契约",
+    "id": "FORI-044-resume",
+    "title": "Claude Wave1 设计 + Wave4 实现评审（配额重置后）",
     "owner": "claude",
-    "branch": "claude/fori-044-agent-contract",
-    "blockedBy": null
+    "branch": "claude/fori-044-full-design",
+    "blockedBy": "claude_session_limit_until_0210_PDT"
   },
   "humanReviewRound2": {
     "source": ".ai/handoffs/Human/Fori平台原型评审意见.md",

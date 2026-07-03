@@ -1,0 +1,22 @@
+# FORI-044 Wave 4 — Implementation Review (Claude epix)
+
+You are Claude Code on epix in /Users/epix/Dev/Fori on branch claude/fori-044-impl-review.
+
+## Mission
+Adversarial review of Codex Wave 3 implementation. Do NOT modify prototype code — review only.
+
+## Required Reading
+1. `.ai/handoffs/Human/Fori平台原型评审意见.md` — 8 items
+2. `docs/reviews/REVIEW-044-DESIGN-CODEX.md` — Wave 2 FAIL + REQUIRED_CHANGES
+3. `docs/execution/REVIEW_HUMAN_ROUND2_TASKS.md`
+4. `docs/execution/PROTOTYPE_COMPLETION.md`
+5. Git diff main merge of codex/fori-044-full-prototype
+6. Verify build: `cd prototype && npm run build`
+
+## Deliverable: `docs/reviews/REVIEW-044-IMPL-CLAUDE.md` with VERDICT format.
+
+## Git
+git checkout -B claude/fori-044-impl-review
+git commit -m "review: FORI-044 implementation adversarial review [claude]"
+
+Do NOT modify prototype/ — review docs only.
