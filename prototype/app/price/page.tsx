@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { ArrowRight, Building2, Calculator, Home, SlidersHorizontal } from "lucide-react";
 
+import { AgentAssistFab } from "@/components/AgentAssistFab";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { Input } from "@/components/Input";
@@ -167,6 +168,10 @@ function PriceEntryContent() {
           <ArrowRight className="ml-1 size-4" />
         </Button>
       </Link>
+      <AgentAssistFab
+        pageContext="价格评估入口"
+        suggestedPrompts={["帮我选择买家/卖家/经纪人视角", "解释 A/B/C/D 层级差异", "我没有具体房源，如何手动估价？"]}
+      />
     </main>
   );
 }

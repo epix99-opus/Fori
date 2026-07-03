@@ -1,0 +1,70 @@
+# FORI-044 Wave 1 — Full Prototype Design (Claude epix)
+
+You are Claude Code on branch `claude/fori-044-full-design` in /Users/epix/Dev/Fori.
+
+## Mission
+Human review Round 2 requires COMPLETE delivery — not just pricing page. Produce full prototype design covering ALL 8 human review items and ALL prototype modules with visible UI (no blank pages).
+
+## Required Reading (read ALL before writing)
+1. `.ai/handoffs/Human/Fori平台原型评审意见.md` — 8 review items
+2. `.ai/handoffs/Human/Fori房地产智能中介交易平台初始需求.md` — initial requirements
+3. `docs/execution/FORI-043_DESIGN.md` — pricing module design (extend, don't duplicate blindly)
+4. `docs/PRICING_MATCHING.md` — pricing/matching spec
+5. `docs/execution/REVIEW_HUMAN_ROUND2_TASKS.md` — task decomposition (16 tasks FORI-080~095)
+6. `docs/execution/PROTOTYPE_COMPLETION.md` — current claimed state (may be overstated)
+7. `docs/execution/ROUND2_R1_MERGED.md`, `docs/execution/ROUND2_R2_MERGED.md`
+8. `docs/execution/TECHNICAL_SOLUTION.md` — current v1.1
+9. `docs/execution/PM_TASK_PLAN.md` — current v1.0
+10. `docs/PRD.md`, `docs/UI_DESIGN.md` — product/UI SSOT
+11. Scan `prototype/app/` routes — identify blank/broken pages
+
+## Deliverables (MUST create/update ALL)
+
+### 1. `docs/execution/FORI-044_FULL_DESIGN.md`
+Complete prototype design v1.0 covering:
+- All 8 human review items mapped to concrete UI/UX specs
+- All 6 platform modules + Agent-native interaction per page
+- Per-route content spec (what visible UI each route MUST show — NOT blank)
+- Key routes: /home, /explore/dict, /explore/dict/community-001, /price, /price/community-001, /match, /transaction/tx-001, /auth/login
+- SUUMO-style dict disclosure template
+- Co-creation/fission mechanism UI flows
+- Pricing/matching three-role differentiation
+- Auth tier visibility matrix (unverified/phone/KYC)
+- Fee/benefit distribution UI
+- Agent FAB + OpenClaw I/O per page
+- Component reuse map from existing prototype components
+
+### 2. `docs/execution/TECHNICAL_SOLUTION.md` → v2.0
+Complete technical solution: architecture, monorepo layout, API contracts (all modules), Agent services, migration path prototype→apps/web, cross-swap orchestration integration. Bump version header to 2.0.
+
+### 3. `docs/execution/PM_TASK_PLAN.md` → v2.0
+Sprint board with: task IDs, owners (Claude/Codex/Cursor/Hermes), dependencies, cross-swap schedule (Wave 1-4 FORI-044), agent attribution placeholders for commit SHAs. Honest status — mark gaps not done.
+
+### 4. `.ai/handoffs/FORI-044-full-implement.md`
+Codex implementation handoff — EVERY page/module to touch:
+- File paths under prototype/
+- Exact UI elements to add/fix per route
+- Human review P0/P1 acceptance criteria
+- Build must pass: `cd prototype && npm run build` (all routes)
+- Do NOT leave blank pages
+
+### 5. Update `docs/execution/REVIEW_HUMAN_ROUND2_TASKS.md`
+Set each of 16 tasks to DONE or explicit GAP with owner for Wave 3.
+
+### 6. Update `docs/execution/PROTOTYPE_COMPLETION.md`
+Honest completion % — if pages are blank/broken, mark as gap not 100%.
+
+## Constraints
+- Design phase ONLY — do NOT modify prototype/ code
+- No TBD placeholders in specs
+- Chinese primary language for user-facing spec text
+- Follow existing doc conventions in docs/execution/
+
+## Git
+When done:
+```bash
+git add docs/execution/FORI-044_FULL_DESIGN.md docs/execution/TECHNICAL_SOLUTION.md docs/execution/PM_TASK_PLAN.md docs/execution/REVIEW_HUMAN_ROUND2_TASKS.md docs/execution/PROTOTYPE_COMPLETION.md .ai/handoffs/FORI-044-full-implement.md
+git commit -m "docs: FORI-044 full prototype design + tech solution v2 + PM plan v2 [claude]"
+```
+
+Report: list of files created/updated and key design decisions summary.

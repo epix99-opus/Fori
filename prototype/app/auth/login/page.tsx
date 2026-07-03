@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { ArrowRight, BadgeCheck, Eye, LockKeyhole, MessageSquareText, Smartphone } from "lucide-react";
 
+import { AgentAssistFab } from "@/components/AgentAssistFab";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { Input } from "@/components/Input";
 
 const loginTiers = [
   {
-    tier: "未登录",
+    tier: "未验证 / 游客",
     scope: "小区名、片区、公开图片、建筑年代",
     blocked: "挂牌价、房号、楼层、业主联系方式、成交价",
     action: "浏览公开字典",
@@ -29,6 +30,12 @@ const loginTiers = [
     scope: "成交价、维护记录、客源匹配、分成预览",
     blocked: "平台审核后台、原始证件影像",
     action: "共建字典、带看、撮合交易",
+  },
+  {
+    tier: "平台工作人员",
+    scope: "审核队列、异常交易、字段变更、风控日志",
+    blocked: "非任务相关原始证件影像、无授权私聊内容",
+    action: "处理审核、纠纷、分成复核",
   },
 ];
 
@@ -58,7 +65,7 @@ export default function LoginPage() {
         <Card>
           <div className="flex items-center gap-2">
             <Eye className="size-5 text-primary-700" />
-            <h2 className="text-h3">登录分级 · 信息可见范围</h2>
+            <h2 className="text-h3">未验证 / 手机 / KYC 可见矩阵</h2>
           </div>
           <div className="mt-3 space-y-3">
             {loginTiers.map((item) => (
@@ -97,6 +104,10 @@ export default function LoginPage() {
           </Link>
         </div>
       </section>
+      <AgentAssistFab
+        pageContext="登录与认证分级"
+        suggestedPrompts={["我只想查小区需要哪级认证？", "解释 KYC 后能看到哪些字段", "平台工作人员能查看什么？"]}
+      />
     </main>
   );
 }

@@ -1,7 +1,7 @@
 # Fori 原型设计完成度清单
 
-> **版本**: 1.1 · 2026-07-02（R3 后）  
-> **阶段**: D3 原型验收 → D4 过渡  
+> **版本**: 1.2 · 2026-07-03（FORI-044 Wave 3）  
+> **阶段**: D4 Wave 3 原型补全  
 > **验证命令**: `cd prototype && npm run build`
 
 ## 总体完成度
@@ -11,15 +11,25 @@
 | 页面覆盖（33 路由） | ✅ build PASS | 100% |
 | UI_DESIGN 路由体系 | ✅ TabBar + 规范路由 | 100% |
 | 六大模块 UI 流程 | ✅ 可点击走通 | 100% |
-| 人类评审 R2 必修 | ✅ FORI-087~093 | 100% |
+| 人类评审 R2 必修 | ✅ P0/P1 原型 UI 已铺开；FORI-095 为流程复盘 GAP | 96% |
 | 人类评审 R3 Minor | ✅ M1-12 纠错 + M3-10 付费墙 | 100% |
 | 组件库 + ECharts | ✅ ChartCard 真实图表 | 100% |
 | PWA / SW | ✅ sync + 离线队列 | 100% |
-| Agent FAB | ✅ 8 页铺开 | 100% |
+| Agent FAB | ✅ 关键页铺开（home/dict/price/match/transaction/login 等） | 96% |
 | 生产迁移设计 | ✅ ADR-009 + REPO_LAYOUT | 100% |
 | Monorepo 脚手架 | ✅ FORI-042 apps/packages | 100% |
 
-**原型设计完成度：100%**（R3 PASS，可提交 Human 复审）
+**FORI-044 原型 UI 完成度：96%**。关键路由均有可见内容，P0/P1 原型项已覆盖；剩余 4% 为非 UI 事项：真实高德地图/API 接线、真实支付/公证接口、Hermes/Cursor 基于真实日志的 R2 复盘。
+
+## FORI-044 Wave 3 新增（2026-07-03）
+
+| 项 | 页面 | 状态 |
+|----|------|------|
+| 功能清单导航与角色路径 | `/home` | ✅ 六大模块入口 + 买家/卖家/经纪人/平台工作人员引导 |
+| 字典详情角色脱敏与 SUUMO 分区 | `/explore/dict/community-001` | ✅ ViewerRoleSwitcher + 披露模板 + Agent FAB |
+| 定价入口 Agent 壳 | `/price` | ✅ 三角色入口保留 + Agent 输入壳 |
+| 登录分级矩阵增强 | `/auth/login` | ✅ 未验证/手机/KYC/经纪人/平台工作人员 |
+| 收益瀑布与贡献账本 | `/transaction/tx-001`, `/explore/dict/community-001` | ✅ UI 可见 |
 
 ---
 

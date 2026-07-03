@@ -1,0 +1,59 @@
+# FORI-044 Wave 3 — Full Prototype Implement (Codex woot)
+
+You are Codex on woot in /Users/woot/Dev/Fori.
+
+## Mission
+Fix ALL blank/broken prototype pages. Implement human review P0/P1 items across ALL modules — NOT just pricing.
+
+## Required Reading
+1. `.ai/handoffs/Human/Fori平台原型评审意见.md` — 8 review items
+2. `docs/execution/REVIEW_HUMAN_ROUND2_TASKS.md` — FORI-080~095
+3. `docs/execution/FORI-043_DESIGN.md` — pricing spec
+4. `docs/PRICING_MATCHING.md`
+5. `docs/reviews/REVIEW-044-DESIGN-CODEX.md` — REQUIRED_CHANGES from Wave 2
+6. If exists: `.ai/handoffs/FORI-044-full-implement.md`
+7. `docs/UI_DESIGN.md`, `docs/PRD.md`
+8. Existing components: `prototype/components/`, `prototype/lib/`
+
+## Key Routes — MUST have visible content (not blank)
+- /home
+- /explore/dict
+- /explore/dict/community-001 (or use mock community id from lib)
+- /price
+- /price/community-001
+- /match
+- /transaction/tx-001
+- /auth/login
+
+## Human Review P0/P1 Scope (all 8 items)
+1. Complete feature checklist alignment in UI labels/navigation
+2. Role-differentiated UX (buyer/seller/agent/platform staff) — ViewerRoleSwitcher
+3. Dict: map/card/list modes, role-based field masking, SUUMO-style sections
+4. Co-creation/fission: contribution ledger, revenue waterfall UI
+5. (Governance docs — skip code unless quick CANON link)
+6. Pricing/matching: three-role tabs, charts, confidence tiers
+7. Agent FAB on all major pages, voice/text input shell
+8. Auth tiers: unverified vs phone vs KYC visibility matrix
+
+## In-flight work to incorporate
+- FORI-043 price pages already enhanced — extend don't regress
+- cursor/fori-043-hotfix price 500 fix is on main
+
+## Acceptance
+```bash
+cd prototype && npm run build   # MUST PASS all routes
+cd prototype && npm test 2>/dev/null || true
+```
+
+Update `docs/execution/PROTOTYPE_COMPLETION.md` with HONEST completion %.
+
+Update `docs/execution/REVIEW_HUMAN_ROUND2_TASKS.md` — mark items DONE or explicit GAP.
+
+## Git
+```bash
+git pull && git checkout -B codex/fori-044-full-prototype
+git add -A
+git commit -m "feat: FORI-044 full prototype — all modules visible UI [codex]"
+```
+
+Report: files changed, build result, routes verified.
