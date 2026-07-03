@@ -15,6 +15,7 @@ import {
   Star,
 } from "lucide-react";
 
+import { AgentAssistFab } from "@/components/AgentAssistFab";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { EmptyState } from "@/components/EmptyState";
@@ -290,6 +291,10 @@ export default function PublishListingPage() {
       </div>
 
       {toast ? <Toast title={toast} /> : null}
+      <AgentAssistFab
+        pageContext="发布真实核验房源"
+        suggestedPrompts={["帮我检查发布草稿缺什么", "生成房源推广标题", "解释价格评估为什么是这个结果"]}
+      />
     </main>
   );
 }

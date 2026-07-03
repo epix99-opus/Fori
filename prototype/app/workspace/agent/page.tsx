@@ -20,6 +20,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
+import { AgentAssistFab } from "@/components/AgentAssistFab";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { EmptyState } from "@/components/EmptyState";
@@ -214,6 +215,10 @@ export default function AgentWorkspacePage() {
       </div>
 
       {toast ? <Toast title={toast} /> : null}
+      <AgentAssistFab
+        pageContext="经纪人工作台"
+        suggestedPrompts={["按优先级整理今天待办", "帮我准备 P1 客源响应话术", "总结本月业绩和下一步动作"]}
+      />
     </main>
   );
 }

@@ -91,6 +91,7 @@ export default function DictEditPage({ params }: DictEditPageProps) {
 
   const currentAgent = mockAgents[0];
   const collaboratorCount = 5;
+  const currentUserPoints = 186;
 
   const steps: StepperStep[] = useMemo(
     () =>
@@ -167,6 +168,21 @@ export default function DictEditPage({ params }: DictEditPageProps) {
               <p className="text-body-s font-semibold">当前版本 v12 · 由张明于 3 小时前更新</p>
               <p className="mt-1 text-caption">当前 {collaboratorCount} 人共同维护，{currentAgent?.displayName ?? "认证经纪人"} 正在编辑物业配置。</p>
             </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-2 rounded-xl bg-white p-3 text-center shadow-card">
+          <div>
+            <p className="text-caption text-neutral-500">我的累计积分</p>
+            <p className="price-nums text-h3 text-primary-700">{currentUserPoints}</p>
+          </div>
+          <div>
+            <p className="text-caption text-neutral-500">本次预计</p>
+            <p className="price-nums text-h3 text-semantic-success">+8</p>
+          </div>
+          <div>
+            <p className="text-caption text-neutral-500">小区排名</p>
+            <p className="price-nums text-h3">#3</p>
           </div>
         </div>
 

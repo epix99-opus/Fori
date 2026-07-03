@@ -15,6 +15,7 @@ import {
   UserRoundCheck,
 } from "lucide-react";
 
+import { AgentAssistFab } from "@/components/AgentAssistFab";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { EmptyState } from "@/components/EmptyState";
@@ -28,6 +29,7 @@ type PageState = "loading" | "ready" | "empty" | "error";
 type MatchFilter = "all" | "P1" | "P2" | "history";
 type IntentLevel = "高" | "中" | "低";
 type MatchStatus = "pending" | "accepted" | "deferred" | "rejected" | "expired";
+type FlowKey = "matched" | "agent_responded" | "viewing_scheduled" | "negotiating" | "contracting";
 
 type MatchLead = {
   id: string;
@@ -47,6 +49,14 @@ const filterTabs: Array<{ key: MatchFilter; label: string }> = [
   { key: "P1", label: "P1 优先" },
   { key: "P2", label: "P2 待响应" },
   { key: "history", label: "历史" },
+];
+
+const matchFlowSteps: Array<{ key: FlowKey; label: string }> = [
+  { key: "matched", label: "匹配" },
+  { key: "agent_responded", label: "响应" },
+  { key: "viewing_scheduled", label: "带看" },
+  { key: "negotiating", label: "议价" },
+  { key: "contracting", label: "签约" },
 ];
 
 const seedLeads: MatchLead[] = Array.from({ length: 5 }, (_, index) => {
@@ -72,8 +82,8 @@ const seedLeads: MatchLead[] = Array.from({ length: 5 }, (_, index) => {
       ["历史沟通", "预算偏低", "待复访"],
     ][index] ?? ["需求匹配"],
     intentLevel: (["高", "高", "中", "中", "低"][index] ?? "中") as IntentLevel,
-    responseDeadline: index === 0 ? "03:42:18" : index === 1 ? "07:15:00" : index === 2 ? "1 天 4 小时" : "已降级",
-    status: index === 4 ? "accepted" : "pending",
+    responseDeadline: index === 0 ? "04:00:00" : index === 1 ? "07:15:00" : index === 2 ? "1 天 4 小时" : "已转分配",
+    status: index === 3 ? "expired" : index === 4 ? "accepted" : "pending",
     buyerPhoneMasked: ["136****9102", "185****2248", "139****4731", "150****8820", "137****1966"][index] ?? "138****0000",
     source: index < 2 ? "Push 新客源" : "匹配池刷新",
   };
@@ -84,12 +94,26 @@ export default function MatchPage() {
   const [filter, setFilter] = useState<MatchFilter>("all");
   const [showOnlyHighIntent, setShowOnlyHighIntent] = useState(false);
   const [leads, setLeads] = useState<MatchLead[]>(seedLeads);
+  const [flowStatus, setFlowStatus] = useState<FlowKey>("matched");
+  const [p1Countdown, setP1Countdown] = useState("04:00:00");
   const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setState(leads.length > 0 ? "ready" : "empty"), 520);
     return () => window.clearTimeout(timer);
   }, [leads.length]);
+
+  useEffect(() => {
+    const deadline = Date.now() + 4 * 60 * 60 * 1000;
+    const timer = window.setInterval(() => {
+      const remaining = Math.max(0, deadline - Date.now());
+      const hours = Math.floor(remaining / 3600000);
+      const minutes = Math.floor((remaining % 3600000) / 60000);
+      const seconds = Math.floor((remaining % 60000) / 1000);
+      setP1Countdown([hours, minutes, seconds].map((item) => String(item).padStart(2, "0")).join(":"));
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   const filteredLeads = useMemo(() => {
     return leads.filter((lead) => {
@@ -115,6 +139,7 @@ export default function MatchPage() {
 
   function acceptLead(lead: MatchLead) {
     updateLead(lead.id, "accepted");
+    setFlowStatus("agent_responded");
     showToast(`已解锁 ${lead.buyerPhoneMasked}，可进入站内沟通`);
   }
 
@@ -179,6 +204,34 @@ export default function MatchPage() {
               </div>
             </section>
 
+            <Card header={<div><h2 className="text-h3">撮合状态机</h2><p className="text-caption text-neutral-500">匹配 → 响应 → 带看 → 议价 → 签约</p></div>}>
+              <div className="flex items-center justify-between gap-1">
+                {matchFlowSteps.map((step, index) => {
+                  const activeIndex = matchFlowSteps.findIndex((item) => item.key === flowStatus);
+                  const status = index < activeIndex ? "done" : index === activeIndex ? "current" : "pending";
+                  return (
+                    <div key={step.key} className="flex flex-1 items-center">
+                      <div className="flex flex-1 flex-col items-center gap-2">
+                        <span
+                          className={cn(
+                            "flex size-8 items-center justify-center rounded-full text-caption font-bold",
+                            status === "done" ? "bg-semantic-success text-white" : status === "current" ? "bg-primary-700 text-white" : "bg-neutral-200 text-neutral-500",
+                          )}
+                        >
+                          {index + 1}
+                        </span>
+                        <span className="text-[11px] font-semibold text-neutral-600">{step.label}</span>
+                      </div>
+                      {index < matchFlowSteps.length - 1 ? <div className={cn("h-px flex-1", status === "done" ? "bg-semantic-success" : "bg-neutral-200")} /> : null}
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="mt-4 rounded-xl bg-amber-50 p-3 text-body-s text-amber-900">
+                P1 客源响应窗口：剩余 <span className="price-nums font-semibold">{p1Countdown}</span>。低于 30 分钟进入红色提醒，超时自动转分配并扣信用分 5 分。
+              </div>
+            </Card>
+
             <div className="flex gap-2 overflow-x-auto pb-1">
               {filterTabs.map((tab) => (
                 <button
@@ -216,7 +269,8 @@ export default function MatchPage() {
                     lead={lead}
                     onAccept={() => acceptLead(lead)}
                     onDefer={() => { updateLead(lead.id, "deferred"); showToast("已暂不处理，将 2 小时后再次提醒"); }}
-                    onReject={() => { updateLead(lead.id, "rejected"); showToast("已拒绝该客源，系统将减少同类推荐"); }}
+                    onReject={() => { updateLead(lead.id, "rejected"); setFlowStatus("matched"); showToast("已拒绝该客源，系统将减少同类推荐"); }}
+                    p1Countdown={lead.demand.priority === "P1" ? p1Countdown : lead.responseDeadline}
                   />
                 ))}
               </div>
@@ -226,6 +280,10 @@ export default function MatchPage() {
       </section>
 
       {toast ? <Toast title={toast} /> : null}
+      <AgentAssistFab
+        pageContext="经纪人撮合匹配"
+        suggestedPrompts={["帮我判断这个 P1 客源是否该立即响应", "生成拒绝该客源的礼貌话术", "总结下一步带看安排"]}
+      />
     </main>
   );
 }
@@ -244,17 +302,20 @@ function MatchCard({
   onAccept,
   onDefer,
   onReject,
+  p1Countdown,
 }: {
   lead: MatchLead;
   onAccept: () => void;
   onDefer: () => void;
   onReject: () => void;
+  p1Countdown: string;
 }) {
   const isP1 = lead.demand.priority === "P1";
   const priorityLabel = lead.demand.priority === "normal" ? "P3" : lead.demand.priority;
+  const isExpired = lead.status === "expired";
 
   return (
-    <Card className={cn(isP1 && "border-l-4 border-l-secondary-500")}>
+    <Card className={cn(isP1 && "border-l-4 border-l-secondary-500", isExpired && "opacity-70 grayscale")}>
       <div className="space-y-4">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
@@ -287,13 +348,17 @@ function MatchCard({
         </div>
 
         <div className="grid grid-cols-2 gap-2">
-          <InfoPill icon={Clock3} label="剩余响应" value={lead.responseDeadline} warning={isP1} />
+          <InfoPill icon={Clock3} label="剩余响应" value={isExpired ? "已转分配" : p1Countdown} warning={isP1} />
           <InfoPill icon={ShieldCheck} label="来源" value={lead.source} />
           <InfoPill icon={Home} label="关联房源" value={lead.listing.communityName} />
           <InfoPill icon={UserRoundCheck} label="买家联系" value={lead.status === "accepted" ? lead.buyerPhoneMasked : "接受后解锁"} />
         </div>
 
-        {lead.status === "accepted" ? (
+        {isExpired ? (
+          <div className="rounded-xl bg-neutral-100 p-3 text-body-s text-neutral-500">
+            4h 未响应，已自动转分配；原经纪人信用分 -5。
+          </div>
+        ) : lead.status === "accepted" ? (
           <div className="flex items-center gap-2 rounded-xl bg-green-50 p-3 text-body-s text-semantic-success">
             <MessageCircle className="size-5" />
             已接受跟进，可进入消息中心建立沟通。
@@ -304,7 +369,7 @@ function MatchCard({
             <Button variant="secondary" size="sm" onClick={onDefer}>暂不处理</Button>
             <Button size="sm" onClick={onAccept}>
               <Sparkles className="size-4" />
-              接受跟进
+              立即响应
             </Button>
           </div>
         )}

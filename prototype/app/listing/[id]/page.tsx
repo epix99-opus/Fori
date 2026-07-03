@@ -17,6 +17,7 @@ import {
   TrendingDown,
 } from "lucide-react";
 
+import { AgentAssistFab } from "@/components/AgentAssistFab";
 import { BottomSheet } from "@/components/BottomSheet";
 import { Button } from "@/components/Button";
 import { EmptyState } from "@/components/EmptyState";
@@ -280,6 +281,10 @@ export default function ListingDetailPage({ params }: ListingPageProps) {
           <Button className="w-full" onClick={() => setAppointmentOpen(false)}>确认并进入交易</Button>
         </div>
       </BottomSheet>
+      <AgentAssistFab
+        pageContext="房源详情"
+        suggestedPrompts={["帮我总结这套房的优缺点", "按买家视角列出看房问题", "生成给经纪人的咨询话术"]}
+      />
     </main>
   );
 }

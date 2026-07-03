@@ -14,6 +14,7 @@ import {
   Users,
 } from "lucide-react";
 
+import { AgentAssistFab } from "@/components/AgentAssistFab";
 import { BottomSheet } from "@/components/BottomSheet";
 import { Button } from "@/components/Button";
 import { ChartCard } from "@/components/ChartCard";
@@ -26,6 +27,7 @@ import { cn } from "@/lib/utils";
 
 type PageState = "loading" | "ready" | "empty" | "error";
 type QualityTier = "A" | "B" | "C" | "D";
+type PriceViewerRole = "buyer" | "seller" | "agent";
 
 type CommunityOption = {
   id: string;
@@ -98,6 +100,12 @@ const empowerment = [
   { role: "经纪人", text: "生成可解释报告，支撑撮合和复盘。" },
 ];
 
+const priceRoleTabs: Array<{ key: PriceViewerRole; label: string }> = [
+  { key: "buyer", label: "买家" },
+  { key: "seller", label: "卖家" },
+  { key: "agent", label: "经纪人" },
+];
+
 function formatUnitPrice(value: number) {
   return value.toLocaleString("zh-CN");
 }
@@ -107,6 +115,7 @@ export default function PriceEvaluationPage({ params }: { params: { communityId:
   const [selectedCommunityId, setSelectedCommunityId] = useState(params.communityId);
   const [communitySheetOpen, setCommunitySheetOpen] = useState(false);
   const [selectedFactor, setSelectedFactor] = useState<PriceFactor | null>(null);
+  const [priceRole, setPriceRole] = useState<PriceViewerRole>("buyer");
   const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
@@ -249,6 +258,25 @@ export default function PriceEvaluationPage({ params }: { params: { communityId:
               <ChevronDown className="size-5 text-primary-700" />
             </button>
 
+            <section className="rounded-xl bg-white p-4 shadow-card">
+              <div className="grid grid-cols-3 gap-2 rounded-xl bg-neutral-100 p-1">
+                {priceRoleTabs.map((tab) => (
+                  <button
+                    key={tab.key}
+                    type="button"
+                    className={cn(
+                      "rounded-lg px-3 py-2 text-caption font-semibold",
+                      priceRole === tab.key ? "bg-primary-700 text-white shadow-sm" : "text-neutral-700",
+                    )}
+                    onClick={() => setPriceRole(tab.key)}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+              <RoleInsightBlock role={priceRole} calculated={calculated} unitPrice={unitPrice} community={community} />
+            </section>
+
             <section className="grid grid-cols-4 gap-2">
               {(["A", "B", "C", "D"] as QualityTier[]).map((tier) => (
                 <div key={tier} className={cn("rounded-xl p-3 text-center shadow-card", community.tier === tier ? tierCopy[tier].tone : "bg-white text-neutral-700")}>
@@ -366,6 +394,63 @@ export default function PriceEvaluationPage({ params }: { params: { communityId:
       </BottomSheet>
 
       {toast ? <Toast title={toast} /> : null}
+      <AgentAssistFab
+        pageContext="价格图谱三角色评估"
+        suggestedPrompts={["用当前角色解释价格区间", "生成一段议价话术", "列出这个小区的价格风险"]}
+      />
     </main>
+  );
+}
+
+function RoleInsightBlock({
+  role,
+  calculated,
+  unitPrice,
+  community,
+}: {
+  role: PriceViewerRole;
+  calculated: number;
+  unitPrice: number;
+  community: CommunityOption;
+}) {
+  const fairMin = Math.round(calculated * 0.92);
+  const fairMax = Math.round(calculated * 1.04);
+
+  if (role === "buyer") {
+    return (
+      <div className="mt-4 space-y-3">
+        <InsightItem label="公允区间" value={`¥${formatUnitPrice(fairMin)}-${formatUnitPrice(fairMax)} 元/㎡`} note="仅展示可用于出价的安全锚点，隐藏卖家底价。" />
+        <InsightItem label="性价比指数" value="82 / 100" note={`当前挂牌均价 ¥${formatUnitPrice(unitPrice)} 元/㎡，低于测算中位。`} />
+        <InsightItem label="议价建议" value="建议出价 295 万 ±5%" note="先用成交周期和税费承担方式作为谈判入口。" />
+      </div>
+    );
+  }
+
+  if (role === "seller") {
+    return (
+      <div className="mt-4 space-y-3">
+        <InsightItem label="挂牌建议" value="建议挂牌 310-330 万" note="覆盖首轮议价空间，同时避免高于同层级样本过多。" />
+        <InsightItem label="竞品对比" value="同小区在售 3 套" note="两套高楼层报价偏高，一套急售拉低均价。" />
+        <InsightItem label="成交周期预测" value="预计 45-60 天" note="隐藏买家最高预算，仅展示市场侧预期管理。" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-4 space-y-3">
+      <InsightItem label="完整因子拆解" value="楼层 +3% · 朝向 +2% · 装修 +8% · 税费 -3%" note="可展开下方瀑布图向双方解释价格形成过程。" />
+      <InsightItem label="买卖双方区间" value={`买家 ${formatUnitPrice(fairMin)}-${formatUnitPrice(fairMax)} / 卖家 ${formatUnitPrice(community.referenceRange[0])}-${formatUnitPrice(community.referenceRange[1] + 2000)}`} note="用于判断撮合空间，不直接暴露给单方。" />
+      <InsightItem label="佣金预估" value="约 2.4 万 · 维护链另计" note="按 80% 经纪人服务池和分成模型估算。" />
+    </div>
+  );
+}
+
+function InsightItem({ label, value, note }: { label: string; value: string; note: string }) {
+  return (
+    <div className="rounded-xl bg-neutral-100 p-3">
+      <p className="text-caption text-neutral-500">{label}</p>
+      <p className="mt-1 text-body-s font-semibold text-neutral-900">{value}</p>
+      <p className="mt-1 text-caption text-neutral-500">{note}</p>
+    </div>
   );
 }

@@ -6,6 +6,7 @@ import { Bot, Camera, Mic, Send, Type } from "lucide-react";
 import { BottomSheet } from "@/components/BottomSheet";
 import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
+import { cn } from "@/lib/utils";
 
 type AgentAssistFabProps = {
   pageContext: string;
@@ -15,16 +16,22 @@ type AgentAssistFabProps = {
 /** Agent 原生交互壳：语音/文字/拍摄输入入口（原型占位） */
 export function AgentAssistFab({ pageContext, suggestedPrompts = [] }: AgentAssistFabProps) {
   const [open, setOpen] = useState(false);
+  const [mode, setMode] = useState<"text" | "voice" | "camera">("text");
   const defaults = suggestedPrompts.length
     ? suggestedPrompts
     : ["帮我解读这页信息", "下一步我该做什么？", "用买家视角总结风险"];
+  const modes = [
+    { id: "text", label: "文字", icon: Type, hint: "输入问题或指令，生成可执行下一步。" },
+    { id: "voice", label: "语音", icon: Mic, hint: "语音识别占位：会转写为文字后交给 Agent。" },
+    { id: "camera", label: "拍摄", icon: Camera, hint: "拍摄识别占位：可用于房源材料、合同或户型图。" },
+  ] as const;
 
   return (
     <>
       <button
         type="button"
         aria-label="打开 Fori 智能助手"
-        className="fixed bottom-20 right-[calc(50%-205px)] z-30 flex size-14 items-center justify-center rounded-full bg-primary-700 text-white shadow-card"
+        className="fixed bottom-24 right-[calc(50%-205px)] z-50 flex size-14 items-center justify-center rounded-full bg-primary-700 text-white shadow-card"
         onClick={() => setOpen(true)}
       >
         <Bot className="size-7" />
@@ -36,19 +43,34 @@ export function AgentAssistFab({ pageContext, suggestedPrompts = [] }: AgentAssi
           支持文字、语音与拍摄输入。助手将基于 OpenClaw Agent 编排，返回可执行建议与下一步操作。
         </p>
 
+        <div className="mt-4 grid grid-cols-3 gap-2 rounded-xl bg-neutral-100 p-1">
+          {modes.map((item) => {
+            const Icon = item.icon;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                className={cn(
+                  "flex flex-col items-center gap-1 rounded-lg py-3 text-caption font-semibold",
+                  mode === item.id ? "bg-white text-primary-700 shadow-sm" : "text-neutral-600",
+                )}
+                onClick={() => setMode(item.id)}
+              >
+                <Icon className="size-5" />
+                {item.label}
+              </button>
+            );
+          })}
+        </div>
+        <p className="mt-2 rounded-xl bg-neutral-100 px-3 py-2 text-caption text-neutral-600">
+          {modes.find((item) => item.id === mode)?.hint}
+        </p>
+
         <div className="mt-4 flex gap-2">
-          <button type="button" className="flex flex-1 flex-col items-center gap-1 rounded-xl bg-neutral-100 py-3 text-caption font-semibold">
-            <Mic className="size-5 text-primary-700" />
-            语音
-          </button>
-          <button type="button" className="flex flex-1 flex-col items-center gap-1 rounded-xl bg-neutral-100 py-3 text-caption font-semibold">
-            <Camera className="size-5 text-primary-700" />
-            拍摄
-          </button>
-          <button type="button" className="flex flex-1 flex-col items-center gap-1 rounded-xl bg-neutral-100 py-3 text-caption font-semibold">
-            <Type className="size-5 text-primary-700" />
-            文字
-          </button>
+          <Input className="flex-1" placeholder={mode === "text" ? "输入问题或指令…" : "原型中可先输入模拟内容…"} aria-label="Agent 输入" />
+          <Button className="shrink-0 px-4">
+            <Send className="size-4" />
+          </Button>
         </div>
 
         <div className="mt-4 space-y-2">
@@ -61,13 +83,6 @@ export function AgentAssistFab({ pageContext, suggestedPrompts = [] }: AgentAssi
               {prompt}
             </button>
           ))}
-        </div>
-
-        <div className="mt-4 flex gap-2">
-          <Input className="flex-1" placeholder="输入问题或指令…" aria-label="Agent 输入" />
-          <Button className="shrink-0 px-4">
-            <Send className="size-4" />
-          </Button>
         </div>
 
         <div className="mt-4 rounded-xl bg-primary-50 p-3 text-caption text-primary-800">
