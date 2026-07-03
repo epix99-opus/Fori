@@ -228,7 +228,7 @@ export default function MatchPage() {
                 })}
               </div>
               <div className="mt-4 rounded-xl bg-amber-50 p-3 text-body-s text-amber-900">
-                P1 客源响应窗口：剩余 <span className={cn("price-nums font-semibold", isCountdownUrgent(p1Countdown) ? "animate-pulse text-red-600" : "text-neutral-900")}>{p1Countdown}</span>。低于 30 分钟进入红色提醒，超时自动转分配并扣信用分 5 分。
+                P1 客源响应窗口：剩余 <span className={cn("price-nums font-semibold", isCountdownUrgent(p1Countdown) ? "animate-pulse text-semantic-danger" : "text-neutral-600")}>{p1Countdown}</span>。低于 30 分钟进入红色提醒，超时自动转分配并扣信用分 5 分。
               </div>
             </Card>
 
@@ -314,9 +314,9 @@ function MatchCard({
   const priorityLabel = lead.demand.priority === "normal" ? "P3" : lead.demand.priority;
   const isExpired = lead.status === "expired";
   const priorityStyle = isP1
-    ? "border-l-4 border-l-red-500 bg-red-50"
+    ? "border-l-4 border-l-semantic-danger bg-red-50"
     : lead.demand.priority === "P2"
-      ? "border-l-4 border-l-amber-400 bg-amber-50"
+      ? "border-l-4 border-l-semantic-warning bg-amber-50"
       : "border-l-4 border-l-neutral-300 bg-neutral-50";
   const countdownUrgent = isP1 && isCountdownUrgent(p1Countdown);
 
@@ -325,7 +325,7 @@ function MatchCard({
       <div className="space-y-4">
         {isP1 ? (
           <p className="text-caption font-semibold text-primary-700">
-            因您维护「{lead.listing.communityName}」获得优先推送
+            📌 因您维护「{lead.listing.communityName}」获得本客源优先推送
           </p>
         ) : null}
         <div className="flex items-start justify-between gap-3">
@@ -408,7 +408,7 @@ function InfoPill({
         <Icon className={cn("size-3.5", warning && "text-semantic-warning")} />
         {label}
       </div>
-      <p className={cn("mt-1 truncate text-body-s font-semibold", urgent ? "animate-pulse text-red-600" : "text-neutral-900")}>{value}</p>
+      <p className={cn("mt-1 truncate text-body-s font-semibold", urgent ? "animate-pulse text-semantic-danger" : "text-neutral-900")}>{value}</p>
     </div>
   );
 }

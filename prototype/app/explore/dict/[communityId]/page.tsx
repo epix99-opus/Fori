@@ -251,14 +251,14 @@ function TransportPanel() {
 }
 
 function PricePanel({ viewerRole }: { viewerRole: ViewerRole }) {
-  const canViewReference = viewerRole !== "guest";
+  const canViewListingPrice = viewerRole !== "guest";
   const canViewExact = viewerRole === "kyc" || viewerRole === "agent" || viewerRole === "staff";
   const canViewHistory = viewerRole === "agent" || viewerRole === "staff";
 
   return (
     <div className="space-y-3">
       <DisclosureRow label="参考单价区间" value="¥32,000 - ¥38,000 /㎡" note="游客可见模糊区间" />
-      <DisclosureRow label="挂牌总价区间" value={canViewReference ? "¥300 万 - ¥450 万" : "手机验证后可见"} note="手机验证及以上可见" locked={!canViewReference} />
+      <DisclosureRow label="挂牌总价区间" value={canViewListingPrice ? "¥300 万 - ¥450 万" : "手机验证后可见"} note="手机验证及以上可见" locked={!canViewListingPrice} cta="验证手机查看 →" href="/auth/login" />
       <DisclosureRow label="精确楼层/房号" value={canViewExact ? "6-12 层 · 房号实名后展示" : maskValue(viewerRole, "exactFloor", "精确楼层/房号")} note="实名用户可见" locked={!canViewExact} />
       <DisclosureRow label="历史成交明细" value={canViewHistory ? "近 12 月 86 套，经纪人可查看明细" : maskValue(viewerRole, "dealHistory", "历史成交明细")} note="经纪人认证可见" locked={!canViewHistory} />
       {canViewHistory ? null : (
@@ -355,7 +355,7 @@ function CocreationPanel({ communityId }: { communityId: string }) {
   );
 }
 
-function DisclosureRow({ label, value, note, locked = false }: { label: string; value: string; note: string; locked?: boolean }) {
+function DisclosureRow({ label, value, note, locked = false, cta, href = "/profile/agent-cert" }: { label: string; value: string; note: string; locked?: boolean; cta?: string; href?: string }) {
   return (
     <div className="rounded-xl bg-neutral-100 p-3">
       <div className="flex items-start justify-between gap-3">
@@ -366,6 +366,11 @@ function DisclosureRow({ label, value, note, locked = false }: { label: string; 
         {locked ? <span className="rounded-full bg-white px-2 py-1 text-[11px] font-semibold text-primary-700">升级查看</span> : null}
       </div>
       <p className="mt-1 text-caption text-neutral-500">{note}</p>
+      {locked && cta ? (
+        <Link href={href} className="mt-2 inline-flex text-caption font-semibold text-primary-700">
+          {cta}
+        </Link>
+      ) : null}
     </div>
   );
 }
