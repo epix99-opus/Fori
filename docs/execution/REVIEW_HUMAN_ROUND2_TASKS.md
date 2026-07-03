@@ -2,8 +2,9 @@
 
 > **来源**: `.ai/handoffs/Human/Fori平台原型评审意见.md`  
 > **对照**: `.ai/handoffs/Human/Fori房地产智能中介交易平台初始需求.md`  
-> **版本**: 1.1 · 2026-07-03  
-> **分支**: `codex/fori-044-full-prototype`
+> **版本**: 1.2 · 2026-07-03（FORI-044 全量设计包）  
+> **分支**: `claude/fori-044-full-design`  
+> **设计 SSOT**: `docs/execution/FORI-044_FULL_DESIGN.md`
 
 ---
 
@@ -20,9 +21,11 @@
 | P2（建议） | 2 |
 | 本回合已实现（原型 P0） | 3（FORI-083/084/085） |
 
-**本轮 Cursor 已实现**：楼盘字典地图/卡片/列表三态切换、角色差异化字段脱敏、登录分级可见矩阵；共享组件 `ViewerRoleSwitcher`、`ViewModeToggle`、`AgentAssistFab`。
+**Cursor 已实现（R2/R3）**：楼盘字典地图/卡片/列表三态切换、角色差异化字段脱敏、登录分级可见矩阵；共享组件 `ViewerRoleSwitcher`、`ViewModeToggle`、`AgentAssistFab`。
 
-**FORI-044 Wave 3 更新**：关键原型路由均有可见内容；字典、定价、撮合、交易、登录分级、Agent FAB 已落到 UI。治理类保留为文档/流程 GAP，不在本次代码任务中伪造完成。
+**FORI-044 Wave 1（Claude 全量设计包，2026-07-03）**：产出 `FORI-044_FULL_DESIGN.md`（8 条评审完整 UI 规格）、`TECHNICAL_SOLUTION.md v2.0`（六大 Agent 契约）、`PM_TASK_PLAN.md v2.0`、Codex 实现 Handoff。
+
+**FORI-044 Wave 3（待 Codex 执行）**：handoff 文件已就绪，待派发实现 SUUMO 六 Tab、P1 pulse 优化、地图 Mock 标记等 P0/P1 项。
 
 ---
 
@@ -196,29 +199,39 @@
 | ID | 标题 | Owner | P | 状态 |
 |----|------|-------|---|------|
 | FORI-086 | 共建共赢裂变机制设计 | Claude | P1 | **done** (`docs/CO_CREATION_FISSION.md`) |
-| FORI-087 | 贡献账本与奖励 UI | Codex | P1 | **done** (`/explore/dict/community-001`) |
-| FORI-088 | 成交分成可视化 UI | Codex | P1 | **done** (`/transaction/tx-001`) |
+| FORI-087 | 贡献账本与奖励 UI | Codex | P1 | **done** (`/explore/dict/community-001` · 贡献时间线+积分) |
+| FORI-088 | 成交分成可视化 UI | Codex | P1 | **done** (`/transaction/tx-001` · 80/15/5 瀑布图 · PRD 对齐) |
 
 ### Wave R2-3 — 定价撮合增强（P1）
 
 | ID | 标题 | Owner | P | 状态 |
 |----|------|-------|---|------|
-| FORI-090 | 价格页三角色差异化 | Codex | P1 | **done** (`/price`, `/price/community-001`) |
-| FORI-091 | 匹配撮合流程增强 | Codex | P1 | **done** (`/match` 状态机 + 4h SLA) |
+| FORI-090 | 价格页三角色差异化 | Codex | P1 | **done**（三角色 Tab 基础实现）；FORI-044 handoff 要求进一步增强置信度 Badge |
+| FORI-091 | 匹配撮合流程增强 | Codex | P1 | **done**（撮合状态机 + 4h 倒计时）；P1 红色 pulse 待 handoff 确认 |
 
 ### Wave R2-4 — Agent 原生（P1）
 
 | ID | 标题 | Owner | P | 状态 |
 |----|------|-------|---|------|
 | FORI-092 | 全站 Agent 页面契约 | Claude | P1 | **done** (`docs/AGENT_PAGE_CONTRACTS.md`) |
-| FORI-093 | Agent 助手交互壳 | Cursor | P1 | **done**（关键页已铺 Agent FAB，含文字/语音/拍摄壳） |
+| FORI-093 | Agent 助手交互壳 | Cursor | P1 | **done**（8+ 关键页 FAB）；FORI-044 handoff 要求 suggestedPrompts 按角色动态 |
 
 ### Wave R2-5 — 治理与复盘（P2）
 
 | ID | 标题 | Owner | P | 状态 |
 |----|------|-------|---|------|
 | FORI-094 | 文档有效性治理 CANON | Cursor | P2 | **done** (`docs/CANON.md`) |
-| FORI-095 | Round 2 协作复盘 | Hermes | P2 | **GAP**：需 Hermes/Cursor 以真实调度日志产出复盘，本次 Codex 不伪造 |
+| FORI-095 | Round 2 协作复盘 | Hermes | P2 | **GAP**：需 Hermes 以真实调度日志产出复盘；不伪造；Wave 5 计划 |
+
+### Wave D4-W1 — FORI-044 全量设计包（新增）
+
+| ID | 标题 | Owner | P | 状态 |
+|----|------|-------|---|------|
+| FORI-044-D1 | 全量原型 UI 规格（8 条评审 + 6 模块 + 36 路由）| Claude | P0 | **done** (`FORI-044_FULL_DESIGN.md`) |
+| FORI-044-D2 | 技术方案 v2.0（全 API + 6 Agent）| Claude | P0 | **done** (`TECHNICAL_SOLUTION.md v2.0`) |
+| FORI-044-D3 | PM 计划 v2.0 | Claude | P0 | **done** (`PM_TASK_PLAN.md v2.0`) |
+| FORI-044-D4 | Codex 实现 Handoff | Claude | P0 | **done** (`.ai/handoffs/FORI-044-full-implement.md`) |
+| FORI-044-W3 | 原型补全（Codex 执行 handoff）| Codex | P1 | **待派发** |
 
 ---
 

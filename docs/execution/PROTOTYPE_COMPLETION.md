@@ -1,25 +1,52 @@
 # Fori 原型设计完成度清单
 
-> **版本**: 1.2 · 2026-07-03（FORI-044 Wave 3）  
-> **阶段**: D4 Wave 3 原型补全  
-> **验证命令**: `cd prototype && npm run build`
+> **版本**: 1.3 · 2026-07-03（FORI-044 全量设计包）  
+> **阶段**: D4 Wave 1 设计完成 → Wave 3 实现待派发  
+> **验证命令**: `cd prototype && npm run build`  
+> **设计 SSOT**: `docs/execution/FORI-044_FULL_DESIGN.md`
 
 ## 总体完成度
 
-| 维度 | 状态 | 完成度 |
-|------|------|--------|
-| 页面覆盖（33 路由） | ✅ build PASS | 100% |
-| UI_DESIGN 路由体系 | ✅ TabBar + 规范路由 | 100% |
-| 六大模块 UI 流程 | ✅ 可点击走通 | 100% |
-| 人类评审 R2 必修 | ✅ P0/P1 原型 UI 已铺开；FORI-095 为流程复盘 GAP | 96% |
-| 人类评审 R3 Minor | ✅ M1-12 纠错 + M3-10 付费墙 | 100% |
-| 组件库 + ECharts | ✅ ChartCard 真实图表 | 100% |
-| PWA / SW | ✅ sync + 离线队列 | 100% |
-| Agent FAB | ✅ 关键页铺开（home/dict/price/match/transaction/login 等） | 96% |
-| 生产迁移设计 | ✅ ADR-009 + REPO_LAYOUT | 100% |
-| Monorepo 脚手架 | ✅ FORI-042 apps/packages | 100% |
+| 维度 | 状态 | 完成度 | 说明 |
+|------|------|--------|------|
+| 页面覆盖（36 路由） | ✅ build PASS | 100% | `npm run build` PASS |
+| UI_DESIGN 路由体系 | ✅ TabBar + 规范路由 | 100% | |
+| 六大模块 UI 流程 | ⚠️ 可点击走通，部分细节待补 | 90% | 字典 SUUMO 六 Tab 尚未分区 |
+| 人类评审 R2 必修 | ✅ P0/P1 UI 已铺开；FORI-095 GAP | 96% | |
+| 人类评审 R3 Minor | ✅ M1-12 纠错 + M3-10 付费墙 | 100% | |
+| 组件库 + ECharts | ✅ ChartCard 真实图表 | 100% | |
+| PWA / SW | ✅ sync + 离线队列 | 100% | |
+| Agent FAB suggestedPrompts | ⚠️ 存在但通用（非页面特定）| 70% | FORI-044 handoff 要求按角色/页面动态 |
+| 生产迁移设计 | ✅ ADR-009 + REPO_LAYOUT | 100% | |
+| Monorepo 脚手架 | ✅ FORI-042 apps/packages | 100% | |
 
-**FORI-044 原型 UI 完成度：96%**。关键路由均有可见内容，P0/P1 原型项已覆盖；剩余 4% 为非 UI 事项：真实高德地图/API 接线、真实支付/公证接口、Hermes/Cursor 基于真实日志的 R2 复盘。
+**当前诚实完成度：约 90%**。
+
+**已完成（不过度声称）**：路由体系、基础 UI 流程、三角色定价、撮合状态机、登录分级、贡献账本、分成瀑布图、Agent FAB 壳子。
+
+**真实 GAP（待 FORI-044 Wave 3 Codex 实现）**：
+- 字典详情未按 SUUMO 六 Tab 分组（目前为单页滚动）
+- 地图页 `/explore/map` 可能仅有占位 div（待确认）
+- Agent FAB suggestedPrompts 未按页面/角色动态化
+- P1 倒计时红色 pulse 在 < 30min 需确认
+- 置信度 Badge 三态需确认完整性
+
+**非 UI GAP（不在原型范围内）**：
+- 真实高德地图 JS API 2.0（FORI-052+）
+- 真实支付/公证接口（Wave 4+）
+- Hermes 真实调度日志复盘（FORI-095）
+
+## FORI-044 Wave 1 新增（2026-07-03）— 设计文档
+
+| 项 | 文件 | 状态 |
+|----|------|------|
+| 全量原型设计规格 | `docs/execution/FORI-044_FULL_DESIGN.md` | ✅ done |
+| 技术方案 v2.0 | `docs/execution/TECHNICAL_SOLUTION.md` | ✅ done |
+| PM 计划 v2.0 | `docs/execution/PM_TASK_PLAN.md` | ✅ done |
+| Codex 实现 Handoff | `.ai/handoffs/FORI-044-full-implement.md` | ✅ done |
+| REVIEW_ROUND2 状态更新 | `docs/execution/REVIEW_HUMAN_ROUND2_TASKS.md` | ✅ done |
+
+---
 
 ## FORI-044 Wave 3 新增（2026-07-03）
 
@@ -108,8 +135,12 @@ cd apps/api && uvicorn main:app ...    # GET /health → 200 ✅
 
 ---
 
-## 下一步（D4 Wave 1）
+## 下一步（D4 Wave 1 → Wave 3）
 
-1. FORI-043：定价 API + 数据模型
-2. FORI-044：定价 Agent 契约
-3. FORI-045：迁移 `prototype/app/price/*` → `apps/web`
+1. **FORI-044 Wave 3**（Codex）：执行 `.ai/handoffs/FORI-044-full-implement.md` P0 任务
+   - 字典 SUUMO 六 Tab 分区
+   - 地图页 Mock 气泡
+   - Agent FAB 角色动态 prompts
+2. **FORI-045**（Codex）：价格 API 真实端点（`apps/api`）
+3. **FORI-046**（Hermes + Codex）：价格模块单测
+4. **Human Gate**：预览补全后原型 6 关键路由
