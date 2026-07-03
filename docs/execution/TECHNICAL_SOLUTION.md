@@ -491,7 +491,9 @@ CI: `.github/workflows/ci.yml` — prototype build + lint + typecheck。
 ### 14.2 生产地图栈
 
 ```
-底图层:   高德 JS API 2.0 / 腾讯地图 JS API / 百度地图 JS API（选型 ADR 待定）
+底图层:   高德地图 JS API 2.0（DECIDED · 主选）；腾讯地图（备选 fallback）
+          选型依据：中国大陆合规、POI 数据覆盖全、JS SDK 成熟度高
+          非阻塞后续事项：高德 Web 服务 Key 申请（部署阶段完成）
 业务层:   平台自维护 GeoJSON 小区坐标层（PostgreSQL + PostGIS）
 服务端:   Viewport bounds 动态裁剪（不全量下发 ~80 万坐标）
 缓存:     Redis 缓存 tile 级别聚合结果（TTL 5min）
@@ -502,31 +504,50 @@ CI: `.github/workflows/ci.yml` — prototype build + lint + typecheck。
 
 **`GET /api/v1/dict/communities/map`**
 
-Query: `bounds` (minLat,minLng,maxLat,maxLng), `city?`, `tier[]?`, `priceMax?`, `zoom`
+Query 参数:
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `bounds` | string | `minLat,minLng,maxLat,maxLng`，当前地图可视区域 |
+| `zoom` | number | 地图缩放级别；< 10 返回聚合，≥ 10 返回个体 Pin |
+| `city?` | string | 城市名（如 `北京`）；可选 |
+| `district[]?` | string[] | 区域名多选（如 `海淀,朝阳`）；空 = 不过滤 |
+| `tier[]?` | string[] | 层级多选（`A`/`B`/`C`/`D`）；空 = 不过滤 |
+| `priceWanMax?` | number | 参考总价上限（万元）；空 = 不限 |
+
+> **价格单位说明**：API 响应中 `priceMin`/`priceMax` 为元/㎡（单价），客户端按公式推算参考总价：
+> `totalPriceWan = (priceMin + priceMax) / 2 × avgAreaSqm ÷ 10000`
+> 筛选参数 `priceWanMax` 为万元总价，服务端按上述公式换算后过滤。
 
 Response（zoom < 10 时返回聚合，zoom ≥ 10 时返回个体 Pin）:
 ```json
 {
   "success": true,
   "data": {
-    "mode": "individual",  // 或 "clustered"
+    "mode": "individual",
     "communities": [
       {
         "id": "community-001",
         "name": "中关村小区",
+        "city": "北京",
+        "district": "海淀",
         "lat": 39.9800,
         "lng": 116.3090,
         "tier": "B",
         "priceMin": 32000,
         "priceMax": 38000,
+        "avgAreaSqm": 92,
+        "totalPriceWanRef": 322,
         "listingCount": 12,
         "maintainerCount": 3
       }
     ],
-    "clusters": []  // zoom < 10 时有值
+    "clusters": []
   }
 }
 ```
+
+> `totalPriceWanRef` 为服务端预计算字段，等于 `(priceMin+priceMax)/2 × avgAreaSqm ÷ 10000`，供前端 Pin 气泡直接显示"参考总价 322万"，无需前端再次计算。
 
 ---
 

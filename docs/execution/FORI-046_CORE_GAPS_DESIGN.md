@@ -68,13 +68,15 @@ npm install leaflet.markercluster @types/leaflet.markercluster
 ```
 
 **原型底部注释**（每个地图页面必须显示）：
-> 「原型使用 OpenStreetMap + Mock 坐标；生产接入高德/腾讯/百度 JS API + 开源底图业务数据层」
+> 「原型使用 OpenStreetMap + Mock 坐标；生产接入高德地图 JS API 2.0 + 开源底图业务数据层」
 
-#### 生产（高德/腾讯/百度 + 开源业务层）
+#### 生产（高德 · 主选 + 开源业务层）
 
 ```
 生产地图架构：
-  底图层：   高德地图 JS API 2.0 / 腾讯地图 / 百度地图（三选一，ADR 待定）
+  底图层：   高德地图 JS API 2.0（DECIDED · 主选）；腾讯地图（备选 fallback）
+             ADR 已决定：高德在中国大陆合规性最佳、POI 数据最全、JS SDK 最成熟
+             非阻塞后续事项：高德 Web 服务 Key 申请（由工程团队在部署阶段完成）
   业务层：   平台自维护楼盘 GeoJSON 叠加层（~80 万小区坐标）
   聚合层：   服务端地理空间聚合（Tile-based clustering，PostGIS）
   实时层：   在售套数、价格更新 SSE 推送到地图
@@ -96,11 +98,15 @@ export interface CommunityPin {
   lat: number;
   lng: number;
   tier: "A" | "B" | "C" | "D";
-  priceMin: number;    // 元/㎡
-  priceMax: number;
+  priceMin: number;      // 元/㎡，单价下限
+  priceMax: number;      // 元/㎡，单价上限
+  avgAreaSqm: number;    // 平均建筑面积（㎡），用于推算参考总价
   listingCount: number;  // 当前在售套数
   maintainerCount: number;
 }
+
+// 参考总价公式（筛选与气泡显示均使用此公式）
+// totalPriceWan = (priceMin + priceMax) / 2 * avgAreaSqm / 10000
 ```
 
 覆盖城市与样本小区（Codex 按此列表填充真实坐标）：
@@ -151,7 +157,7 @@ export interface CommunityPin {
 ┌───────────────────────────────────┐
 │ [底部上拉面板，默认半折叠]          │  高 180px 收起 / 60vh 展开
 │  城市: 北京    [切换城市]           │
-│  筛选条件 chips: B级 · 300万内 ×  │
+│  筛选条件 chips: 海淀 · B级 · 300万内 ×  │
 │  找到 28 个小区  [清空筛选]         │
 │  ─────────────────────────────    │
 │  [小区卡片横向滚动列表]              │
@@ -169,10 +175,19 @@ export interface CommunityPin {
 
 ```
 ├── 城市：北京 / 上海 / 广州 / 深圳 / 成都 / 杭州（单选，默认北京）
+│         切换城市时，区域选择自动重置为「全部」
+├── 区域：（多选 Chip；列表随当前城市动态加载）
+│         全选 = 不过滤；切换城市 → 重置为全选
+│         与城市关系：城市 ⊃ 区域（区域是城市下级）
+│         与层级/价格关系：独立过滤，叠加 AND 逻辑
 ├── 层级：A / B / C / D（多选）
-├── 价格区间：双端滑块（万元总价）
+├── 总价区间：双端滑块（万元，参考总价）
+│         参考总价 = (priceMin + priceMax) / 2 × avgAreaSqm ÷ 10000
+│         范围 0 ~ 2000 万，步进 10 万；默认不限
 └── [重置] [确认查看 N 个小区]
 ```
+
+**筛选叠加逻辑**：城市（必选）→ 区域（多选可全选）→ 层级（多选）→ 总价上限（可空）；四个条件均 AND 叠加。
 
 **地图操作控件**：
 - 右下角：定位按钮（LocateFixed 图标，Mock: 定位到北京中关村）
@@ -181,7 +196,7 @@ export interface CommunityPin {
 
 **注释横条**（底部上拉面板底部）：
 ```
-原型使用 OpenStreetMap + Mock 坐标；生产接入高德/腾讯/百度 JS API + 开源底图业务数据层
+原型使用 OpenStreetMap + Mock 坐标；生产接入高德地图 JS API 2.0 + 开源底图业务数据层
 ```
 
 #### `/explore/dict` — 楼盘字典列表页（默认改为地图 Tab）
@@ -197,7 +212,7 @@ export interface CommunityPin {
                                   ↓
                          [50个小区 Pin 显示在地图上]
                                   ↓
-              [点击筛选 → B级 / 300万以内 → 过滤 Pin]
+              [点击筛选 → 海淀 / B级 / 总价300万以内 → 过滤 Pin]
                                   ↓
               [点击某 Pin → 底部弹出小区预览卡]
                                   ↓
@@ -776,7 +791,7 @@ Mock 数据：共 18 条（12 买家 + 6 房东），覆盖所有漏斗阶段。
 | `/explore/map` 地图渲染 | `react-leaflet` 地图可见，非 CSS 背景 |
 | Pin 数量 | ≥ 20 个小区标记（理想 50 个，覆盖 ≥ 3 城市） |
 | Pin 交互 | 点击 Pin → 底部面板展开显示小区预览卡 |
-| 筛选 | 层级筛选（A/B/C/D）可过滤 Pin |
+| 筛选 | 层级筛选（A/B/C/D）可过滤 Pin；区域筛选可过滤 Pin；总价滑块按参考总价过滤 |
 | 城市切换 | 切换城市后地图视野自动飞移 |
 | 钻取流程 | Pin → 预览卡 → [查看详情] → `/explore/dict/[communityId]` |
 | 注释 | 底部显示「原型使用 OpenStreetMap...」说明 |
@@ -813,6 +828,9 @@ Mock 数据：共 18 条（12 买家 + 6 房东），覆盖所有漏斗阶段。
 |------|------|------|
 | 原型地图库 | `leaflet` + `react-leaflet` | 无 API key；react 集成好；CDN 可用；易于 Codex 实现 |
 | 不用 maplibre-gl | 跳过 | maplibre 体积更大，原型阶段不需要 Vector tiles |
+| **生产地图供应商** | **高德地图 JS API 2.0（DECIDED）** | 中国大陆合规性最佳；POI 数据全；JS SDK 成熟；腾讯地图为备选 fallback |
+| 价格单位 | `priceMin/priceMax` 存元/㎡，筛选用参考总价（万元）| 元/㎡ 是行业标准字段；总价 = 单价 × avgAreaSqm ÷ 10000，用于用户感知的总价筛选 |
+| 区域筛选 | 一级筛选（城市下的行政区）| 区域是用户找房最核心的地理维度；与城市为父子关系，切换城市自动重置 |
 | 短视频路由 | `/marketing/video`（独立路由）| 短视频制作流程够复杂，不适合塞入现有 generate 页 |
 | CRM 路由 | 新增 `/leads`，不改造现有 buyers | 保持向后兼容；buyers 保留为快速视图 |
 | 房东线索独立路由 | `/workspace/agent/landlords` | 房东漏斗阶段与买家完全不同，共用列表会混乱 |
