@@ -289,10 +289,19 @@ function ResultPreview({ result, onCopy, onSave }: { result: ResultCard; onCopy:
           <Copy className="size-4" />
           复制
         </Button>
-        <Button onClick={onSave}>
-          <Save className="size-4" />
-          保存
-        </Button>
+        {result.type === "script" ? (
+          <Link href="/marketing/video">
+            <Button className="w-full">
+              <Play className="size-4" />
+              短视频工作台
+            </Button>
+          </Link>
+        ) : (
+          <Button onClick={onSave}>
+            <Save className="size-4" />
+            保存
+          </Button>
+        )}
       </div>
     </div>
   );

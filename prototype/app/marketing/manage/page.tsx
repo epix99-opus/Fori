@@ -129,7 +129,7 @@ export default function MarketingManagePage() {
             <p className="text-caption text-neutral-500">自媒体智能营销</p>
             <h1 className="truncate text-h3">推广管理</h1>
           </div>
-          <Link href="/marketing/generate" className="flex size-10 items-center justify-center rounded-xl bg-primary-700 text-white" aria-label="新建推广">
+          <Link href="/marketing/publish" className="flex size-10 items-center justify-center rounded-xl bg-primary-700 text-white" aria-label="新建推广">
             <Plus className="size-5" />
           </Link>
         </div>
@@ -143,6 +143,14 @@ export default function MarketingManagePage() {
               <h2 className="mt-1 text-h1">推广计划一屏管理</h2>
             </div>
             <Megaphone className="size-8 text-primary-200" />
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-2">
+            <Link href="/marketing/publish" className="rounded-xl bg-white/10 px-3 py-2 text-center text-caption font-semibold text-white">
+              新建发布
+            </Link>
+            <Link href="/marketing/reach" className="rounded-xl bg-white px-3 py-2 text-center text-caption font-semibold text-primary-700">
+              触达分析
+            </Link>
           </div>
           <div className="mt-4 grid grid-cols-3 gap-2">
             <Metric label="曝光" value={formatNumber(totals.exposure)} />

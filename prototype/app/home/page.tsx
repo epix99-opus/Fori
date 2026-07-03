@@ -63,9 +63,12 @@ const cityOptions = ["北京", "上海", "深圳", "杭州"];
 const defaultFeed = buildFeed();
 
 const moduleChecklist = [
-  { module: "楼盘字典", href: "/explore/dict", status: "地图/卡片/列表", done: true },
+  { module: "地图字典", href: "/explore/map", status: "8 城 50 小区", done: true },
+  { module: "楼盘字典", href: "/explore/dict", status: "地图默认入口", done: true },
   { module: "定价评估", href: "/price", status: "三角色价格图谱", done: true },
   { module: "智能撮合", href: "/match", status: "4h 响应窗口", done: true },
+  { module: "短视频营销", href: "/marketing/video", status: "分镜+发布+触达", done: true },
+  { module: "CRM 漏斗", href: "/workspace/agent/leads", status: "买家+房东", done: true },
   { module: "交易公证", href: "/transaction/tx-001", status: "资金监管+分成", done: true },
   { module: "共建收益", href: "/explore/dict/community-001", status: "贡献账本", done: true },
   { module: "认证分级", href: "/auth/login", status: "可见矩阵", done: true },
