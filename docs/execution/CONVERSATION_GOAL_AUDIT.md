@@ -540,7 +540,7 @@ cd prototype && npm run build  # ✅ 2026-07-03 审计日 PASS，37 路由
 | 3 实现 | Codex woot | `codex/fori-046-prototype` | `2ef4072` | build PASS（41 路由） |
 | 4 实现评审 | Claude epix | `claude/fori-046-impl-review` | `071d361` | **CONDITIONAL_PASS** |
 | 4b P0 修复 | Codex woot | `codex/fori-046-prototype` | `9800acc` | CityFlyTo useEffect + P1 |
-| 合并 | Cursor | `main` | （本附录合入后 SHA） | — |
+| 合并 | Cursor | `main` | `aad401e` | — |
 
 ### D.3 原型新路由（预览）
 
