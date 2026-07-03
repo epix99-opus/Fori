@@ -7,7 +7,7 @@
 > **唯一依据**：`docs/INITIAL_REQUIREMENTS.md`  
 > **说明**：本文档为 Fori 平台全量产品需求文档，六大核心模块全部纳入，不作任何 MVP 降级。每个功能点写至可设计、可开发颗粒度。
 
-> **修订 R2（2026-07-02）**：人类原型评审 Round 2 要求补强登录分级、付费与分成、定价撮合完整方案。待 FORI-080/089 设计产出后，在 §商业模式 与 §3.1 权限模型增补交叉引用；详见 `docs/execution/REVIEW_HUMAN_ROUND2_TASKS.md`。
+> **修订 R2（2026-07-02）**：人类原型评审 Round 2 设计包已产出。交叉引用：`docs/FEATURE_INVENTORY.md`（功能清单）、`docs/ROLE_UX_MATRIX.md`（角色交互）、`docs/CO_CREATION_FISSION.md`（共建裂变）、`docs/PRICING_MATCHING.md`（定价撮合）、`docs/AGENT_PAGE_CONTRACTS.md`（Agent 契约）、`docs/execution/ROUND2_R1_DESIGN.md`（R1 总览）。登录分级见 `prototype/app/auth/login`；付费与分成见 UI_DESIGN §七。
 
 ---
 
