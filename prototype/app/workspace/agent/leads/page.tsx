@@ -8,10 +8,10 @@ import { AgentAssistFab } from "@/components/AgentAssistFab";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { EmptyState } from "@/components/EmptyState";
-import { type BuyerStage, getLeadStageMeta, type Lead, type LeadType, mockLeads } from "@/lib/mock-leads";
+import { type BuyerStage, getLeadStageMeta, type Lead, type LeadType, type LandlordStage, mockLeads } from "@/lib/mock-leads";
 import { cn } from "@/lib/utils";
 
-const funnelStages: { stage: BuyerStage; label: string }[] = [
+const buyerFunnelStages: { stage: BuyerStage; label: string }[] = [
   { stage: "new", label: "新线索" },
   { stage: "following", label: "跟进中" },
   { stage: "appointed", label: "已约看" },
@@ -19,11 +19,21 @@ const funnelStages: { stage: BuyerStage; label: string }[] = [
   { stage: "lost", label: "流失" },
 ];
 
+const landlordFunnelStages: { stage: LandlordStage; label: string }[] = [
+  { stage: "contacted", label: "已接触" },
+  { stage: "interested", label: "有意向" },
+  { stage: "agreed_list", label: "同意挂牌" },
+  { stage: "listed", label: "已上架" },
+  { stage: "sold", label: "已成交" },
+];
+
 export default function AgentLeadsPage() {
   const [tab, setTab] = useState<LeadType | "all">("buyer");
-  const [stageFilter, setStageFilter] = useState<BuyerStage | "all">("all");
+  const [stageFilter, setStageFilter] = useState<BuyerStage | LandlordStage | "all">("all");
   const buyerLeads = mockLeads.filter((lead) => lead.type === "buyer");
   const landlordLeads = mockLeads.filter((lead) => lead.type === "landlord");
+  const stageOptions = tab === "landlord" ? landlordFunnelStages : buyerFunnelStages;
+  const activeLeads = tab === "landlord" ? landlordLeads : buyerLeads;
   const leads = useMemo(
     () =>
       mockLeads.filter((lead) => {
@@ -35,6 +45,11 @@ export default function AgentLeadsPage() {
   );
   const following = mockLeads.filter((lead) => ["following", "appointed", "interested", "agreed_list"].includes(lead.stage)).length;
   const converted = mockLeads.filter((lead) => ["converted", "sold"].includes(lead.stage)).length;
+
+  function handleTabChange(nextTab: LeadType | "all") {
+    setTab(nextTab);
+    setStageFilter("all");
+  }
 
   return (
     <main className="mobile-shell pb-24">
@@ -48,9 +63,9 @@ export default function AgentLeadsPage() {
           <p className="text-caption text-primary-200">我的线索漏斗</p>
           <h2 className="mt-1 text-h1">本月新增 {mockLeads.length} · 跟进中 {following} · 已成交 {converted}</h2>
           <div className="mt-4 space-y-2">
-            {funnelStages.map((item) => {
-              const count = buyerLeads.filter((lead) => lead.stage === item.stage).length;
-              return <FunnelRow key={item.stage} label={item.label} count={count} max={buyerLeads.length} />;
+            {stageOptions.map((item) => {
+              const count = activeLeads.filter((lead) => lead.stage === item.stage).length;
+              return <FunnelRow key={item.stage} label={item.label} count={count} max={activeLeads.length} />;
             })}
           </div>
           <div className="mt-4 grid grid-cols-2 gap-2 text-caption">
@@ -60,14 +75,14 @@ export default function AgentLeadsPage() {
         </section>
 
         <div className="grid grid-cols-3 gap-2">
-          <TabButton active={tab === "buyer"} onClick={() => setTab("buyer")}>买家线索 ({buyerLeads.length})</TabButton>
-          <TabButton active={tab === "landlord"} onClick={() => setTab("landlord")}>房东线索 ({landlordLeads.length})</TabButton>
-          <TabButton active={tab === "all"} onClick={() => setTab("all")}>全部</TabButton>
+          <TabButton active={tab === "buyer"} onClick={() => handleTabChange("buyer")}>买家线索 ({buyerLeads.length})</TabButton>
+          <TabButton active={tab === "landlord"} onClick={() => handleTabChange("landlord")}>房东线索 ({landlordLeads.length})</TabButton>
+          <TabButton active={tab === "all"} onClick={() => handleTabChange("all")}>全部</TabButton>
         </div>
 
         <div className="flex gap-2 overflow-x-auto pb-1">
           <TabButton active={stageFilter === "all"} onClick={() => setStageFilter("all")}>全部</TabButton>
-          {funnelStages.map((item) => (
+          {stageOptions.map((item) => (
             <TabButton key={item.stage} active={stageFilter === item.stage} onClick={() => setStageFilter(item.stage)}>{item.label}</TabButton>
           ))}
         </div>

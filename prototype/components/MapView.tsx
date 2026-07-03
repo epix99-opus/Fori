@@ -2,7 +2,7 @@
 
 import "leaflet/dist/leaflet.css";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import L from "leaflet";
 import { Layers, LocateFixed, SlidersHorizontal, X } from "lucide-react";
@@ -48,7 +48,9 @@ function createPinIcon(pin: CommunityPin, isSelected: boolean) {
 
 function CityFlyTo({ city }: { city: City }) {
   const map = useMap();
-  map.flyTo(CITY_CENTERS[city], city === "重庆" ? 11 : 12, { duration: 0.6 });
+  useEffect(() => {
+    map.flyTo(CITY_CENTERS[city], city === "重庆" ? 11 : 12, { duration: 0.6 });
+  }, [city, map]);
   return null;
 }
 

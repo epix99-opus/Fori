@@ -21,7 +21,7 @@ const videoTypes = [
 
 export default function MarketingVideoPage() {
   const [videoType, setVideoType] = useState("immersive");
-  const [state, setState] = useState<"idle" | "loading" | "ready">("ready");
+  const [state, setState] = useState<"idle" | "loading" | "ready">("idle");
   const [paramsOpen, setParamsOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const listing = mockListings[0];
