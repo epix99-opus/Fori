@@ -1,9 +1,15 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import { AlertCircle, BadgeCheck, Building2, Crown, History, Home, LineChart, Pencil, ShieldCheck, Trophy } from "lucide-react";
 
+import { AgentAssistFab } from "@/components/AgentAssistFab";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
+import { ViewerRoleSwitcher } from "@/components/ViewerRoleSwitcher";
 import { mockListings } from "@/lib/mock";
+import { maskValue, type ViewerRole } from "@/lib/viewer-role";
 
 const buildings = [
   { name: "1 号楼", units: "2 单元", homes: 108, quality: "A" },
@@ -25,8 +31,16 @@ const contributionLedger = [
   { actor: "李四", action: "上传成交贡献样本", points: 200, date: "2026-06-18", status: "成交归档" },
 ];
 
+const suumoSections = [
+  { label: "基础信息", fields: ["建筑年代 2008", "总户数 1,286", "物业费 3.8 元/㎡/月"] },
+  { label: "交通生活", fields: ["距地铁 520m", "三甲医院 1.8km", "商场 900m"] },
+  { label: "交易披露", fields: ["近 12 月成交 86 套", "当前在售 12 套", "均价 82,000 元/㎡"] },
+  { label: "保密字段", fields: ["精确房号", "业主联系方式", "经纪维护备注"] },
+];
+
 export default function CommunityDetailPage({ params }: { params: { communityId: string } }) {
   const listing = mockListings[0];
+  const [viewerRole, setViewerRole] = useState<ViewerRole>("guest");
 
   return (
     <main className="mobile-shell min-h-dvh bg-neutral-100 px-4 py-5">
@@ -46,6 +60,25 @@ export default function CommunityDetailPage({ params }: { params: { communityId:
         <Summary icon={Home} label="住宅" value="1,286" />
         <Summary icon={LineChart} label="成交样本" value="86" />
       </section>
+
+      <ViewerRoleSwitcher value={viewerRole} onChange={setViewerRole} className="mt-4" />
+
+      <Card className="mt-4" header={<SectionTitle icon={ShieldCheck} title="SUUMO 式披露模板" subtitle="公开字段、认证字段与保密字段分区展示" />}>
+        <div className="space-y-3">
+          {suumoSections.map((section) => (
+            <div key={section.label} className="rounded-xl bg-neutral-100 p-3">
+              <p className="text-body-s font-semibold text-neutral-900">{section.label}</p>
+              <div className="mt-2 grid grid-cols-1 gap-2 text-caption text-neutral-600">
+                {section.fields.map((field) => (
+                  <span key={field} className="rounded-lg bg-white px-3 py-2">
+                    {section.label === "保密字段" ? maskValue(viewerRole, "ownerContact", field) : field}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
 
       <Card className="mt-4" header={<h2 className="text-h3">楼栋数据</h2>}>
         <div className="space-y-3">
@@ -114,6 +147,10 @@ export default function CommunityDetailPage({ params }: { params: { communityId:
         发现信息有误？提交纠错
       </Link>
       <p className="mt-2 text-center text-caption text-neutral-500">业主/买家可提交字段纠错，平台审核后计入贡献积分（M1-12 Mock）</p>
+      <AgentAssistFab
+        pageContext={`楼盘字典详情 · ${params.communityId}`}
+        suggestedPrompts={["解释这个小区哪些字段被脱敏", "总结首建者和维护者权益", "帮我生成纠错提交说明"]}
+      />
     </main>
   );
 }

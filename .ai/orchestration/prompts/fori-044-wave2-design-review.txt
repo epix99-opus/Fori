@@ -1,0 +1,42 @@
+# FORI-044 Wave 2 — Design Review (Codex woot)
+
+You are Codex on woot in /Users/woot/Dev/Fori.
+
+## Context
+Wave 1 Claude design was BLOCKED (session limit). FORI-044_FULL_DESIGN.md may NOT exist yet.
+Your job: adversarial review of available design artifacts + human review gaps.
+
+## Required Reading
+1. `.ai/handoffs/Human/Fori平台原型评审意见.md` — 8 items
+2. `docs/execution/FORI-043_DESIGN.md`
+3. `docs/execution/REVIEW_HUMAN_ROUND2_TASKS.md`
+4. `docs/execution/PROTOTYPE_COMPLETION.md`
+5. `docs/PRICING_MATCHING.md`
+6. `docs/execution/TECHNICAL_SOLUTION.md`
+7. `docs/execution/PM_TASK_PLAN.md`
+8. If exists: `docs/execution/FORI-044_FULL_DESIGN.md`
+9. Scan `prototype/app/` — identify blank/broken routes
+
+## Deliverable
+Create `docs/reviews/REVIEW-044-DESIGN-CODEX.md` with mandatory format:
+
+## VERDICT: [PASS | CONDITIONAL_PASS | FAIL]
+
+## FINDINGS
+### F1: ...
+- **严重级别**: Critical | Major | Minor | Info
+- **证据**: path:section
+
+## REQUIRED_CHANGES
+(actionable items for Wave 3 Codex implement — every page/module, file paths)
+
+If FORI-044_FULL_DESIGN.md missing, VERDICT must be FAIL or CONDITIONAL_PASS with exhaustive REQUIRED_CHANGES derived from human review 8 items.
+
+## Git
+```bash
+git checkout -B codex/fori-044-design-review
+git add docs/reviews/REVIEW-044-DESIGN-CODEX.md
+git commit -m "review: FORI-044 design adversarial review [codex]"
+```
+
+Do NOT modify prototype/ in this wave.

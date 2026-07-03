@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 
 import { BottomSheet } from "@/components/BottomSheet";
+import { AgentAssistFab } from "@/components/AgentAssistFab";
 import { Button } from "@/components/Button";
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
@@ -60,6 +61,22 @@ function buildFeed(repeat = 8): FeedListing[] {
 
 const cityOptions = ["北京", "上海", "深圳", "杭州"];
 const defaultFeed = buildFeed();
+
+const moduleChecklist = [
+  { module: "楼盘字典", href: "/explore/dict", status: "地图/卡片/列表" },
+  { module: "定价评估", href: "/price", status: "三角色价格图谱" },
+  { module: "智能撮合", href: "/match", status: "4h 响应窗口" },
+  { module: "交易公证", href: "/transaction/tx-001", status: "资金监管+分成" },
+  { module: "共建收益", href: "/explore/dict/community-001", status: "贡献账本" },
+  { module: "认证分级", href: "/auth/login", status: "可见矩阵" },
+];
+
+const roleGuides = [
+  { role: "买家", text: "先看真实字典和公允价，再发布需求进入撮合。" },
+  { role: "卖家", text: "用挂牌建议、推广素材和交易存证降低试错成本。" },
+  { role: "经纪人", text: "维护楼盘字典可获得 P1 客源优先权与分成。" },
+  { role: "平台工作人员", text: "通过字典审核、交易风控和收益分配看板处理异常。" },
+];
 
 export default function HomePage() {
   const [status, setStatus] = useState<FeedState>("loading");
@@ -193,6 +210,38 @@ export default function HomePage() {
           </div>
         </div>
 
+        <div className="rounded-xl bg-white p-4 shadow-card">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-caption font-semibold text-primary-700">功能清单对齐</p>
+              <h2 className="mt-1 text-h3">六大模块入口保持可见</h2>
+            </div>
+            <Link href="/profile" className="text-caption font-semibold text-primary-700">
+              我的权益
+            </Link>
+          </div>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            {moduleChecklist.map((item) => (
+              <Link key={item.module} href={item.href} className="rounded-xl bg-neutral-100 p-3">
+                <p className="text-body-s font-semibold text-neutral-900">{item.module}</p>
+                <p className="mt-1 text-caption text-neutral-500">{item.status}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-xl bg-white p-4 shadow-card">
+          <p className="text-caption font-semibold text-primary-700">角色化使用路径</p>
+          <div className="mt-3 space-y-2">
+            {roleGuides.map((item) => (
+              <div key={item.role} className="rounded-xl border border-neutral-200 p-3">
+                <p className="text-body-s font-semibold">{item.role}</p>
+                <p className="mt-1 text-caption text-neutral-500">{item.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <div className="flex items-center justify-between">
           <div>
             <p className="text-caption text-neutral-500">{refreshing ? "正在刷新推荐" : "下拉可刷新"}</p>
@@ -267,6 +316,7 @@ export default function HomePage() {
       </BottomSheet>
 
       {toast ? <div className="fixed inset-x-0 top-4 z-50 mx-auto max-w-[390px] px-4"><Toast type="success" title={toast} /></div> : null}
+      <AgentAssistFab pageContext="首页功能总览" suggestedPrompts={["我作为买家应该从哪一步开始？", "解释 Fori 六大模块如何协同", "哪些信息需要实名认证后可见？"]} />
       <TabBar active="home" />
     </main>
   );

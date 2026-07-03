@@ -2,8 +2,8 @@
 
 > **来源**: `.ai/handoffs/Human/Fori平台原型评审意见.md`  
 > **对照**: `.ai/handoffs/Human/Fori房地产智能中介交易平台初始需求.md`  
-> **版本**: 1.0 · 2026-07-02  
-> **分支**: `cursor/fori-050-review-round2`
+> **版本**: 1.1 · 2026-07-03  
+> **分支**: `codex/fori-044-full-prototype`
 
 ---
 
@@ -22,7 +22,7 @@
 
 **本轮 Cursor 已实现**：楼盘字典地图/卡片/列表三态切换、角色差异化字段脱敏、登录分级可见矩阵；共享组件 `ViewerRoleSwitcher`、`ViewModeToggle`、`AgentAssistFab`。
 
-**待派发**：设计文档 4 项（Claude）、共建裂变/定价撮合/Agent 规范 7 项、流程治理 2 项。
+**FORI-044 Wave 3 更新**：关键原型路由均有可见内容；字典、定价、撮合、交易、登录分级、Agent FAB 已落到 UI。治理类保留为文档/流程 GAP，不在本次代码任务中伪造完成。
 
 ---
 
@@ -178,10 +178,10 @@
 
 | ID | 标题 | Owner | P | 状态 |
 |----|------|-------|---|------|
-| FORI-080 | 主功能清单（无删减分级） | Claude | P0 | queued |
-| FORI-081 | 全角色功能与交互矩阵 | Claude | P0 | queued |
-| FORI-082 | 字典 SUUMO 式披露规范 | Claude | P0 | queued |
-| FORI-089 | 定价与撮合机制完整方案 | Claude | P0 | queued |
+| FORI-080 | 主功能清单（无删减分级） | Claude | P0 | **done** (`docs/FEATURE_INVENTORY.md` + `/home` 功能入口) |
+| FORI-081 | 全角色功能与交互矩阵 | Claude | P0 | **done** (`docs/ROLE_UX_MATRIX.md` + 首页/字典角色入口) |
+| FORI-082 | 字典 SUUMO 式披露规范 | Claude | P0 | **done** (`docs/UI_DESIGN.md` + 字典披露模板) |
+| FORI-089 | 定价与撮合机制完整方案 | Claude | P0 | **done** (`docs/PRICING_MATCHING.md`) |
 
 ### Wave R2-1 — 原型 P0（本回合）
 
@@ -195,30 +195,30 @@
 
 | ID | 标题 | Owner | P | 状态 |
 |----|------|-------|---|------|
-| FORI-086 | 共建共赢裂变机制设计 | Claude | P1 | queued |
-| FORI-087 | 贡献账本与奖励 UI | Codex | P1 | queued |
-| FORI-088 | 成交分成可视化 UI | Codex | P1 | queued |
+| FORI-086 | 共建共赢裂变机制设计 | Claude | P1 | **done** (`docs/CO_CREATION_FISSION.md`) |
+| FORI-087 | 贡献账本与奖励 UI | Codex | P1 | **done** (`/explore/dict/community-001`) |
+| FORI-088 | 成交分成可视化 UI | Codex | P1 | **done** (`/transaction/tx-001`) |
 
 ### Wave R2-3 — 定价撮合增强（P1）
 
 | ID | 标题 | Owner | P | 状态 |
 |----|------|-------|---|------|
-| FORI-090 | 价格页三角色差异化 | Codex | P1 | queued |
-| FORI-091 | 匹配撮合流程增强 | Codex | P1 | queued |
+| FORI-090 | 价格页三角色差异化 | Codex | P1 | **done** (`/price`, `/price/community-001`) |
+| FORI-091 | 匹配撮合流程增强 | Codex | P1 | **done** (`/match` 状态机 + 4h SLA) |
 
 ### Wave R2-4 — Agent 原生（P1）
 
 | ID | 标题 | Owner | P | 状态 |
 |----|------|-------|---|------|
-| FORI-092 | 全站 Agent 页面契约 | Claude | P1 | queued |
-| FORI-093 | Agent 助手交互壳 | Cursor | P1 | partial（FAB 已加字典页） |
+| FORI-092 | 全站 Agent 页面契约 | Claude | P1 | **done** (`docs/AGENT_PAGE_CONTRACTS.md`) |
+| FORI-093 | Agent 助手交互壳 | Cursor | P1 | **done**（关键页已铺 Agent FAB，含文字/语音/拍摄壳） |
 
 ### Wave R2-5 — 治理与复盘（P2）
 
 | ID | 标题 | Owner | P | 状态 |
 |----|------|-------|---|------|
-| FORI-094 | 文档有效性治理 CANON | Cursor | P2 | queued |
-| FORI-095 | Round 2 协作复盘 | Hermes | P2 | queued |
+| FORI-094 | 文档有效性治理 CANON | Cursor | P2 | **done** (`docs/CANON.md`) |
+| FORI-095 | Round 2 协作复盘 | Hermes | P2 | **GAP**：需 Hermes/Cursor 以真实调度日志产出复盘，本次 Codex 不伪造 |
 
 ---
 
