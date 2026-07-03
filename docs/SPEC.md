@@ -5,6 +5,21 @@
 
 ## 一、协作模型：设计-评审-执行-验证
 
+> **v3 升级（2026-07-03）**：完整七段流水线 D0–D6 见 `docs/reviews/MULTI_AGENT_COLLABORATION_REDESIGN.md` §5.2 与 `AGENTS.md`。  
+> **交叉换位**：`.ai/orchestration/CROSS_SWAP_PROTOCOL.md` — 设计者不自审；Codex 评 Claude 设计、Claude 评 Codex 实现；VERDICT 链为证据。
+
+### 1.0 七段流水线摘要（Fori-PDP）
+
+| 阶段 | 主责 | 验收 |
+|------|------|------|
+| D0 发现 | Cursor | Discovery Brief + Human Gate |
+| D1 充实设计 | Claude Code | 评审 VERDICT PASS |
+| D2 原型尖峰 | Codex | `prototype` build PASS |
+| D3 原型验收 | Hermes + Claude | REVIEW-*.md PASS |
+| D4 MVP 开发 | Codex | 单测 + lint PASS |
+| D5 集成发布 | Cursor + Codex | CI/staging PASS |
+| D6 运营迭代 | Cursor | backlog 更新 |
+
 ### 1.1 四阶段分工
 
 每个功能单元必须完整走完四个阶段，不得跳过：

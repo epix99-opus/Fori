@@ -1,0 +1,44 @@
+# FORI-044 P0 Fixes — Quick Re-review (Claude epix)
+
+You are Claude Code on epix in /Users/epix/Dev/Fori.
+
+## Setup
+```bash
+git fetch origin && git checkout -B claude/fori-044-p0-review origin/main
+```
+
+## Mission
+Quick adversarial re-review of Codex P0 fixes (commit 84725e1). Verify RC-1 and RC-2 from `docs/reviews/REVIEW-044-IMPL-CLAUDE.md` are resolved. Do NOT modify prototype code.
+
+## Required Reading
+1. `docs/reviews/REVIEW-044-IMPL-CLAUDE.md` — original REQUIRED_CHANGES
+2. `prototype/app/explore/dict/[communityId]/page.tsx` — SUUMO 6-Tab + role gating
+3. `prototype/app/transaction/[id]/page.tsx` — commission waterfall
+4. `prototype/app/match/page.tsx` — P1 fixes (RC-3~5)
+5. `prototype/app/home/page.tsx` — roleGuides (RC-6)
+6. Run: `cd prototype && npm run build`
+
+## Deliverable
+Create `docs/reviews/REVIEW-044-P0-FIXES-CLAUDE.md`:
+
+```
+# REVIEW-044-P0-FIXES-CLAUDE
+
+## VERDICT
+[PASS | CONDITIONAL_PASS | FAIL]
+
+## FINDINGS
+...
+
+## REQUIRED_CHANGES
+(if not PASS)
+```
+
+## Git
+```bash
+git add docs/reviews/REVIEW-044-P0-FIXES-CLAUDE.md
+git commit -m "review: FORI-044 P0 fixes verification [claude]"
+git push -u origin claude/fori-044-p0-review
+```
+
+Do NOT modify prototype/ — review docs only.

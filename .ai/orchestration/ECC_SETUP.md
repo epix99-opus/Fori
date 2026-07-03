@@ -83,6 +83,22 @@
 claude -p "Reply: CLAUDE_OFFICIAL_OK" < /dev/null
 ```
 
+### macOS Keychain 门控（v1.1）
+
+Claude CLI 可能将 OAuth token 存入 **macOS Keychain** 而非 `~/.claude.json`：
+
+| jq `accessToken` | `claude -p` | 判定 |
+|------------------|-------------|------|
+| false | OK | Keychain 假阴性 → `keychain_ok_no_jq_token` |
+| false | 401 | 真 auth 失效 → `auth_error` |
+| true | 401 | token 过期 → Human re-login |
+
+```bash
+security find-generic-password -s "Claude Code-credentials" 2>/dev/null && echo KEYCHAIN:present
+```
+
+完整门控见 `.ai/orchestration/AUTH_PERSISTENCE.md` v1.1。**裁决优先级**：`-p` 冒烟 > Keychain > jq。
+
 ### 401 恢复
 
 **根因（2026-07-02 epix）**：`~/.claude.json` 中 `oauthAccount` 仅保留账号元数据，`accessToken` / `refreshToken` 均为空时 API 返回 401；`claude auth status` 仍可能显示 `loggedIn: true`（陈旧缓存），**以 `claude -p` 为准**。

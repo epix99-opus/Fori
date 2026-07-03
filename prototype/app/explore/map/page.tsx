@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Layers, LayoutGrid, List, LocateFixed, MapPin, SlidersHorizontal } from "lucide-react";
 
+import { AgentAssistFab } from "@/components/AgentAssistFab";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { mockListings } from "@/lib/mock";
@@ -80,6 +81,11 @@ export default function ExploreMapPage() {
           </p>
         </Card>
       </section>
+
+      <AgentAssistFab
+        pageContext="楼盘字典 · 地图模式"
+        suggestedPrompts={["这片区域有哪些 A 级小区？", "对比地图上三个标注的价格层级", "未登录时地图能看哪些信息？"]}
+      />
     </main>
   );
 }

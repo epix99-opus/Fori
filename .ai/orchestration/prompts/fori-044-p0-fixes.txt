@@ -1,0 +1,56 @@
+# FORI-044 P0 Fixes — Codex woot
+
+You are Codex on woot in /Users/woot/Dev/Fori.
+
+## Setup (already done)
+Branch: `codex/fori-044-p0-fixes` from `origin/main`
+
+## Mission
+Fix P0 blockers from `docs/reviews/REVIEW-044-IMPL-CLAUDE.md` REQUIRED_CHANGES. Implement P1 if straightforward.
+
+## Required Reading
+1. `docs/reviews/REVIEW-044-IMPL-CLAUDE.md` — RC-1 through RC-6
+2. `docs/execution/FORI-044_FULL_DESIGN.md` — §4 (dict tabs), §8.3 (commission)
+3. `prototype/app/explore/dict/[communityId]/page.tsx`
+4. `prototype/app/transaction/[id]/page.tsx`
+5. `prototype/app/match/page.tsx`
+6. `prototype/app/home/page.tsx`
+
+## P0 (must fix)
+
+### RC-1: SUUMO 6-Tab on `/explore/dict/community-001`
+File: `prototype/app/explore/dict/[communityId]/page.tsx`
+- 6 tabs: 概况/设施/交通/价格/成交/共建 — each with real content
+- viewerRole gates 价格/成交 tabs with 🔒 + upgrade CTA
+- 成交 tab: non-agent sees 🔒 + 「了解经纪人入驻 →」
+
+### RC-2: Commission waterfall on `/transaction/tx-001`
+File: `prototype/app/transaction/[id]/page.tsx`
+- `revenueTotal = 60000` (¥300万 × 2%)
+- Split: 80% broker (¥48,000) / 15% platform (¥9,000) / 5% dict (¥3,000)
+- Header text must match numbers
+
+## P1 (if time permits)
+- RC-3: P1 countdown red `animate-pulse` when < 30min (`match/page.tsx`)
+- RC-4: P1/P2/P3 left border colors (`match/page.tsx`)
+- RC-5: P1 contribution guide text on MatchCard
+- RC-6: `roleGuides` copy in `home/page.tsx` per design spec
+
+## Constraints
+- ONLY modify `prototype/`
+- `cd prototype && npm run build` MUST PASS (0 TS errors)
+- Do NOT modify docs/
+
+## Verification
+After changes, manually verify:
+- `/explore/dict/community-001` — tab switch + role gating
+- `/transaction/tx-001` — ¥60,000 waterfall 80/15/5
+
+## Git
+```bash
+git add prototype/
+git commit -m "fix: FORI-044 P0 — SUUMO 6-Tab + commission 80/15/5 [codex]"
+git push -u origin codex/fori-044-p0-fixes
+```
+
+Report: files changed, build output, RC checklist status.

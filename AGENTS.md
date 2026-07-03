@@ -79,6 +79,25 @@ main ← 唯一合并点（由 Cursor/Human 负责合并）
 
 ## 多 Agent 协作模型：设计-评审-执行-验证
 
+> **v3 升级**：四阶段为 **D1–D4 子集**；完整七段流水线见 `docs/reviews/MULTI_AGENT_COLLABORATION_REDESIGN.md` §5.2。  
+> **交叉换位协议**：`.ai/orchestration/CROSS_SWAP_PROTOCOL.md`（设计者不自审；Codex 评 Claude 设计、Claude 评 Codex 实现）。
+
+### 七段产品交付流水线（Fori-PDP D0–D6）
+
+| 阶段 | 名称 | 主责 | 关键产物 | 门禁 |
+|------|------|------|----------|------|
+| **D0** | 发现 Discovery | Cursor | `docs/discovery/DISCOVERY_BRIEF.md` | Human 确认范围 |
+| **D1** | 充实设计 Enriched Design | Claude Code | PRD、ARCHITECTURE、ADR、UI_DESIGN | 评审 VERDICT: PASS |
+| **D2** | 原型尖峰 Prototype Spike | Codex | `prototype/`、Mock、组件库 | `npm run build` PASS |
+| **D3** | 原型验收 Prototype Gate | Hermes + Claude | VERIFY-*.md、REVIEW-*.md | 全案 VERDICT: PASS |
+| **D4** | MVP 开发 Build | Codex (worktree) | `src/`、`apps/api`、单测 | lint/type PASS |
+| **D5** | 集成发布 Integrate | Cursor + Codex | CI、release note | staging 冒烟 PASS |
+| **D6** | 运营迭代 Operate | Cursor | backlog、指标 | — |
+
+**与旧四阶段映射**：Design = D0+D1 · Review = D1末+D3 · Execute = D2+D4 · Verify = D3+D5
+
+**当前阶段**：D3（FORI-044 原型验收 PASS）→ 待 D4 FORI-045 API
+
 ### 四阶段分工（每个功能单元必须完整走完）
 
 | 阶段 | 负责人 | 产出 | 不可越界 |

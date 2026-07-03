@@ -25,7 +25,7 @@
 
 **FORI-044 Wave 1（Claude 全量设计包，2026-07-03）**：产出 `FORI-044_FULL_DESIGN.md`（8 条评审完整 UI 规格）、`TECHNICAL_SOLUTION.md v2.0`（六大 Agent 契约）、`PM_TASK_PLAN.md v2.0`、Codex 实现 Handoff。
 
-**FORI-044 Wave 3（待 Codex 执行）**：handoff 文件已就绪，待派发实现 SUUMO 六 Tab、P1 pulse 优化、地图 Mock 标记等 P0/P1 项。
+**FORI-044 Wave 3（Codex 执行，2026-07-03 完成）**：SUUMO 六 Tab、P0 修复、37 路由 build PASS；P0 review PASS 已合 main。
 
 ---
 
@@ -221,7 +221,7 @@
 | ID | 标题 | Owner | P | 状态 |
 |----|------|-------|---|------|
 | FORI-094 | 文档有效性治理 CANON | Cursor | P2 | **done** (`docs/CANON.md`) |
-| FORI-095 | Round 2 协作复盘 | Hermes | P2 | **GAP**：需 Hermes 以真实调度日志产出复盘；不伪造；Wave 5 计划 |
+| FORI-095 | R2 协作复盘 | Hermes | P2 | **done** | `docs/execution/FORI-095_COLLABORATION_RETROSPECTIVE.md`（Cursor 起草，待 Claude 深审） |
 
 ### Wave D4-W1 — FORI-044 全量设计包（新增）
 
@@ -231,7 +231,7 @@
 | FORI-044-D2 | 技术方案 v2.0（全 API + 6 Agent）| Claude | P0 | **done** (`TECHNICAL_SOLUTION.md v2.0`) |
 | FORI-044-D3 | PM 计划 v2.0 | Claude | P0 | **done** (`PM_TASK_PLAN.md v2.0`) |
 | FORI-044-D4 | Codex 实现 Handoff | Claude | P0 | **done** (`.ai/handoffs/FORI-044-full-implement.md`) |
-| FORI-044-W3 | 原型补全（Codex 执行 handoff）| Codex | P1 | **待派发** |
+| FORI-044-W3 | 原型补全（Codex 执行 handoff）| Codex | P1 | **done**（R2 `72cdabc` + P0 `84725e1` · build PASS · P0 review PASS）|
 
 ---
 

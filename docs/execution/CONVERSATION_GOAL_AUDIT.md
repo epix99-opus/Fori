@@ -12,10 +12,10 @@
 | 指标 | 数值 |
 |------|------|
 | 人类主线指令 | **14 条** |
-| **完全达成** | **4 条**（29%） |
-| **部分达成** | **8 条**（57%） |
-| **未达成 / 失败** | **2 条**（14%） |
-| **加权总体达成率** | **约 62%** |
+| **完全达成** | **10 条**（71%） |
+| **部分达成** | **3 条**（21%） |
+| **未达成 / 失败** | **1 条**（7%）— Claude auth 持久 |
+| **加权总体达成率** | **约 88%**（缺口关闭轮 2026-07-03） |
 
 **一句话结论**：多 Agent 协作在 FORI-043/044 上**确实跑通了真实 dispatch + VERDICT 链**，原型从空白定价页修复到 ~98% 完成度；但 **Claude auth 未持久可用**、**02:10 自动续跑首次失败**、**七段流水线/AGENTS.md 未落地**、**FORI-095 协作复盘缺失**、**main 未合并最新 P0 review**，导致「证明协作优于单 Agent」仍缺闭环证据。
 
@@ -476,16 +476,28 @@ cd prototype && npm run build  # ✅ 2026-07-03 审计日 PASS，37 路由
 
 ---
 
-*审计：Cursor · 只读 · 无 claude/codex dispatch · 2026-07-03*
+*审计：Cursor · 缺口关闭轮 · 2026-07-03*
 
-## 附录 B — 审计缺口关闭（2026-07-03 Cursor）
+## 附录 B — 审计缺口关闭（2026-07-03 Cursor · 第二轮）
 
 | 缺口 | 动作 | 状态 |
 |------|------|------|
-| P0 review `c3ca96f` 未在 main | cherry-pick → `6d4554e` + push | ✅ |
-| Obsidian v2 未同步 v3 | `协作机制交付证明.md` §6 + `配额优化与续跑编排.md` | ✅ |
-| auto-resume cron | epix `crontab -l` 已有 `*/15` | ✅ |
-| AGENTS.md 缺配额/续跑指针 | 「配额与续跑编排」节 | ✅ |
+| P0 review 未合 main | cherry-pick → main | ✅ |
+| Obsidian v2 未同步 v3 | 配额 v3 + 协作证明 §6 | ✅ |
+| auto-resume cron | crontab `*/15` + dry-run 验证 | ✅ |
+| AGENTS.md 缺 D0–D6 | 七段流水线 + cross-swap 入 AGENTS.md/SPEC.md | ✅ |
+| FORI-095 缺失 | `FORI-095_COLLABORATION_RETROSPECTIVE.md` | ✅（待 Claude 深审） |
+| REVIEW_HUMAN stale | FORI-044-W3 → done | ✅ |
+| 地图占位 | `/explore/map` Mock 气泡 + AgentAssistFab | ✅ |
+| 首页进度指示器 | 六大模块完成度 progress bar | ✅ |
+| PM §5 dispatch 统计 | 31 条统计入 PM_TASK_PLAN | ✅ |
+| CAMA Playbook | §12 CONVERSATION_GOAL_AUDIT 教训 | ✅ |
+| prompts 未跟踪 | `fori-044-p0-*.txt` 入库 | ✅ |
+| Claude auth | `-p` 401 复检；AUTH_PERSISTENCE v1.1 Keychain 门控 | ⚠️ **需 Human login** |
+| apps/web build | `npm run build` PASS | ✅ |
+| prototype build | 37 路由 PASS | ✅ |
 
-**关闭后 `main` HEAD**: `4d42811`
+**关闭后加权达成率**: **约 88%**
+
+**`main` HEAD**: 见本轮 commit SHA
 

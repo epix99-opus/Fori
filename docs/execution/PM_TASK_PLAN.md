@@ -38,7 +38,7 @@
 | FORI-092 | Agent 页面契约 | Claude | P1 | ✅ done | `docs/AGENT_PAGE_CONTRACTS.md` |
 | FORI-093 | Agent FAB | Cursor/Codex | P1 | ✅ done | 8+ 关键页 |
 | FORI-094 | 文档治理 CANON | Cursor | P2 | ✅ done | `docs/CANON.md` |
-| FORI-095 | R2 协作复盘 | Hermes | P2 | **GAP** | 需真实调度日志；不伪造 |
+| FORI-095 | R2 协作复盘 | Hermes | P2 | **done** | `docs/execution/FORI-095_COLLABORATION_RETROSPECTIVE.md` |
 
 ---
 
@@ -118,6 +118,22 @@
 
 ## 5. 交叉换位日程（FORI-044 + 近期）
 
+### 5.1 dispatch-log 统计（截至 2026-07-03）
+
+```
+总条目: 31（.ai/orchestration/dispatch-log.jsonl）
+├── Claude: 13（含 session limit 重试/SKIPPED）
+├── Codex:  11（含 design-review-r2、P0 fixes）
+└── Cursor:  7（merge、hotfix、cron、quota study、manual resume）
+
+实质成功派发（去重）: Claude ~8 · Codex ~9
+VERDICT 链: FAIL→PASS（FORI-044 设计）· CONDITIONAL_PASS→P0 PASS（实现）
+```
+
+完整复盘：`docs/execution/FORI-095_COLLABORATION_RETROSPECTIVE.md`
+
+### 5.2 日程表
+
 | 日期窗口 | 轮次 | 设计者 | 评审者 | 内容 | 状态 |
 |----------|------|--------|--------|------|------|
 | 07-02 ✅ | R1 | Claude/Cursor | Codex | 设计包 | done |
@@ -125,10 +141,9 @@
 | 07-02 ✅ | R3 | Claude/Cursor | Cursor | 纠错+付费墙 | done |
 | 07-02 ✅ | D4-W1 FORI-043 设计 | Claude epix | Codex woot | CONDITIONAL_PASS | done |
 | 07-02 ✅ | D4-W1 FORI-043 原型 | Codex woot | Claude epix | CONDITIONAL_PASS | done |
-| 07-03 ✅ | FORI-044 全量设计 | Claude epix | — | 本轮交付 | done |
-| 07-04~05 | FORI-044 W2 评审 | Codex | — | 设计包评审（可选）| queued |
-| 07-05~06 | FORI-044 W3 原型补全 | Codex | Claude | 实现 handoff 指令 | queued |
-| 07-07~08 | FORI-045 价格 API | Codex | Claude | Wave 1 API 端点 | queued |
+| 07-03 ✅ | FORI-044 全量设计 | Claude epix | Codex woot | FAIL→R2 PASS | done |
+| 07-03 ✅ | FORI-044 W3 原型 R2+P0 | Codex woot | Claude epix | P0 review **PASS** | done |
+| 07-04~05 | FORI-045 价格 API | Codex | Claude | Wave 1 API 端点 | queued |
 | 07-09~12 | FORI-047 字典 API 设计 | Claude | Codex | Wave 2 设计 | queued |
 
 ---

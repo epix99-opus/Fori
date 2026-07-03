@@ -20,7 +20,7 @@
         "msgs_used_in_window": 15,
         "window_started_at": "2026-07-02T19:40:00-07:00",
         "window_resets_at": "2026-07-03T00:40:00-07:00",
-        "status": "available"
+        "status": "auth_error"
       },
       "layer_b": {
         "daily_reset_pdt": "22:30",
@@ -29,7 +29,7 @@
         "next_daily_reset_at": "2026-07-03T22:30:00-07:00"
       },
       "last_exhausted_at": "2026-07-02T22:43:00-07:00",
-      "last_error_snippet": "session limit \u00b7 resets 2:10am America/Los_Angeles"
+      "last_error_snippet": "401 Invalid authentication credentials \u00b7 2026-07-03 audit smoke"
     },
     "codex": {
       "plan": "codex_plus",
@@ -121,6 +121,12 @@
       "agent": "claude",
       "event": "resume_success",
       "detail": "resume-pending.sh"
+    },
+    {
+      "at": "2026-07-03T08:15:00-07:00",
+      "agent": "claude",
+      "event": "auth_error",
+      "detail": "audit gap-close: jq false + claude -p 401; not keychain false positive"
     }
   ]
 }

@@ -86,6 +86,24 @@ flowchart TD
 */15 * * * * cd /Users/epix/Dev/Fori && .ai/orchestration/scripts/auto-resume-cron.sh >> /tmp/fori-auto-resume.log 2>&1
 ```
 
+### 4.5 dry-run 验证（2026-07-03）
+
+```bash
+# 不派发，仅检查 pendingResume + quota
+.ai/orchestration/scripts/auto-resume-cron.sh --dry-run
+# 期望: "No pendingResume items ready — exit 0"（无挂起任务时）
+# 或: "DRY-RUN: would dispatch wave 1 then wave 4"（有 ready 项且 quota OK 时）
+
+# 确认 crontab 已注册
+crontab -l | grep auto-resume-cron
+# 期望: */15 * * * * .../auto-resume-cron.sh
+```
+
+**2026-07-03 实测**：
+- epix crontab ✅ `*/15` 已注册
+- dry-run ✅ exit 0（`pendingResume` 为空）
+- 日志路径：`/tmp/fori-auto-resume.log`
+
 `auto-resume-cron.sh` 逻辑：
 1. `git pull` 同步 manifest
 2. `pendingResume[].after <= now()` → 继续

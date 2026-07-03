@@ -1,6 +1,6 @@
 # Claude CLI 认证持久化机制
 
-> **版本**: 1.0 · 2026-07-02  
+> **版本**: 1.1 · 2026-07-03  
 > **目的**: authenticate-once、长期可用；避免重复 `claude auth login` 导致账号锁定  
 > **适用范围**: epix / woot 节点 Fori 及 CAMA 全项目
 
@@ -20,6 +20,8 @@
 
 ## 2. 令牌健康检查（无 API 调用）
 
+### 2.1 jq 路径（可能假阴性）
+
 ```bash
 # 推荐：每周 cron / Hermes 定时，非每日
 check_claude_token() {
@@ -33,13 +35,33 @@ check_claude_token() {
 }
 ```
 
+### 2.2 macOS Keychain 门控（v1.1）
+
+Claude CLI **可能**将 OAuth token 存入 **macOS Keychain** 而非 `~/.claude.json`：
+
+| 信号 | 含义 | 下一步 |
+|------|------|--------|
+| jq `hasAccessToken: false` **且** `claude -p` 成功 | **jq 假阴性**（Keychain 路径） | ledger 保持 `available`；manifest 标 `keychain_ok_no_jq_token` |
+| jq `hasAccessToken: false` **且** `claude -p` 401 | **真 auth 失效** | ledger → `auth_error`；通知 Human §4 |
+| jq `hasAccessToken: true` **且** `claude -p` 401 | token 过期/吊销 | `claude auth logout` → Human login |
+
+**Keychain 诊断（不泄露凭据）**：
+
+```bash
+# 检查 Keychain 是否存在 Claude OAuth 条目（epix）
+security find-generic-password -s "Claude Code-credentials" 2>/dev/null && echo "KEYCHAIN:present" || echo "KEYCHAIN:absent"
+```
+
+**裁决优先级**：`claude -p` 冒烟 **>** Keychain 存在 **>** jq `accessToken`
+
 **输出解读**:
 
-| jq 结果 | ledger 更新 | 动作 |
-|---------|-------------|------|
-| `true`（有效 accessToken） | `layer_a.status → available` | 无需 API 探测 |
-| `false`（无 token 或空） | `layer_a.status → auth_error` | 见 §3 |
-| 文件不存在 | `auth_error` | Human 首次 `claude auth login` |
+| jq 结果 | `-p` 冒烟 | ledger 更新 | 动作 |
+|---------|-----------|-------------|------|
+| `true` | OK | `available` | 无需探测 |
+| `false` | OK | `available` | Keychain 假阴性；不标 auth_error |
+| `false` | 401 | `auth_error` | Human §4 |
+| 文件不存在 | 401 | `auth_error` | Human 首次 login |
 
 **辅助诊断（仍不泄露凭据）**:
 
@@ -68,7 +90,9 @@ claude -p "Reply: OK" --max-turns 1 --allowedTools "" < /dev/null
 | `Not logged in` / 401 | 保持 `auth_error`；通知 Human  custom login**（§4）；**禁止**自动 `claude auth login` |
 | 429 配额 | 更新 `exhausted`，非 auth 问题 |
 
-**本 session 记录（2026-07-02 20:29 PDT）**: 冒烟返回 `Not logged in`；jq 无 `oauthAccount`；ledger 维持 `auth_error`。
+**历史记录（2026-07-02 20:29 PDT）**: 冒烟返回 `Not logged in`；jq 无 `oauthAccount`；ledger 维持 `auth_error`。
+
+**审计复检（2026-07-03 08:15 PDT）**: jq `hasAccessToken: false`（email 存在）；`claude -p` → **401 Invalid authentication credentials**；Keychain 门控未通过 → **真 auth 失效**（非 jq 假阳性）。ledger 已更新 `auth_error`；需 Human 一次 `claude auth login`。
 
 ---
 

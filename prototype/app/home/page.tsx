@@ -63,13 +63,19 @@ const cityOptions = ["北京", "上海", "深圳", "杭州"];
 const defaultFeed = buildFeed();
 
 const moduleChecklist = [
-  { module: "楼盘字典", href: "/explore/dict", status: "地图/卡片/列表" },
-  { module: "定价评估", href: "/price", status: "三角色价格图谱" },
-  { module: "智能撮合", href: "/match", status: "4h 响应窗口" },
-  { module: "交易公证", href: "/transaction/tx-001", status: "资金监管+分成" },
-  { module: "共建收益", href: "/explore/dict/community-001", status: "贡献账本" },
-  { module: "认证分级", href: "/auth/login", status: "可见矩阵" },
+  { module: "楼盘字典", href: "/explore/dict", status: "地图/卡片/列表", done: true },
+  { module: "定价评估", href: "/price", status: "三角色价格图谱", done: true },
+  { module: "智能撮合", href: "/match", status: "4h 响应窗口", done: true },
+  { module: "交易公证", href: "/transaction/tx-001", status: "资金监管+分成", done: true },
+  { module: "共建收益", href: "/explore/dict/community-001", status: "贡献账本", done: true },
+  { module: "认证分级", href: "/auth/login", status: "可见矩阵", done: true },
 ];
+
+const prototypeProgress = {
+  completed: moduleChecklist.filter((m) => m.done).length,
+  total: moduleChecklist.length,
+  percent: Math.round((moduleChecklist.filter((m) => m.done).length / moduleChecklist.length) * 100),
+};
 
 const roleGuides = [
   { role: "买家", text: "用真实字典看懂市场，用公允价格出价，全程公证保障您的权益" },
@@ -215,10 +221,24 @@ export default function HomePage() {
             <div>
               <p className="text-caption font-semibold text-primary-700">功能清单对齐</p>
               <h2 className="mt-1 text-h3">六大模块入口保持可见</h2>
+              <p className="mt-2 text-caption text-neutral-500">
+                原型完成度 {prototypeProgress.percent}%（{prototypeProgress.completed}/{prototypeProgress.total} 模块可演示）
+              </p>
             </div>
             <Link href="/profile" className="text-caption font-semibold text-primary-700">
               我的权益
             </Link>
+          </div>
+          <div className="mt-3 h-2 overflow-hidden rounded-full bg-neutral-100">
+            <div
+              className="h-full rounded-full bg-primary-600 transition-all"
+              style={{ width: `${prototypeProgress.percent}%` }}
+              role="progressbar"
+              aria-valuenow={prototypeProgress.percent}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label="六大模块原型完成度"
+            />
           </div>
           <div className="mt-3 grid grid-cols-2 gap-2">
             {moduleChecklist.map((item) => (
