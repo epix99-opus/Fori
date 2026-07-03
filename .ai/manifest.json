@@ -5,84 +5,57 @@
     "status": "active",
     "github": "epix99-opus/Fori",
     "localPath": "/Users/epix/Dev/Fori",
-    "phase": "D3-R2-human-review"
+    "phase": "D3-R2-human-review-cross-swap"
   },
   "currentTask": {
-    "id": "FORI-083",
-    "title": "人类评审 Round 2 · 字典三态 + 角色脱敏 + 登录分级",
+    "id": "FORI-R2-CROSS-SWAP",
+    "title": "人类评审 Round 2 · 交叉换位 R1+R2",
     "status": "completed",
     "owner": "cursor",
-    "branch": "cursor/fori-050-review-round2",
-    "updatedAt": "2026-07-02T19:45:00-07:00",
+    "branch": "cursor/fori-055-round2-r2-merge",
+    "updatedAt": "2026-07-02T20:15:00-07:00",
     "artifacts": [
-      "docs/execution/REVIEW_HUMAN_ROUND2_TASKS.md",
-      "prototype/lib/viewer-role.ts",
-      "prototype/components/ViewModeToggle.tsx",
-      "prototype/components/ViewerRoleSwitcher.tsx",
-      "prototype/components/AgentAssistFab.tsx",
-      "prototype/app/explore/dict/page.tsx",
-      "prototype/app/auth/login/page.tsx"
+      "docs/execution/ROUND2_R1_DESIGN.md",
+      "docs/execution/ROUND2_R1_MERGED.md",
+      "docs/execution/ROUND2_R2_MERGED.md",
+      "docs/reviews/REVIEW-R2-R1-CODEX.md",
+      "docs/reviews/REVIEW-R2-R2-CLAUDE.md",
+      ".ai/orchestration/CROSS_SWAP_PROTOCOL.md"
     ]
   },
   "nextTask": {
-    "id": "FORI-080",
-    "title": "主功能清单（人类评审 R2 Wave 0）",
+    "id": "FORI-R2-R3",
+    "title": "Round 2 R3 可选：纠错入口+付费墙 Mock",
     "owner": "claude",
-    "branch": "claude/fori-080-feature-inventory",
-    "blockedBy": null,
-    "parallel": ["FORI-081", "FORI-082", "FORI-089"]
+    "branch": "claude/fori-056-round2-r3-design",
+    "blockedBy": "claude_auth_401",
+    "parallel": ["FORI-094"]
   },
   "humanReviewRound2": {
     "source": ".ai/handoffs/Human/Fori平台原型评审意见.md",
-    "reviewItems": 8,
-    "tasksCreated": 16,
-    "taskRange": "FORI-080 ~ FORI-095",
-    "decomposition": "docs/execution/REVIEW_HUMAN_ROUND2_TASKS.md",
+    "crossSwap": {
+      "protocol": ".ai/orchestration/CROSS_SWAP_PROTOCOL.md",
+      "r1": { "designer": "claude/cursor-fallback", "reviewer": "codex", "verdict": "CONDITIONAL_PASS" },
+      "r2": { "designer": "codex", "reviewer": "claude/cursor-fallback", "verdict": "CONDITIONAL_PASS" },
+      "r3": { "status": "optional", "items": ["M1-12纠错", "M3-10付费墙", "FORI-094治理"] }
+    },
     "prototypeP0Done": ["FORI-083", "FORI-084", "FORI-085"],
-    "handoffsReady": ["FORI-080", "FORI-081", "FORI-082", "FORI-086", "FORI-089"]
+    "prototypeR2Done": ["FORI-087", "FORI-088", "FORI-090", "FORI-091", "FORI-093"]
   },
-  "completedTasks": [
-    {
-      "id": "FORI-042",
-      "title": "Monorepo 脚手架",
-      "owner": "codex"
-    },
-    {
-      "id": "FORI-083",
-      "title": "字典地图/卡片/列表三态",
-      "owner": "cursor"
-    },
-    {
-      "id": "FORI-084",
-      "title": "角色差异化字段脱敏",
-      "owner": "cursor"
-    },
-    {
-      "id": "FORI-085",
-      "title": "登录分级可见矩阵",
-      "owner": "cursor"
-    }
-  ],
   "orchestration": {
     "status": "ready",
     "quota_model": "dual_layer",
-    "master_guide": ".ai/orchestration/QUOTA_ROUTING.md"
+    "master_guide": ".ai/orchestration/QUOTA_ROUTING.md",
+    "claude_auth": "401_blocked_epix"
   },
   "limits": {
-    "claude": {
-      "status": "available",
-      "primary_node": "epix"
-    },
-    "codex": {
-      "status": "available",
-      "primary_node": "woot"
-    }
+    "claude": { "status": "auth_error", "primary_node": "epix", "note": "401 Invalid credentials; Cursor fallback used" },
+    "codex": { "status": "available", "primary_node": "woot" }
   },
   "prototypeDesign": {
-    "status": "r2-in-progress",
-    "completionPercent": 97,
+    "status": "r2-cross-swap-complete",
+    "completionPercent": 99,
     "r2Target": "功能对齐初始需求（非仅路由覆盖）",
-    "checklist": "docs/execution/PROTOTYPE_COMPLETION.md",
-    "r2Tasks": "docs/execution/REVIEW_HUMAN_ROUND2_TASKS.md"
+    "buildVerified": "2026-07-02 epix+woot PASS"
   }
 }

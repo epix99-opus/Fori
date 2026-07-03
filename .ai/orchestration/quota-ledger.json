@@ -1,0 +1,67 @@
+{
+  "$schema": "./quota-ledger.schema.json",
+  "version": 2,
+  "updatedAt": "2026-07-02T20:15:00-07:00",
+  "timezone": "America/Los_Angeles",
+  "description": "Fori 双层配额账本 — Layer A 5h 滚动为主，Layer B 日重置为辅",
+  "agents": {
+    "claude": {
+      "plan": "claude_pro",
+      "primary_node": "epix",
+      "fallback_node": "woot",
+      "layer_a": {
+        "window_hours": 5,
+        "budget_msgs_per_window": 45,
+        "msgs_used_in_window": 2,
+        "window_started_at": "2026-07-02T19:40:00-07:00",
+        "window_resets_at": "2026-07-03T00:40:00-07:00",
+        "status": "auth_error"
+      },
+      "layer_b": {
+        "daily_reset_pdt": "22:30",
+        "daily_reset_cst": "次日 13:30",
+        "daily_exhausted": false,
+        "next_daily_reset_at": "2026-07-02T22:30:00-07:00"
+      },
+      "last_exhausted_at": null,
+      "last_error_snippet": "401 Invalid authentication credentials (not quota)"
+    },
+    "codex": {
+      "plan": "codex_plus",
+      "primary_node": "woot",
+      "fallback_node": "epix",
+      "shared_account": "epix+woot",
+      "layer_a": {
+        "window_hours": 5,
+        "budget_minutes_per_window": 300,
+        "minutes_used_in_window": 12,
+        "window_started_at": "2026-07-02T19:45:00-07:00",
+        "window_resets_at": "2026-07-03T00:45:00-07:00",
+        "status": "available"
+      },
+      "layer_b": {
+        "daily_reset_pdt": "00:29",
+        "daily_reset_cst": "当日 15:29",
+        "daily_exhausted": false,
+        "next_daily_reset_at": "2026-07-03T00:29:00-07:00"
+      },
+      "last_exhausted_at": null,
+      "last_error_snippet": null
+    }
+  },
+  "task_queue": [],
+  "entries": [
+    {
+      "at": "2026-07-02T19:40:00-07:00",
+      "agent": "claude",
+      "event": "auth_error",
+      "detail": "R1 design dispatch 401"
+    },
+    {
+      "at": "2026-07-02T20:05:00-07:00",
+      "agent": "codex",
+      "event": "task_complete",
+      "detail": "R1 review + R2 implement"
+    }
+  ]
+}

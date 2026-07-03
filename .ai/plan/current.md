@@ -3,36 +3,39 @@
 ## Meta
 | Field | Value |
 |-------|-------|
-| Task ID | FORI-083 ~ FORI-085 |
-| Title | 人类评审 Round 2 · Wave R2-1 原型 P0 |
-| Status | completed |
+| Task ID | FORI-R2-CROSS-SWAP |
+| Title | 人类评审 Round 2 · 交叉换位协作 |
+| Status | completed (R1+R2) |
 | Owner | cursor |
-| Branch | `cursor/fori-050-review-round2` |
+| Branch | `cursor/fori-055-round2-r2-merge` |
 
 ## Checklist
-- [x] 研读人类评审 8 条 + 初始需求对照
-- [x] 产出 `docs/execution/REVIEW_HUMAN_ROUND2_TASKS.md`（16 任务）
-- [x] FORI-083: 字典卡片/列表/地图三态切换
-- [x] FORI-084: `viewer-role` 五档脱敏 + 字典页演示
-- [x] FORI-085: 登录页分级可见矩阵
-- [x] Handoff: FORI-080, 081, 082, 086, 089
-- [x] 更新 TASK_BREAKDOWN / manifest / PRD·UI_DESIGN revision notes
-- [ ] FORI-080~082, 089: Claude 设计 Wave R2-0（待派发）
-- [ ] FORI-043: 定价 API（D4 Wave 1，与 FORI-089 衔接）
+- [x] CROSS_SWAP_PROTOCOL.md
+- [x] R1 设计包（Claude 401 → Cursor 后备）
+- [x] R1 Codex 评审 → MERGED（分成 PRD 对齐）
+- [x] R2 Codex 实现 FORI-087~093
+- [x] R2 评审 CONDITIONAL_PASS
+- [x] prototype build PASS (epix + woot)
+- [ ] R3 可选：纠错入口、付费墙、FORI-094 治理
+- [ ] Human 合并 cursor/fori-055-round2-r2-merge → main
 
 ## Breakpoint
-- Step completed: Round 2 任务分解 + P0 原型三项已实现并 build 验证
-- Current state: **Wave R2-0 设计派发就绪** — 优先 FORI-080/081/082/089 并行 Claude
-- 人类合并: 待审 `cursor/fori-050-review-round2`
-- 配额: 派发 Claude 前执行 `quota-check.sh claude`
+- **完成**: Round 2 交叉换位 R1+R2
+- **Claude**: epix 401 认证失败，设计/评审由 Cursor 后备执行
+- **Codex**: woot 正常完成 R1 评审 + R2 实现
+- **下一**: 修复 Claude 认证或 Human 审阅合并；R3 处理 Minor 项
 
-## Decisions & Memory
-- 2026-07-02: Round 2 任务编号 FORI-080~095，与 MVP_SLICE FORI-050~052 互补
-- 2026-07-02: P0 原型由 Cursor 直改；设计缺口交 Claude；后端/API 交 Codex
-- 2026-07-02: `AgentAssistFab` 已加字典页，全站铺开留 FORI-093
+## Cross-Swap Trace
+| Round | Designer | Reviewer | VERDICT |
+|-------|----------|----------|---------|
+| R1 | Claude/Cursor | Codex | FAIL→MERGED CONDITIONAL_PASS |
+| R2 | Codex | Claude/Cursor | CONDITIONAL_PASS |
+| R3 | — | — | optional |
 
-## Next Actions
-1. Human 审阅 `docs/execution/REVIEW_HUMAN_ROUND2_TASKS.md`
-2. 派发 FORI-080/081/082/089（Claude，quota-check 后）
-3. FORI-082 PASS 后 Codex 执行 FORI-087/088/090/091
-4. 合并 `cursor/fori-050-review-round2` → main（Human/Cursor）
+## Branches
+- `claude/fori-050-round2-r1-design`
+- `codex/fori-051-round2-r1-review`
+- `cursor/fori-054-round2-r1-merge`
+- `codex/fori-052-round2-r2-implement`
+- `claude/fori-053-round2-r2-review`
+- `cursor/fori-055-round2-r2-merge` ← **当前**
